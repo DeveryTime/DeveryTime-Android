@@ -10,3 +10,14 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+#하드 코딩은 어지간 하면 X
+#컴포즈 프리뷰 디바이스는 픽셀 4 사용
+# V 이렇게 하면 프리뷰 디바이스 설정 됨
+#@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+#@Composable
+#fun GreetingPreview() {
+#    DeveryTime_Android2Theme {
+#        Greeting("Android")
+#    }
+#}
