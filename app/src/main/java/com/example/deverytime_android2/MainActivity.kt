@@ -1,6 +1,5 @@
 package com.example.deverytime_android2
 
-import android.R
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -72,8 +71,7 @@ Column (modifier = modifier.padding(16.dp,end = 16.dp, top = 220.dp).fillMaxWidt
         placeholder = { Text(text = "이메일")},
         value = schoolmailreciver,
         onValueChange = { schoolmailreciver = it },
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         )
     }
