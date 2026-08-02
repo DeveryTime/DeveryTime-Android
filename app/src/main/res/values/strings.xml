@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">DeveryTime_Android2</string>
+    <string name="back_arrow">goback</string>
 </resources>

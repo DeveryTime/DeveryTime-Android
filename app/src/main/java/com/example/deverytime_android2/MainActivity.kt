@@ -4,27 +4,27 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+
+sealed class Screen(val route: String) {
+    data object Home : Screen("home")
+    data object Login : Screen("login")
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,48 +32,46 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DeveryTime_Android2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        schoolmail = "이메일",
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
+                    Navigation(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
-}
-@Composable
-fun Greeting(
-    schoolmail: String,
-    modifier: Modifier = Modifier
-){
-Column (modifier = modifier.padding(16.dp,end = 16.dp, top = 220.dp).fillMaxWidth()) {
 
-    var schoolmailreciver by remember { mutableStateOf("") }
+    @Composable
+    fun Navigation(modifier: Modifier = Modifier) {
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route,
+            modifier = modifier
+        ) {
+            composable(route = Screen.Home.route) { HomeScreen(navController) }
+            composable(route = Screen.Login.route) { LoginScreen() }
+        }
+    }
 
-    Text(
-        text = "이메일",
-        color = Color(0xFF999999)
-        )
-    OutlinedTextField(
-        colors = OutlinedTextFieldDefaults.colors(
-            // 1. 입력한 글자 색상
-            focusedTextColor = Color.Black,     // 클릭(포커스)했을 때 글자 색
-            unfocusedTextColor = Color.Black,   // 기본 상태 글자 색
-
-            // 2. 안내글자(Placeholder) 색상
-            focusedPlaceholderColor = Color.Transparent, // 클릭하면 안내글자 숨기기
-            unfocusedPlaceholderColor = Color(0xFF999999), // 기본 상태 안내글자 색
-
-            // 3. 에러 났을 때 색상
-            errorBorderColor = Color.Red,
-        ),
-        placeholder = { Text(text = "이메일")},
-        value = schoolmailreciver,
-        onValueChange = { schoolmailreciver = it },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        )
+    @Composable
+    fun HomeScreen(navController: NavHostController) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text("Home")
+            Button(
+                onClick = {
+                    navController.navigate(Screen.Login.route)
+                }
+            ) {
+                Text("로그인 화면으로 이동")
+            }
+        }
     }
 }
 
@@ -81,6 +79,6 @@ Column (modifier = modifier.padding(16.dp,end = 16.dp, top = 220.dp).fillMaxWidt
 @Composable
 fun GreetingPreview() {
     DeveryTime_Android2Theme {
-        Greeting("")
+
     }
 }
