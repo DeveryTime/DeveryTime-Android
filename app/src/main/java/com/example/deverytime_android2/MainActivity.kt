@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
             modifier = modifier
         ) {
             composable(route = Screen.Home.route) { HomeScreen(navController) }
-            composable(route = Screen.Login.route) { LoginScreen() }
+            composable(route = Screen.Login.route) { LoginScreen(navController = navController) }
         }
     }
 

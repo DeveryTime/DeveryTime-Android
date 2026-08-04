@@ -1,10 +1,13 @@
 package com.example.deverytime_android2
 
 import android.os.Bundle
+import android.text.style.BackgroundColorSpan
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -45,6 +49,9 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalTextApi::class)
 val PretendardVariable = FontFamily(
@@ -68,8 +75,11 @@ class Login1Activity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DeveryTime_Android2Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     LoginScreen(
+                        navController = rememberNavController(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -80,94 +90,132 @@ class Login1Activity : ComponentActivity() {
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier = Modifier
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+        var email by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf("") }
 
-    Button(
-        onClick = { /* 뒤로가기 버튼 클릭 시 동작 */ },
-        modifier = Modifier
-            .padding(start = 8.dp, top = 50.dp)
-            .size(32.dp),
-        contentPadding = PaddingValues(0.dp),
-        shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF))
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.back_arrow),
-            contentDescription = stringResource(id = R.string.back_arrow),
-            contentScale = ContentScale.Fit,
+        Button(
+            onClick = { navController.popBackStack() },
             modifier = Modifier
-                .size(32.dp)
-                .align(Alignment.CenterVertically)
-        )
-    }
+                .padding(start = 8.dp, top = 50.dp)
+                .size(32.dp),
+            contentPadding = PaddingValues(0.dp),
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF))
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.back_arrow),
+                contentDescription = stringResource(id = R.string.back_arrow),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.CenterVertically)
+            )
+        }
 
-    Spacer(modifier = Modifier.height(50.dp))
-
-    Text(
-        text = "데브리타임을 사용하고\n일상, 전공, 멘토링 등 쉽게 소통해봐요.",
-        fontSize = 24.sp,
-        fontWeight = FontWeight. Bold,
-        fontFamily = PretendardVariable,
-        color = Color.Black,
-        modifier = Modifier.padding(start = 16.dp, top = 100.dp)
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(187.dp))
-
-        // 이메일 입력창
         Text(
-            fontSize = 12.sp,
-            text = "이메일",
-            color = Color(0xFF999999)
-        )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "이메일") },
-            value = email,
-            onValueChange = { email = it },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
+            text = "데브리타임을 사용하고\n일상, 전공, 멘토링 등 쉽게 소통해봐요.",
+            fontSize = 23.sp,
+            fontWeight = FontWeight. Bold,
+            fontFamily = PretendardVariable,
+            color = Color.Black,
+            modifier = Modifier.padding(start = 22.dp, top = 120.dp)
         )
 
-        Spacer(modifier = Modifier.height(2.dp))
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(194.dp))
 
-        // 비밀번호 입력창
-        Text(
-            fontSize = 12.sp,
-            text = "비밀번호",
-            color = Color(0xFF999999)
-        )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "비밀번호") },
-            value = password,
-            onValueChange = { password = it },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            visualTransformation = PasswordVisualTransformation(),
-        )
+            // 이메일 입력창
+            Text(
+                fontSize = 12.sp,
+                text = "이메일",
+                color = Color(0xFF999999)
+            )
+            OutlinedTextField(
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedPlaceholderColor = Color.Transparent,
+                    unfocusedPlaceholderColor = Color(0xFF999999),
+                    errorBorderColor = Color.Red,
+                ),
+                placeholder = { Text(text = "이메일") },
+                value = email,
+                onValueChange = { email = it },
+                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            )
+
+            Spacer(modifier = Modifier.height(11.dp))
+
+            // 비밀번호 입력창
+            Text(
+                fontSize = 12.sp,
+                text = "비밀번호",
+                color = Color(0xFF999999)
+            )
+            OutlinedTextField(
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedPlaceholderColor = Color.Transparent,
+                    unfocusedPlaceholderColor = Color(0xFF999999),
+                    errorBorderColor = Color.Red,
+                ),
+                placeholder = { Text(text = "비밀번호") },
+                value = password,
+                onValueChange = { password = it },
+                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                visualTransformation = PasswordVisualTransformation(),
+            )
+        }
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                fontSize = 14.sp,
+                text = "만약 계정이 없으신가요?",
+                color = Color(0xFFB1B1B1),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 95.dp, end = 55.dp)
+            )
+            Text(
+                fontSize = 14.sp,
+                text = "회원가입",
+                color = Color(0xFF3469F9),
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 95.dp, start = 135.dp)
+                    .clickable {
+                        // 회원가입 로직 추가
+                    }
+            )
+            Button(
+                onClick = { },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                shape = RoundedCornerShape(23.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)      // Box 안에서 하단 중앙
+                    .width(380.dp)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 33.dp) //33
+                    .height(54.dp),
+            ) {
+                Text(
+                    fontFamily = PretendardVariable,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    text = "로그인"
+                )
+            }
+        }
     }
-}
 
 // 디자인 이미지 + 실제 UI를 한 화면에 겹쳐서 보여주는 Preview
 @Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
@@ -185,7 +233,7 @@ fun LoginScreenPreview() {
                 contentScale = ContentScale.Fit
             )
             // 실제 UI 겹치기
-            LoginScreen()
+            LoginScreen(navController = rememberNavController())
         }
     }
 }
@@ -194,7 +242,7 @@ fun LoginScreenPreview() {
 fun LoginScreenPreview2() {
     DeveryTime_Android2Theme {
         Box(modifier = Modifier.fillMaxSize()) {
-            LoginScreen()
+            LoginScreen(navController = rememberNavController())
         }
     }
 }
