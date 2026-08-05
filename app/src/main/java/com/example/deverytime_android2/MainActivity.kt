@@ -24,6 +24,7 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Login : Screen("login")
+    data object SignUp1 : Screen("signup1")
 }
 
 class MainActivity : ComponentActivity() {
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
         ) {
             composable(route = Screen.Home.route) { HomeScreen(navController) }
             composable(route = Screen.Login.route) { LoginScreen(navController = navController) }
+            composable(route = Screen.SignUp1.route) { SignUpScreen(navController = navController) }
         }
     }
 

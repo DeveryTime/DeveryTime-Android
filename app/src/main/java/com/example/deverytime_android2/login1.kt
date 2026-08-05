@@ -51,7 +51,16 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigationevent.compose.rememberNavigationEventState
+
+
+sealed class Screen_Login(val route: String) {
+    data object SignUp1 : Screen_Login("signup1")
+    data object Login : Screen_Login("login")
+}
 
 @OptIn(ExperimentalTextApi::class)
 val PretendardVariable = FontFamily(
@@ -78,12 +87,21 @@ class Login1Activity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
-                    LoginScreen(
-                        navController = rememberNavController(),
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Navigation(modifier = Modifier.padding(innerPadding))
                 }
             }
+        }
+    }
+    @Composable
+    fun Navigation(modifier: Modifier = Modifier) {
+        val navController = rememberNavController()
+        NavHost(
+            navController = navController,
+            startDestination = Screen_Login.Login.route,
+            modifier = modifier
+        ) {
+            composable(route = Screen_Login.SignUp1.route) { SignUpScreen(navController = navController) }
+            composable(route = Screen_Login.Login.route) { LoginScreen(navController = navController) }
         }
     }
 }
@@ -194,7 +212,7 @@ fun LoginScreen(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 95.dp, start = 135.dp)
                     .clickable {
-                        // 회원가입 로직 추가
+                        navController.navigate(Screen.SignUp1.route)
                     }
             )
             Button(
