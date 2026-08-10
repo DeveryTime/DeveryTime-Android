@@ -6,21 +6,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -30,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -49,44 +52,16 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Typography
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-
-sealed class Screen_Signup2(val route: String) {
-    data object SignUp1 : Screen_Signup("signup1")
-    data object Login : Screen_Signup("login")
-}
-
-class SignUp2Activity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            DeveryTime_Android2Theme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    Navigation(modifier = Modifier.padding(innerPadding))
-                }
-            }
-        }
-    }
-    @Composable
-    fun Navigation(modifier: Modifier = Modifier) {
-        val navController = rememberNavController()
-        NavHost(
-            navController = navController,
-            startDestination = Screen_Signup.SignUp1.route,
-            modifier = modifier
-        ) {
-            composable(route = Screen_Signup.SignUp1.route) { SignUpScreen(navController = navController) }
-            composable(route = Screen_Signup.Login.route) { LoginScreen(navController = navController) }
-        }
-    }
-}
 
 @Composable
 fun SignUp2Screen(
@@ -99,7 +74,7 @@ fun SignUp2Screen(
     Button(
         onClick = { navController.popBackStack() },
         modifier = Modifier
-            .padding(start = 8.dp, top = 50.dp)
+            .padding(start = 8.dp, top = 40.dp)
             .size(32.dp),
         contentPadding = PaddingValues(0.dp),
         shape = RoundedCornerShape(50),
@@ -116,16 +91,16 @@ fun SignUp2Screen(
     }
 
     Image(
-        painter = painterResource(id = R.drawable.frame_67),
+        painter = painterResource(id = R.drawable.frame_68),
         contentDescription = "디자인 미리보기",
         modifier = Modifier
             .width(150.dp)
-            .padding(start = 8.dp, top = 62.dp),
+            .padding(start = 8.dp, top = 52.dp),
         contentScale = ContentScale.Fit
     )
 
     Text(
-        text = "학번과 이름부터 알려주세요!",
+        text = "이메일을 인증해주세요!",
         fontSize = 23.5.sp,
         fontWeight = FontWeight. Bold,
         fontFamily = PretendardVariable,
@@ -143,7 +118,7 @@ fun SignUp2Screen(
         // 이메일 입력창
         Text(
             fontSize = 12.sp,
-            text = "학번",
+            text = "이메일",
             color = Color(0xFF999999)
         )
         OutlinedTextField(
@@ -154,35 +129,71 @@ fun SignUp2Screen(
                 unfocusedPlaceholderColor = Color(0xFF999999),
                 errorBorderColor = Color.Red,
             ),
-            placeholder = { Text(text = "학번") },
+            placeholder = { Text(text = "이메일") },
             value = student_number,
             onValueChange = { student_number = it },
-            modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = 3.dp)
+                .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
         )
+            Spacer(modifier = Modifier.height(9.dp))
+        if (true) { // 여기 수정해라 조껀히 년아
+            Column {
+                // 이메일 입력창
+                Text(
+                    fontSize = 12.sp,
+                    text = "이메일",
+                    color = Color(0xFF999999)
+                )
+                Row (modifier = Modifier.height(62.dp)) {
+                    OutlinedTextField(
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            focusedPlaceholderColor = Color.Transparent,
+                            unfocusedPlaceholderColor = Color(0xFF999999),
+                            errorBorderColor = Color.Red,
+                        ),
+                        placeholder = { Text(text = "이메일") },
+                        value = student_number,
+                        onValueChange = { student_number = it },
+                        modifier = Modifier
+                            .padding(top = 3.dp)
+                            .fillMaxWidth(0.78f),
+                        shape = RoundedCornerShape(12.dp),
+                    )
 
-        Spacer(modifier = Modifier.height(11.dp))
+                    var isClicked by remember { mutableStateOf(false) } //재전송 버튼 색상 변경 변수
+                    val backgroundColor = if (isClicked) Color(0xFF3469F9) else Color.LightGray
 
-        // 이름 입력창
-        Text(
-            fontSize = 12.sp,
-            text = "이름",
-            color = Color(0xFF999999)
-        )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "이름") },
-            value = name,
-            onValueChange = { name = it },
-            modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-        )
+                    Button(
+                        onClick = {
+//                        OnCertified = !OnCertified
+//                        isVisible = false
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                        shape = RoundedCornerShape(18.dp),
+                        modifier = Modifier.padding(start = 10.dp)
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .align(Alignment.CenterVertically),
+                        contentPadding = PaddingValues(0.dp),
+                    ) {
+                        Text(
+                            fontFamily = PretendardVariable,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            text = "재전송",
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Visible,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+        }
     }
     Box(modifier = Modifier.fillMaxSize()) {
         Text(
@@ -190,8 +201,8 @@ fun SignUp2Screen(
             text = "만약 계정이 있으신가요?",
             color = Color(0xFFB1B1B1),
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 95.dp, end = 55.dp)
+                .align(Alignment.BottomStart)
+                .padding(bottom = 95.dp, start = 105.dp)
         )
         Text(
             fontSize = 14.sp,
@@ -205,8 +216,40 @@ fun SignUp2Screen(
                     navController.navigate(Screen.Login.route)
                 }
         )
+        var OnCertified: Boolean = false
+        var isVisible by remember { mutableStateOf(true) }
+        if (isVisible) {
+            Button(
+                onClick = {
+                    OnCertified = !OnCertified
+                    isVisible = false
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                shape = RoundedCornerShape(23.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .width(380.dp)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 33.dp) //33
+                    .height(54.dp)
+                    .zIndex(1f)
+            ) {
+                Text(
+                    fontFamily = PretendardVariable,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    text = "이메일 인증"
+                )
+            }
+        }
         Button(
-            onClick = { },
+            onClick = {
+                if (OnCertified == true) {
+
+                } //여기에 만약 인증이 되면 뭐할건지 로직 추가
+                else {
+
+                } //여기에 인증 안된채로 누르면 어떤 반응 할지
+            },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
             shape = RoundedCornerShape(23.dp),
             modifier = Modifier
@@ -226,14 +269,14 @@ fun SignUp2Screen(
 }
 
 // 디자인 이미지 + 실제 UI를 한 화면에 겹쳐서 보여주는 Preview
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Preview(showBackground = true, device = "id:pixel_4")
 @Composable
 fun SignUp2ScreenPreview() {
     DeveryTime_Android2Theme {
         Box(modifier = Modifier.fillMaxSize()) {
             // 디자인 이미지를 반투명하게 배경에 깔기
             Image(
-                painter = painterResource(id = R.drawable.signup1),
+                painter = painterResource(id = R.drawable.signup2),
                 contentDescription = "디자인 미리보기",
                 modifier = Modifier
                     .fillMaxSize()
@@ -241,16 +284,17 @@ fun SignUp2ScreenPreview() {
                 contentScale = ContentScale.Fit
             )
             // 실제 UI 겹치기
-            SignUpScreen(navController = rememberNavController())
+            SignUp2Screen(navController = rememberNavController())
         }
     }
 }
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+
+@Preview(showBackground = true, device = "id:pixel_4")
 @Composable
 fun SignUp2ScreenPreview2() {
     DeveryTime_Android2Theme {
         Box(modifier = Modifier.fillMaxSize()) {
-            SignUpScreen(navController = rememberNavController())
+            SignUp2Screen(navController = rememberNavController())
         }
     }
 }

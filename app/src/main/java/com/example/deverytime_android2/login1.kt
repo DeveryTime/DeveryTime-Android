@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -49,6 +48,7 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Typography
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -57,10 +57,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigationevent.compose.rememberNavigationEventState
 
 
-sealed class Screen_Login(val route: String) {
-    data object SignUp1 : Screen_Login("signup1")
-    data object Login : Screen_Login("login")
-}
 
 @OptIn(ExperimentalTextApi::class)
 val PretendardVariable = FontFamily(
@@ -78,34 +74,6 @@ val AppTypography = Typography(
     labelLarge = TextStyle(fontFamily = PretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp)
 )
 
-class Login1Activity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            DeveryTime_Android2Theme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    Navigation(modifier = Modifier.padding(innerPadding))
-                }
-            }
-        }
-    }
-    @Composable
-    fun Navigation(modifier: Modifier = Modifier) {
-        val navController = rememberNavController()
-        NavHost(
-            navController = navController,
-            startDestination = Screen_Login.Login.route,
-            modifier = modifier
-        ) {
-            composable(route = Screen_Login.SignUp1.route) { SignUpScreen(navController = navController) }
-            composable(route = Screen_Login.Login.route) { LoginScreen(navController = navController) }
-        }
-    }
-}
-
 @Composable
 fun LoginScreen(
     navController: NavHostController,
@@ -117,7 +85,7 @@ fun LoginScreen(
         Button(
             onClick = { navController.popBackStack() },
             modifier = Modifier
-                .padding(start = 8.dp, top = 50.dp)
+                .padding(start = 8.dp, top = 40.dp)
                 .size(32.dp),
             contentPadding = PaddingValues(0.dp),
             shape = RoundedCornerShape(50),
@@ -200,8 +168,8 @@ fun LoginScreen(
                 text = "만약 계정이 없으신가요?",
                 color = Color(0xFFB1B1B1),
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 95.dp, end = 55.dp)
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 95.dp, start = 100.dp)
             )
             Text(
                 fontSize = 14.sp,
@@ -209,8 +177,8 @@ fun LoginScreen(
                 color = Color(0xFF3469F9),
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 95.dp, start = 135.dp)
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 95.dp, end = 105.dp)
                     .clickable {
                         navController.navigate(Screen.SignUp1.route)
                     }
@@ -236,7 +204,7 @@ fun LoginScreen(
     }
 
 // 디자인 이미지 + 실제 UI를 한 화면에 겹쳐서 보여주는 Preview
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Preview(showBackground = true, device = "id:pixel_4")
 @Composable
 fun LoginScreenPreview() {
     DeveryTime_Android2Theme {
@@ -255,7 +223,8 @@ fun LoginScreenPreview() {
         }
     }
 }
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+
+@Preview(showBackground = true, device = "id:pixel_4")
 @Composable
 fun LoginScreenPreview2() {
     DeveryTime_Android2Theme {

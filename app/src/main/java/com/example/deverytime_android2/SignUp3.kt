@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
@@ -48,7 +49,6 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Typography
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -56,7 +56,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun SignUpScreen(
+fun SignUp3Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
@@ -66,7 +66,7 @@ fun SignUpScreen(
     Button(
         onClick = { navController.popBackStack() },
         modifier = Modifier
-            .padding(start = 8.dp, top = 40.dp)
+            .padding(start = 8.dp, top = 50.dp)
             .size(32.dp),
         contentPadding = PaddingValues(0.dp),
         shape = RoundedCornerShape(50),
@@ -83,16 +83,16 @@ fun SignUpScreen(
     }
 
     Image(
-        painter = painterResource(id = R.drawable.frame_67),
+        painter = painterResource(id = R.drawable.frame_68),
         contentDescription = "디자인 미리보기",
         modifier = Modifier
             .width(150.dp)
-            .padding(start = 8.dp, top = 52.dp),
+            .padding(start = 8.dp, top = 62.dp),
         contentScale = ContentScale.Fit
     )
 
     Text(
-        text = "학번과 이름부터 알려주세요!",
+        text = "이메일을 인증해주세요!",
         fontSize = 23.5.sp,
         fontWeight = FontWeight. Bold,
         fontFamily = PretendardVariable,
@@ -110,7 +110,7 @@ fun SignUpScreen(
         // 이메일 입력창
         Text(
             fontSize = 12.sp,
-            text = "학번",
+            text = "이메일",
             color = Color(0xFF999999)
         )
         OutlinedTextField(
@@ -121,32 +121,9 @@ fun SignUpScreen(
                 unfocusedPlaceholderColor = Color(0xFF999999),
                 errorBorderColor = Color.Red,
             ),
-            placeholder = { Text(text = "학번") },
+            placeholder = { Text(text = "이메일") },
             value = student_number,
             onValueChange = { student_number = it },
-            modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-        )
-
-        Spacer(modifier = Modifier.height(11.dp))
-
-        // 이름 입력창
-        Text(
-            fontSize = 12.sp,
-            text = "이름",
-            color = Color(0xFF999999)
-        )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "이름") },
-            value = name,
-            onValueChange = { name = it },
             modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
         )
@@ -157,8 +134,8 @@ fun SignUpScreen(
             text = "만약 계정이 있으신가요?",
             color = Color(0xFFB1B1B1),
             modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(bottom = 95.dp, start = 105.dp)
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 95.dp, end = 55.dp)
         )
         Text(
             fontSize = 14.sp,
@@ -166,8 +143,8 @@ fun SignUpScreen(
             color = Color(0xFF3469F9),
             textDecoration = TextDecoration.Underline,
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 96.dp, end = 110.dp)
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 95.dp, start = 135.dp)
                 .clickable {
                     navController.navigate(Screen.Login.route)
                 }
@@ -197,12 +174,12 @@ fun SignUpScreen(
 // 디자인 이미지 + 실제 UI를 한 화면에 겹쳐서 보여주는 Preview
 @Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
 @Composable
-fun SignUpScreenPreview() {
+fun SignUp3ScreenPreview() {
     DeveryTime_Android2Theme {
         Box(modifier = Modifier.fillMaxSize()) {
             // 디자인 이미지를 반투명하게 배경에 깔기
             Image(
-                painter = painterResource(id = R.drawable.signup1),
+                painter = painterResource(id = R.drawable.signup3),
                 contentDescription = "디자인 미리보기",
                 modifier = Modifier
                     .fillMaxSize()
@@ -210,16 +187,17 @@ fun SignUpScreenPreview() {
                 contentScale = ContentScale.Fit
             )
             // 실제 UI 겹치기
-            SignUpScreen(navController = rememberNavController())
+            SignUp2Screen(navController = rememberNavController())
         }
     }
 }
+
 @Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
 @Composable
-fun SignUpScreenPreview2() {
+fun SignUp3ScreenPreview2() {
     DeveryTime_Android2Theme {
         Box(modifier = Modifier.fillMaxSize()) {
-            SignUpScreen(navController = rememberNavController())
+            SignUp2Screen(navController = rememberNavController())
         }
     }
 }
