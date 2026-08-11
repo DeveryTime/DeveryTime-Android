@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
@@ -52,6 +53,8 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -62,14 +65,24 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
+import java.security.cert.Certificate
+
+
 
 @Composable
 fun SignUp2Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    var student_number by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") } //이메일
+    var CertifiedNum by remember { mutableStateOf("") } //인증번호 추후에 받아야함
+    var OnCertified by remember { mutableStateOf(false) } //인증버튼이 눌렸는지 안 눌렸는지
+    var isVisible by remember { mutableStateOf(true) } //보이는지 안보이는지
+    var isClicked by remember { mutableStateOf(false) } //재전송 버튼 색상 변경 변수
+    val scope = rememberCoroutineScope() //5초 카운트 변수
 
     Button(
         onClick = { navController.popBackStack() },
@@ -130,20 +143,20 @@ fun SignUp2Screen(
                 errorBorderColor = Color.Red,
             ),
             placeholder = { Text(text = "이메일") },
-            value = student_number,
-            onValueChange = { student_number = it },
+            value = email,
+            onValueChange = { email = it },
             modifier = Modifier
                 .padding(top = 3.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
         )
             Spacer(modifier = Modifier.height(9.dp))
-        if (true) { // 여기 수정해라 조껀히 년아
+        if (OnCertified) { // 여기 수정해라 조껀히 년아
             Column {
-                // 이메일 입력창
+                // 인증번호 입력창
                 Text(
                     fontSize = 12.sp,
-                    text = "이메일",
+                    text = "인증번호",
                     color = Color(0xFF999999)
                 )
                 Row (modifier = Modifier.height(62.dp)) {
@@ -155,24 +168,37 @@ fun SignUp2Screen(
                             unfocusedPlaceholderColor = Color(0xFF999999),
                             errorBorderColor = Color.Red,
                         ),
-                        placeholder = { Text(text = "이메일") },
-                        value = student_number,
-                        onValueChange = { student_number = it },
+                        placeholder = { Text(text = "인증번호") },
+                        value = CertifiedNum,
+                        onValueChange = { CertifiedNum = it },
                         modifier = Modifier
                             .padding(top = 3.dp)
                             .fillMaxWidth(0.78f),
                         shape = RoundedCornerShape(12.dp),
                     )
-
-                    var isClicked by remember { mutableStateOf(false) } //재전송 버튼 색상 변경 변수
-                    val backgroundColor = if (isClicked) Color(0xFF3469F9) else Color.LightGray
-
+                    LaunchedEffect(Unit) {
+                        delay(5000L) // 5초 대기
+                        isClicked = true
+                    }
                     Button(
                         onClick = {
-//                        OnCertified = !OnCertified
-//                        isVisible = false
+                            if (isClicked) {
+                                isClicked = false
+
+                                scope.launch {
+                                    delay(5000L)
+                                    isClicked = true
+                                }
+                            }
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                        enabled = isClicked,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isClicked) {
+                                Color(0xFF3469F9)
+                            } else {
+                                Color.LightGray
+                            }
+                        ),
                         shape = RoundedCornerShape(18.dp),
                         modifier = Modifier.padding(start = 10.dp)
                             .fillMaxWidth()
@@ -216,12 +242,10 @@ fun SignUp2Screen(
                     navController.navigate(Screen.Login.route)
                 }
         )
-        var OnCertified: Boolean = false
-        var isVisible by remember { mutableStateOf(true) }
         if (isVisible) {
             Button(
                 onClick = {
-                    OnCertified = !OnCertified
+                    OnCertified = true
                     isVisible = false
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
