@@ -79,10 +79,19 @@ fun SignUp2Screen(
 ) {
     var email by remember { mutableStateOf("") } //이메일
     var CertifiedNum by remember { mutableStateOf("") } //인증번호 추후에 받아야함
-    var OnCertified by remember { mutableStateOf(false) } //인증버튼이 눌렸는지 안 눌렸는지
+    var Certified by remember { mutableStateOf(false) } //인증버튼이 눌렸는지 안 눌렸는지
+    var OnCertified by remember { mutableStateOf(false) } //인증번호가 맞는지 틀린지
     var isVisible by remember { mutableStateOf(true) } //보이는지 안보이는지
     var isClicked by remember { mutableStateOf(false) } //재전송 버튼 색상 변경 변수
     val scope = rememberCoroutineScope() //5초 카운트 변수
+    var elapsedSecond by remember { mutableStateOf(0) } //카운트 업 변수
+    var iswrong by remember { mutableStateOf(false) } //인증번호가 틀렸을 때 true로 바뀌는 변수
+
+
+    //경과시간 계산 포맷
+    val minutes = elapsedSecond / 60 //분
+    val seconds = elapsedSecond % 60 //초
+    val formattedTime = "%02d:%02d".format(minutes, seconds)
 
     Button(
         onClick = { navController.popBackStack() },
@@ -151,7 +160,7 @@ fun SignUp2Screen(
             shape = RoundedCornerShape(12.dp),
         )
             Spacer(modifier = Modifier.height(9.dp))
-        if (OnCertified) { // 여기 수정해라 조껀히 년아
+        if (Certified) { // 여기 수정해라 조껀히 년아
             Column {
                 // 인증번호 입력창
                 Text(
@@ -169,6 +178,17 @@ fun SignUp2Screen(
                             errorBorderColor = Color.Red,
                         ),
                         placeholder = { Text(text = "인증번호") },
+                        trailingIcon = {
+                            Text(
+                                modifier = modifier.padding(end = 12.dp),
+                                text = "%02d:%02d".format(
+                                    elapsedSecond / 60,
+                                    elapsedSecond % 60
+                                ),
+                                fontSize = 16.sp,
+                                color = Color(0xFF999999),
+                            )
+                        },
                         value = CertifiedNum,
                         onValueChange = { CertifiedNum = it },
                         modifier = Modifier
@@ -176,12 +196,23 @@ fun SignUp2Screen(
                             .fillMaxWidth(0.78f),
                         shape = RoundedCornerShape(12.dp),
                     )
+                    LaunchedEffect(Certified) {
+                        if (Certified) {
+                            elapsedSecond = 0
+
+                            while (true) {
+                                delay(1000L)
+                                elapsedSecond++
+                            }
+                        }
+                    }
                     LaunchedEffect(Unit) {
                         delay(5000L) // 5초 대기
                         isClicked = true
                     }
                     Button(
                         onClick = {
+                            elapsedSecond = 0
                             if (isClicked) {
                                 isClicked = false
 
@@ -218,6 +249,14 @@ fun SignUp2Screen(
                         )
                     }
                 }
+                if (iswrong) {
+                    Text(
+                        fontSize = 12.sp,
+                        text = "인증번호가 달라요.",
+                        color = Color(0xFF999999),
+                        modifier = Modifier.padding(top = 5.dp)
+                    )
+                } //틀렸을 떄 나오는 문구
             }
         }
     }
@@ -245,7 +284,7 @@ fun SignUp2Screen(
         if (isVisible) {
             Button(
                 onClick = {
-                    OnCertified = true
+                    Certified = true
                     isVisible = false
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
@@ -267,6 +306,9 @@ fun SignUp2Screen(
         }
         Button(
             onClick = {
+                //임시
+                navController.navigate(Screen.SignUp3.route)
+                //이 이후로 판별코드
                 if (OnCertified == true) {
 
                 } //여기에 만약 인증이 되면 뭐할건지 로직 추가
