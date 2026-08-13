@@ -173,7 +173,7 @@ fun SignUp3Screen(
         )
         Button(
             onClick = {
-                navController.navigate(Screen.SignUp2.route)
+                navController.navigate(Screen.SignUp4.route)
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
             shape = RoundedCornerShape(23.dp),

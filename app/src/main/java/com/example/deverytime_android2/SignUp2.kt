@@ -227,7 +227,7 @@ fun SignUp2Screen(
                             containerColor = if (isClicked) {
                                 Color(0xFF3469F9)
                             } else {
-                                Color.LightGray
+                                Color(0xFF999999)
                             }
                         ),
                         shape = RoundedCornerShape(18.dp),

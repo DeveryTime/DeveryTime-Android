@@ -6,11 +6,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,19 +52,26 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SignUp4Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    var password by remember { mutableStateOf("") }
-    var rechecknumber by remember { mutableStateOf("") }
+    var id by remember { mutableStateOf("") }
+    var isClicked by remember { mutableStateOf(true) }
+    val scope = rememberCoroutineScope()
+    var idisexist = remember { mutableStateOf(false) }
 
     Button(
         onClick = { navController.popBackStack() },
@@ -90,66 +100,116 @@ fun SignUp4Screen(
             .padding(start = 8.dp, top = 52.dp),
         contentScale = ContentScale.Fit
     )
-
-    Text(
-        text = "비밀번호를 알려주세요!",
-        fontSize = 23.5.sp,
-        fontWeight = FontWeight. Bold,
-        fontFamily = PretendardVariable,
-        color = Color.Black,
-        modifier = Modifier.padding(start = 22.dp, top = 128.dp)
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(180.dp))
-
-        // 비밀번호 입력창
+    Column {
+        Spacer(modifier = Modifier.height(128.dp))
         Text(
-            fontSize = 12.sp,
-            text = "비밀번호",
-            color = Color(0xFF999999)
+            text = "사용자님의 모습이 궁금해요!",
+            fontSize = 23.5.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = PretendardVariable,
+            color = Color.Black,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.Center
         )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "비밀번호") },
-            value = password,
-            onValueChange = { password = it },
-            modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-        )
-
-        Spacer(modifier = Modifier.height(9.dp))
-
-        Text(
-            fontSize = 12.sp,
-            text = "비밀번호 확인",
-            color = Color(0xFF999999)
-        )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "비밀번호 확인") },
-            value = password,
-            onValueChange = { password = it },
-            modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-        )
+        Spacer(modifier = Modifier.height(50.dp))
+        Box (modifier = modifier.fillMaxWidth()){
+            Image(
+                painter = painterResource(id = R.drawable.vector),
+                contentDescription = "디자인 미리보기",
+                modifier = Modifier
+                    .width(200.dp)
+                    .align(Alignment.BottomCenter),
+                contentScale = ContentScale.Fit
+            )
+            Button(
+                modifier = modifier
+                    .align(Alignment.BottomCenter),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                onClick = { /* 이미지 업로드 로직 */ },
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.frame_83),
+                    contentDescription = "디자인 미리보기",
+                    modifier = modifier.padding(start = 150.dp, bottom = 2.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
     }
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            // 아이디 입력창
+            Text(
+                fontSize = 12.sp,
+                text = "아이디",
+                color = Color(0xFF999999)
+            )
+            Row {
+                OutlinedTextField(
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedPlaceholderColor = Color.Transparent,
+                        unfocusedPlaceholderColor = Color(0xFF999999),
+                        errorBorderColor = Color.Red,
+                    ),
+                    placeholder = { Text(text = "우아한 강아지") },
+                    value = id,
+                    onValueChange = { id = it },
+                    modifier = Modifier.padding(top = 3.dp).fillMaxWidth(0.76f),
+                    shape = RoundedCornerShape(12.dp),
+                )
+                Button(
+                    onClick = {
+                        if (isClicked) {
+                            isClicked = false
+
+                            scope.launch {
+                                delay(5000L)
+                                isClicked = true
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isClicked) {
+                            Color(0xFF3469F9)
+                        } else {
+                            Color(0xFF999999)
+                        }
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.padding(start = 10.dp)
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .padding(top = 6.dp),
+                    contentPadding = PaddingValues(0.dp),
+                ) {
+                    Text(
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        text = "중복확인",
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Visible,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            if (idisexist.value) {
+                Text(
+                    fontSize = 14.sp,
+                    text = "이미 있는 이름이에요.",
+                    color = Color(0xFF999999),
+                    modifier = Modifier.padding(top = 5.dp, start = 0.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(249.dp))
+}
     Box(modifier = Modifier.fillMaxSize()) {
         Text(
             fontSize = 14.sp,
