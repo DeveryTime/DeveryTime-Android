@@ -191,34 +191,3 @@ fun LoginScreen(
             }
         }
     }
-
-// 디자인 이미지 + 실제 UI를 한 화면에 겹쳐서 보여주는 Preview
-@Preview(showBackground = true, device = "id:pixel_4")
-@Composable
-fun LoginScreenPreview() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-            Image(
-                painter = painterResource(id = R.drawable.login1),
-                contentDescription = "디자인 미리보기",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.3f),
-                contentScale = ContentScale.Fit
-            )
-            // 실제 UI 겹치기
-            LoginScreen(navController = rememberNavController())
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4")
-@Composable
-fun LoginScreenPreview2() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            LoginScreen(navController = rememberNavController())
-        }
-    }
-}

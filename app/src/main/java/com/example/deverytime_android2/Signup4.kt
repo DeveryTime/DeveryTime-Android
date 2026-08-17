@@ -251,34 +251,3 @@ fun SignUp4Screen(
         }
     }
 }
-
-// 디자인 이미지 + 실제 UI를 한 화면에 겹쳐서 보여주는 Preview
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUp4ScreenPreview() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-            Image(
-                painter = painterResource(id = R.drawable.signup5),
-                contentDescription = "디자인 미리보기",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.5f),
-                contentScale = ContentScale.Fit
-            )
-            // 실제 UI 겹치기
-            SignUp4Screen(navController = rememberNavController())
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUp4ScreenPreview2() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            SignUp4Screen(navController = rememberNavController())
-        }
-    }
-}
