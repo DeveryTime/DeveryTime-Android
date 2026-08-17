@@ -1,13 +1,7 @@
 package com.example.deverytime_android2
 
-import android.os.Bundle
-import android.text.style.BackgroundColorSpan
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,7 +17,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -51,15 +44,11 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigationevent.compose.rememberNavigationEventState
-
 
 
 @OptIn(ExperimentalTextApi::class)
-val PretendardVariable = FontFamily(
+val pretendardVariable = FontFamily(
     Font(
         resId = R.font.pretendard,
         variationSettings = FontVariation.Settings(
@@ -67,11 +56,11 @@ val PretendardVariable = FontFamily(
         )
     )
 )
-val AppTypography = Typography(
-    bodyLarge = TextStyle(fontFamily = PretendardVariable, fontWeight = FontWeight.Normal, fontSize = 16.sp),
-    bodyMedium = TextStyle(fontFamily = PretendardVariable, fontWeight = FontWeight.Normal, fontSize = 14.sp),
-    titleLarge = TextStyle(fontFamily = PretendardVariable, fontWeight = FontWeight.Bold, fontSize = 22.sp),
-    labelLarge = TextStyle(fontFamily = PretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+val appTypography = Typography(
+    bodyLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 16.sp),
+    bodyMedium = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 14.sp),
+    titleLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Bold, fontSize = 22.sp),
+    labelLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp)
 )
 
 @Composable
@@ -105,7 +94,7 @@ fun LoginScreen(
             text = "데브리타임을 사용하고\n일상, 전공, 멘토링 등 쉽게 소통해봐요.",
             fontSize = 23.sp,
             fontWeight = FontWeight. Bold,
-            fontFamily = PretendardVariable,
+            fontFamily = pretendardVariable,
             color = Color.Black,
             modifier = Modifier.padding(start = 22.dp, top = 120.dp)
         )
@@ -194,7 +183,7 @@ fun LoginScreen(
                     .height(54.dp),
             ) {
                 Text(
-                    fontFamily = PretendardVariable,
+                    fontFamily = pretendardVariable,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     text = "로그인"

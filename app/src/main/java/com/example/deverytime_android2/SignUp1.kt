@@ -60,136 +60,152 @@ fun SignUpScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    var student_number by remember { mutableStateOf("") }
+    var studentNumber by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
-
-    Button(
-        onClick = { navController.popBackStack() },
-        modifier = Modifier
-            .padding(start = 8.dp, top = 40.dp)
-            .size(32.dp),
-        contentPadding = PaddingValues(0.dp),
-        shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF))
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable.back_arrow),
-            contentDescription = stringResource(id = R.string.back_arrow),
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .size(32.dp)
-                .align(Alignment.CenterVertically)
-        )
-    }
-
-    Image(
-        painter = painterResource(id = R.drawable.frame_67),
-        contentDescription = "디자인 미리보기",
-        modifier = Modifier
-            .width(150.dp)
-            .padding(start = 8.dp, top = 52.dp),
-        contentScale = ContentScale.Fit
-    )
-
-    Text(
-        text = "학번과 이름부터 알려주세요!",
-        fontSize = 23.5.sp,
-        fontWeight = FontWeight. Bold,
-        fontFamily = PretendardVariable,
-        color = Color.Black,
-        modifier = Modifier.padding(start = 22.dp, top = 128.dp)
-    )
-
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Spacer(modifier = Modifier.height(180.dp))
-
-        // 이메일 입력창
-        Text(
-            fontSize = 12.sp,
-            text = "학번",
-            color = Color(0xFF999999)
-        )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "학번") },
-            value = student_number,
-            onValueChange = { student_number = it },
-            modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-        )
-
-        Spacer(modifier = Modifier.height(11.dp))
-
-        // 이름 입력창
-        Text(
-            fontSize = 12.sp,
-            text = "이름",
-            color = Color(0xFF999999)
-        )
-        OutlinedTextField(
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedPlaceholderColor = Color(0xFF999999),
-                errorBorderColor = Color.Red,
-            ),
-            placeholder = { Text(text = "이름") },
-            value = name,
-            onValueChange = { name = it },
-            modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-        )
-    }
-    Box(modifier = Modifier.fillMaxSize()) {
-        Text(
-            fontSize = 14.sp,
-            text = "만약 계정이 있으신가요?",
-            color = Color(0xFFB1B1B1),
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(bottom = 95.dp, start = 105.dp)
-        )
-        Text(
-            fontSize = 14.sp,
-            text = "로그인",
-            color = Color(0xFF3469F9),
-            textDecoration = TextDecoration.Underline,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 96.dp, end = 110.dp)
-                .clickable {
-                    navController.navigate(Screen.Login.route)
-                }
-        )
+    var isWrong by remember { mutableStateOf(false) }
+    Box {
         Button(
-            onClick = {
-                navController.navigate(Screen.SignUp2.route)
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
-            shape = RoundedCornerShape(23.dp),
+            onClick = { navController.popBackStack() },
             modifier = Modifier
-                .align(Alignment.BottomCenter)      // Box 안에서 하단 중앙
-                .width(380.dp)
-                .padding(start = 16.dp, end = 16.dp, bottom = 33.dp) //33
-                .height(54.dp),
+                .padding(start = 8.dp, top = 40.dp)
+                .size(32.dp),
+            contentPadding = PaddingValues(0.dp),
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF))
         ) {
-            Text(
-                fontFamily = PretendardVariable,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                text = "다음"
+            Image(
+                painter = painterResource(id = R.drawable.back_arrow),
+                contentDescription = stringResource(id = R.string.back_arrow),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.CenterVertically)
             )
+        }
+
+        Image(
+            painter = painterResource(id = R.drawable.frame_67),
+            contentDescription = "디자인 미리보기",
+            modifier = Modifier
+                .width(150.dp)
+                .padding(start = 8.dp, top = 52.dp),
+            contentScale = ContentScale.Fit
+        )
+
+        Text(
+            text = "학번과 이름부터 알려주세요!",
+            fontSize = 23.5.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = pretendardVariable,
+            color = Color.Black,
+            modifier = Modifier.padding(start = 22.dp, top = 128.dp)
+        )
+
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(180.dp))
+
+            // 이메일 입력창
+            Text(
+                fontSize = 12.sp,
+                text = "학번",
+                color = Color(0xFF999999)
+            )
+            OutlinedTextField(
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedPlaceholderColor = Color.Transparent,
+                    unfocusedPlaceholderColor = Color(0xFF999999),
+                    errorBorderColor = Color.Red,
+                ),
+                placeholder = { Text(text = "학번") },
+                value = studentNumber,
+                onValueChange = { studentNumber = it },
+                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            )
+
+            Spacer(modifier = Modifier.height(11.dp))
+
+            // 이름 입력창
+            Text(
+                fontSize = 12.sp,
+                text = "이름",
+                color = Color(0xFF999999)
+            )
+            OutlinedTextField(
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedPlaceholderColor = Color.Transparent,
+                    unfocusedPlaceholderColor = Color(0xFF999999),
+                    errorBorderColor = Color.Red,
+                ),
+                placeholder = { Text(text = "이름") },
+                value = name,
+                onValueChange = { name = it },
+                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+            )
+            if (isWrong) {
+                Text(
+                    fontSize = 12.sp,
+                    text = "학번과 이름을 정확히 입력해주세요.",
+                    color = Color(0xFF999999),
+                    modifier = Modifier.padding(top = 3.dp)
+                )
+            }
+        }
+        Box(modifier = Modifier.fillMaxSize()) {
+            Text(
+                fontSize = 14.sp,
+                text = "만약 계정이 있으신가요?",
+                color = Color(0xFFB1B1B1),
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 95.dp, start = 105.dp)
+            )
+            Text(
+                fontSize = 14.sp,
+                text = "로그인",
+                color = Color(0xFF3469F9),
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 96.dp, end = 110.dp)
+                    .clickable {
+                        navController.navigate(Screen.Login.route)
+                    }
+            )
+            Button(
+                onClick = {
+                    if (studentNumber.isNotEmpty() && name.isNotEmpty()) {
+                        // 학번과 이름이 모두 입력되었을 때의 동작
+                        navController.navigate(Screen.SignUp2.route)
+                        isWrong = false
+                    } else {
+                        isWrong = true
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                shape = RoundedCornerShape(23.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)      // Box 안에서 하단 중앙
+                    .width(380.dp)
+                    .padding(start = 16.dp, end = 16.dp, bottom = 33.dp) //33
+                    .height(54.dp),
+            ) {
+                Text(
+                    fontFamily = pretendardVariable,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    text = "다음"
+                )
+            }
         }
     }
 }
