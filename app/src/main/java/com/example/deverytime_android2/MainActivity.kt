@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -22,8 +27,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 
 sealed class Screen(val route: String) {
-    data object Home : Screen("home")
     data object Login : Screen("login")
+    data object SignUp1 : Screen("signup1")
+    data object SignUp2 : Screen("signup2")
+    data object SignUp3 : Screen("signup3")
+    data object OnBoard1 : Screen(route = "OnBoard1")
+    data object OnBoard2 : Screen(route = "OnBoard2")
+    data object OnBoard3 : Screen(route = "OnBoard3")
+    data object OnBoard4 : Screen(route = "OnBoard4")
+    data object OnBoard5 : Screen(route = "OnBoard5")
 }
 
 class MainActivity : ComponentActivity() {
@@ -48,37 +60,18 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = Screen.Home.route,
+            startDestination = Screen.OnBoard1.route,
             modifier = modifier
         ) {
-            composable(route = Screen.Home.route) { HomeScreen(navController) }
-            composable(route = Screen.Login.route) { LoginScreen(navController = navController) }
+            composable(route = Screen.Login.route) { LoginScreen(navController) }
+            composable(route = Screen.OnBoard1.route) { OnBoard1Screen(navController) }
+            composable(route = Screen.OnBoard2.route) { OnBoard2Screen(navController) }
+            composable(route = Screen.OnBoard3.route) { OnBoard3Screen(navController) }
+            composable(route = Screen.OnBoard4.route) { OnBoard4Screen(navController) }
+            composable(route = Screen.OnBoard5.route) { OnBoard5Screen(navController) }
+            //composable(route = Screen.SignUp1.route) { SignUpScreen(navController) }
+            //composable(route = Screen.SignUp2.route) { SignUp2Screen(navController) }
+            //composable(route = Screen.SignUp3.route) { SignUp3Screen(navController) }
         }
-    }
-
-    @Composable
-    fun HomeScreen(navController: NavHostController) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text("Home")
-            Button(
-                onClick = {
-                    navController.navigate(Screen.Login.route)
-                }
-            ) {
-                Text("로그인 화면으로 이동")
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun GreetingPreview() {
-    DeveryTime_Android2Theme {
-
     }
 }
