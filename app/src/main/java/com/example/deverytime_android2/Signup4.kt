@@ -1,15 +1,7 @@
 package com.example.deverytime_android2
 
-import android.os.Bundle
-import android.text.style.BackgroundColorSpan
-import android.widget.Space
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,39 +27,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.material3.Typography
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun SignUp4Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    //백엔드에 있는 계정인지 true false 요청하고 true면 isIdExisting를 true로 변경
+    //추후 변경 예정
+    
     var id by remember { mutableStateOf("") }
     var isClicked by remember { mutableStateOf(false) }
     var isIdExisting by remember { mutableStateOf(false) }
@@ -78,7 +56,7 @@ fun SignUp4Screen(
         id.isNotEmpty() -> Color(0xFF3469F9) // 글자가 있으면 파란색
         else -> Color(0xFF999999) // 글자가 없으면 회색
     }
-    Box {
+    Box (modifier = modifier.fillMaxSize()){
         Button(
             onClick = { navController.popBackStack() },
             modifier = Modifier
@@ -118,7 +96,7 @@ fun SignUp4Screen(
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(50.dp))
-            Box(modifier = modifier.fillMaxWidth()) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 Image(
                     painter = painterResource(id = R.drawable.vector),
                     contentDescription = "디자인 미리보기",
@@ -128,7 +106,7 @@ fun SignUp4Screen(
                     contentScale = ContentScale.Fit
                 )
                 Button(
-                    modifier = modifier
+                    modifier = Modifier
                         .align(Alignment.BottomCenter),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                     onClick = { /* 이미지 업로드 로직 */ },
@@ -136,19 +114,18 @@ fun SignUp4Screen(
                     Image(
                         painter = painterResource(id = R.drawable.frame_83),
                         contentDescription = "디자인 미리보기",
-                        modifier = modifier.padding(start = 150.dp, bottom = 2.dp),
+                        modifier = Modifier.padding(start = 150.dp, bottom = 2.dp),
                         contentScale = ContentScale.Fit
                     )
                 }
             }
         }
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(top = 183.dp, start = 16.dp, end = 16.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Spacer(modifier = Modifier.height(183.dp))
             // 아이디 입력창
             Text(
                 fontSize = 12.sp,
@@ -170,19 +147,22 @@ fun SignUp4Screen(
                         id = it
                         isClicked = false
                     },
-                    modifier = Modifier.padding(top = 3.dp).fillMaxWidth(0.76f),
+                    modifier = Modifier.padding(top = 3.dp).weight(0.5f),
                     shape = RoundedCornerShape(12.dp),
                 )
                 Button(
                     onClick = {
                         isClicked = true
+//                        if () {
+//
+//                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = buttonColor
                     ),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.padding(start = 10.dp)
-                        .fillMaxWidth()
+                        .weight(0.15f)
                         .height(56.dp)
                         .padding(top = 6.dp),
                     contentPadding = PaddingValues(0.dp),
