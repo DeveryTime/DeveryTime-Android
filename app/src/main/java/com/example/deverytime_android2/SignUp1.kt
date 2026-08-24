@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,8 +35,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 
 @Composable
 fun SignUpScreen(
@@ -48,7 +53,12 @@ fun SignUpScreen(
     Box {
         // 뒤로가기 버튼
         Button(
-            onClick = { navController.popBackStack() },
+            onClick = {
+                navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+                launchSingleTop = true
+                }
+            },
             modifier = Modifier
                 .padding(start = 8.dp, top = 40.dp)
                 .size(32.dp),
@@ -96,7 +106,7 @@ fun SignUpScreen(
             ) {
 
                 // 학번 입력창
-                Box(modifier = modifier) {
+                Column (modifier = modifier) {
                     Text(
                         fontSize = 12.sp,
                         text = "학번",
@@ -113,14 +123,14 @@ fun SignUpScreen(
                         placeholder = { Text(text = "학번") },
                         value = studentNumber,
                         onValueChange = { studentNumber = it },
-                        modifier = Modifier.padding(top = 17.dp).fillMaxWidth(),
+                        modifier = Modifier.padding(top = 5.dp).fillMaxWidth(0.97f),
                         shape = RoundedCornerShape(12.dp),
                     )
                 }
                 Column(
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Box(modifier = Modifier.padding(top = 10.dp)) {
+                    Column (modifier = Modifier.padding(top = 10.dp)) {
                         // 이름 입력창
                         Text(
                             fontSize = 12.sp,
@@ -138,7 +148,7 @@ fun SignUpScreen(
                             placeholder = { Text(text = "이름") },
                             value = name,
                             onValueChange = { name = it },
-                            modifier = Modifier.padding(top = 17.dp, bottom = 0.dp).fillMaxWidth(),
+                            modifier = Modifier.padding(top = 5.dp).fillMaxWidth(0.97f),
                             shape = RoundedCornerShape(12.dp),
                         )
                         // 틀리면 실행되는 로직
@@ -207,6 +217,35 @@ fun SignUpScreen(
                     text = "다음"
                 )
             }
+        }
+    }
+}
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun SignUpScreenPreview12() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // 디자인 이미지를 반투명하게 배경에 깔기
+            Image(
+                painter = painterResource(id = R.drawable.signup1),
+                contentDescription = "디자인 미리보기",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .alpha(0.3f),
+                contentScale = ContentScale.Fit
+            )
+            // 실제 UI 겹치기
+            SignUpScreen(navController = rememberNavController())
+        }
+    }
+}
+
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun SignUpScreenPreview11() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            SignUpScreen(navController = rememberNavController())
         }
     }
 }

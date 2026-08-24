@@ -47,7 +47,12 @@ fun SignUp3Screen(
     var isWrong by remember { mutableStateOf(false) }
     Box {
         Button(
-            onClick = { navController.popBackStack() },
+            onClick = {
+                navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+                launchSingleTop = true
+                }
+            },
             modifier = Modifier
                 .padding(start = 8.dp, top = 40.dp)
                 .size(32.dp),
@@ -182,8 +187,8 @@ fun SignUp3Screen(
                 shape = RoundedCornerShape(23.dp),
                 modifier = Modifier
                     .align(Alignment.BottomCenter)      // Box 안에서 하단 중앙
-                    .width(380.dp)
-                    .padding(start = 16.dp, end = 16.dp, bottom = 33.dp) //33
+                    .fillMaxWidth(0.87f)
+                    .padding(bottom = 33.dp) //33
                     .height(54.dp),
             ) {
                 Text(

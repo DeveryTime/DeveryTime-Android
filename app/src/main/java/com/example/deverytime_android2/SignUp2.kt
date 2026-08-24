@@ -73,6 +73,7 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
         var isWrong by remember { mutableStateOf(false) } //인증번호가 틀렸을 때 true로 바뀌는 변수
         var isEmailWrong by remember { mutableStateOf(false) } //이메일 형식이 틀렸을 때 true로 바뀌는 변수
         var timeDone by remember { mutableStateOf(false) } //시간이 다 지났는지 확인하는 변수
+        var timerRestartKey by remember { mutableStateOf(0) } //코루틴 키값
 
         //경과시간 계산 포맷
         val minutes = elapsedSecond / 60 //분
@@ -80,7 +81,12 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
         val formattedTime = "%02d:%02d".format(minutes, seconds)
         Box {
             Button(
-                onClick = { navController.popBackStack() },
+                onClick = {
+                    navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                    launchSingleTop = true
+                    }
+                },
                 modifier = Modifier
                     .padding(start = 8.dp, top = 40.dp)
                     .size(32.dp),
@@ -171,7 +177,7 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                     )
                 }
                 Spacer(modifier = Modifier.height(9.dp))
-                if (onClickCertified == true && email.isNotEmpty()) { // 여기 수정해라 조껀히 년아
+                if (onClickCertified == true && email.isNotEmpty()) {
                     Column {
                         // 인증번호 입력창
                         Text(
@@ -186,7 +192,6 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                                     unfocusedTextColor = Color.Black,
                                     focusedPlaceholderColor = Color.Transparent,
                                     unfocusedPlaceholderColor = Color(0xFF999999),
-                                    errorBorderColor = Color.Red,
                                 ),
                                 placeholder = { Text(text = "인증번호") },
                                 trailingIcon = {
@@ -207,7 +212,7 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                                     .fillMaxWidth(0.78f),
                                 shape = RoundedCornerShape(12.dp),
                             )
-                            LaunchedEffect(onClickCertified) {
+                            LaunchedEffect(onClickCertified, timerRestartKey) {
                                 if (onClickCertified) {
                                     elapsedSecond = 180
 
@@ -216,7 +221,6 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                                         --elapsedSecond
                                         if (elapsedSecond == 0) {
                                             timeDone = true
-
                                             break
                                         }
                                     }
@@ -230,7 +234,8 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                                 onClick = {
                                     isWrong = false
                                     timeDone = false
-                                    elapsedSecond = 180
+                                    timerRestartKey++ // 타이머 재시작을 위한 키값 변경
+
                                     if (isClicked) {
                                         isClicked = false
 
@@ -267,7 +272,7 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                                 )
                             }
                         }
-                        if (isWrong) {
+                        if (isWrong && !timeDone) {
                             Text(
                                 fontSize = 12.sp,
                                 text = "인증번호가 달라요.",
@@ -326,8 +331,8 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                         shape = RoundedCornerShape(23.dp),
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .width(380.dp)
-                            .padding(start = 16.dp, end = 16.dp, bottom = 33.dp) //33
+                            .fillMaxWidth(0.87f)
+                            .padding(bottom = 33.dp) //33
                             .height(54.dp)
                             .zIndex(1f)
                     ) {
@@ -341,19 +346,15 @@ private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
                 }
                 Button(
                     onClick = {
-                        if (!timeDone) {
-                            if (certifiedNum.isNotBlank() && receiveRealCertifiedNum.isNotBlank()) {
-                                if (certifiedNum == receiveRealCertifiedNum) {
-                                    navController.navigate(Screen.SignUp3.route)
-                                } //여기에 만약 인증이 되면 뭐할건지 로직 추가
-                                else {
-                                    isWrong = true
-                                } //여기에 인증 안된채로 누르면 어떤 반응 할지
+                        if (timeDone) {
+                            isWrong = false
+                        } else {
+                            if (certifiedNum.isNotBlank()) {
+                                // TODO: 여기서 서버에 검증 요청해서 true가 오면 넘어가도록 *서버가 검증해야함*
+                                navController.navigate(Screen.SignUp3.route)
                             } else {
                                 isWrong = true
                             }
-                        } else {
-                            isWrong = true
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),

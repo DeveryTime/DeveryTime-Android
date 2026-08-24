@@ -185,8 +185,8 @@ fun LoginScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
                 shape = RoundedCornerShape(23.dp),
                 modifier = Modifier
-                    .width(380.dp)
-                    .padding(start = 16.dp, end = 16.dp, bottom = 33.dp) //33
+                    .fillMaxWidth(0.89f)
+                    .padding(bottom = 33.dp) //33
                     .height(54.dp),
             ) {
                 Text(
