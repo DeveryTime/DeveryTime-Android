@@ -233,7 +233,11 @@ fun SignUp4Screen(
             )
             Button(
                 onClick = {
-                    // 어디로 이동 할건지 로직 넣어야함
+                    // TODO: 여기서 아이디 확인 중복확인 이후 로그인으로 이동 *추가 수정 필요*
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
                 shape = RoundedCornerShape(23.dp),
