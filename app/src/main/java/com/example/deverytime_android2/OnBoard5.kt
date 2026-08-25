@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,22 +57,20 @@ fun OnBoard5Screen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "DSM 소통의 길,",
+                text = stringResource(R.string.onboard5_1),
                 fontSize = 24.sp,
                 fontFamily = Pretendard,
                 fontWeight = FontWeight.W700
             )
             Text(
-                text = "그럼 시작해볼까요?",
+                text = stringResource(R.string.onboard5_2),
                 fontSize = 24.sp,
                 fontFamily = Pretendard,
                 fontWeight = FontWeight.W700
             )
             Image(
-                contentDescription = "panda",
+                contentDescription = "null",
                 painter = painterResource(R.drawable.ic_onboarding5),
-                modifier = Modifier
-
             )
         }
         Column(
@@ -80,33 +79,32 @@ fun OnBoard5Screen(navController: NavHostController) {
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(),
-            ) {
+            Row() {
                 Text(
-                    text = "만약 계정이 있으신가요?",
+                    text = stringResource(R.string.onboard5_3),
                     fontFamily = Pretendard,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W500,
                     modifier = Modifier
-                        .padding(bottom = 7.dp,),
+                        .padding(bottom = 7.dp),
                     color = Color(0xFFb1b1b1)
                 )
                 Text(
-                    text = "로그인",
+                    text = stringResource(R.string.login),
                     fontFamily = Pretendard,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W700,
                     modifier = Modifier
                         .padding(start = 4.dp, bottom = 7.dp)
-                        .clickable{(navController.navigate(Screen.OnBoard1.route))},
+                        //TODO:로그인 경로 추가
+                        .clickable {},
                     color = Color(0xFF3469f9),
                     textDecoration = TextDecoration.Underline
                 )
             }
             Button(
-                onClick = { navController.navigate(Screen.OnBoard2.route) },
+                //TODO:회원가입 경로 추가
+                onClick = {},
                 shape = RoundedCornerShape(25.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -118,29 +116,10 @@ fun OnBoard5Screen(navController: NavHostController) {
                 )
             ) {
                 Text(
-                    text = "시작하기",
+                    text = stringResource(R.string.start),
                     fontSize = 16.sp
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun OnBoard5() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.onboarding5),
-                contentDescription = "디자인 미리보기",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(0.3f),
-                contentScale = ContentScale.Fit
-            )
-            OnBoard5Screen(navController = rememberNavController())
-        }
-
     }
 }

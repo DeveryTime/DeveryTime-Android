@@ -1,4 +1,18 @@
 <resources>
-    <string name="app_name">DeveryTime_Android2</string>
+    <string name="app_name">Devery_Time</string>
+    <string name="onboard1_1">카테고리별 게시글과</string>
+    <string name="onboard1_2">댓글로 연결되는 DSM커뮤니티</string>
+    <string name="onboard2_1">DSM 소통의 길</string>
+    <string name="onboard2_2">데브리타임에 오신 걸 환영해요!</string>
+    <string name="onboard3_1">데브리타임은 DSM 학생들을 위한</string>
+    <string name="onboard3_2">교내 커뮤니티 서비스에요.</string>
+    <string name="onboard4_1">전공, 일상, 분실물 등 카테고리</string>
+    <string name="onboard4_2">별로 글을 읽고 쓸 수 있어요.</string>
+    <string name="onboard5_1">DSM 소통의 길,</string>
+    <string name="onboard5_2">그럼 시작해볼까요?</string>
+    <string name="onboard5_3">만약 계정이 있으신가요?</string>
+    <string name="next">다음</string>
+    <string name="start">시작하기</string>
+    <string name="login">로그인</string>
     <string name="back_arrow">goback</string>
 </resources>
