@@ -26,11 +26,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 
-sealed class Screen(val route: String) {
+sealed class Screen(
+    val route: String,
+) {
     data object Login : Screen("login")
-    data object SignUp1 : Screen("signup1") 
+
+    data object SignUp1 : Screen("signup1")
+
     data object SignUp2 : Screen("signup2")
+
     data object SignUp3 : Screen("signup3")
+
     data object SignUp4 : Screen("signup4")
 }
 
@@ -41,10 +47,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             DeveryTime_Android2Theme {
                 Scaffold(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
                     Navigation(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
                     )
                 }
             }
@@ -57,7 +63,7 @@ class MainActivity : ComponentActivity() {
         NavHost(
             navController = navController,
             startDestination = Screen.Login.route,
-            modifier = modifier
+            modifier = modifier,
         ) {
             composable(route = Screen.Login.route) { LoginScreen(navController) }
             composable(route = Screen.SignUp1.route) { SignUpScreen(navController) }

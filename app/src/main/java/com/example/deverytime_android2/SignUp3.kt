@@ -1,6 +1,5 @@
 package com.example.deverytime_android2
 
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,9 +31,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.NavHostController
 
 @Composable
@@ -49,34 +48,37 @@ fun SignUp3Screen(
         Button(
             onClick = {
                 navController.navigate(Screen.Login.route) {
-                popUpTo(Screen.Login.route) { inclusive = true }
-                launchSingleTop = true
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                    launchSingleTop = true
                 }
             },
-            modifier = Modifier
-                .padding(start = 8.dp, top = 40.dp)
-                .size(32.dp),
+            modifier =
+                Modifier
+                    .padding(start = 8.dp, top = 40.dp)
+                    .size(32.dp),
             contentPadding = PaddingValues(0.dp),
             shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF))
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.back_arrow),
                 contentDescription = stringResource(id = R.string.back_arrow),
                 contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .size(32.dp)
-                    .align(Alignment.CenterVertically)
+                modifier =
+                    Modifier
+                        .size(32.dp)
+                        .align(Alignment.CenterVertically),
             )
         }
 
         Image(
             painter = painterResource(id = R.drawable.frame_69),
             contentDescription = "디자인 미리보기",
-            modifier = Modifier
-                .width(150.dp)
-                .padding(start = 8.dp, top = 52.dp),
-            contentScale = ContentScale.Fit
+            modifier =
+                Modifier
+                    .width(150.dp)
+                    .padding(start = 8.dp, top = 52.dp),
+            contentScale = ContentScale.Fit,
         )
 
         Text(
@@ -85,13 +87,14 @@ fun SignUp3Screen(
             fontWeight = FontWeight.Bold,
             fontFamily = pretendardVariable,
             color = Color.Black,
-            modifier = Modifier.padding(start = 22.dp, top = 128.dp)
+            modifier = Modifier.padding(start = 22.dp, top = 128.dp),
         )
 
         Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp)
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
         ) {
             Spacer(modifier = Modifier.height(180.dp))
 
@@ -99,22 +102,23 @@ fun SignUp3Screen(
             Text(
                 fontSize = 12.sp,
                 text = "비밀번호",
-                color = Color(0xFF999999)
+                color = Color(0xFF999999),
             )
             OutlinedTextField(
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedPlaceholderColor = Color.Transparent,
-                    unfocusedPlaceholderColor = Color(0xFF999999),
-                    errorBorderColor = Color.Red,
-                ),
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedPlaceholderColor = Color.Transparent,
+                        unfocusedPlaceholderColor = Color(0xFF999999),
+                        errorBorderColor = Color.Red,
+                    ),
                 placeholder = { Text(text = "비밀번호") },
                 value = password,
                 onValueChange = { password = it },
                 modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
             )
 
             Spacer(modifier = Modifier.height(9.dp))
@@ -122,30 +126,32 @@ fun SignUp3Screen(
             Text(
                 fontSize = 12.sp,
                 text = "비밀번호 확인",
-                color = Color(0xFF999999)
+                color = Color(0xFF999999),
             )
             OutlinedTextField(
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedPlaceholderColor = Color.Transparent,
-                    unfocusedPlaceholderColor = Color(0xFF999999),
-                    errorBorderColor = Color.Red,
-                ),
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        focusedPlaceholderColor = Color.Transparent,
+                        unfocusedPlaceholderColor = Color(0xFF999999),
+                        errorBorderColor = Color.Red,
+                    ),
                 placeholder = { Text(text = "비밀번호 확인") },
                 value = recheckNumber,
                 onValueChange = { recheckNumber = it },
                 modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
             )
             if (isWrong) {
                 Text(
                     text = "비밀번호가 일치하지 않습니다.",
                     color = Color(0xFF999999),
                     fontSize = 12.sp,
-                    modifier = modifier
-                        .padding(top = 5.dp)
+                    modifier =
+                        modifier
+                            .padding(top = 5.dp),
                 )
             }
         }
@@ -154,27 +160,30 @@ fun SignUp3Screen(
                 fontSize = 14.sp,
                 text = "만약 계정이 있으신가요?",
                 color = Color(0xFFB1B1B1),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 95.dp, end = 55.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 95.dp, end = 55.dp),
             )
             Text(
                 fontSize = 14.sp,
                 text = "로그인",
                 color = Color(0xFF3469F9),
                 textDecoration = TextDecoration.Underline,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 95.dp, start = 135.dp)
-                    .clickable {
-                        navController.navigate(Screen.Login.route)
-                    }
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 95.dp, start = 135.dp)
+                        .clickable {
+                            navController.navigate(Screen.Login.route)
+                        },
             )
             Button(
+                // TODO:최소 비밀번호 8 ~ 20자까지 글자수 제한 백엔드에 검증 요청
                 onClick = {
                     if (password.isNotEmpty() && recheckNumber.isNotEmpty()) {
                         if (recheckNumber == password) {
-                            //비밀번호와 재확인 비밀번호가 일치면 통과
+                            // 비밀번호와 재확인 비밀번호가 일치면 통과
                             navController.navigate(Screen.SignUp4.route)
                         } else {
                             isWrong = true
@@ -185,17 +194,18 @@ fun SignUp3Screen(
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
                 shape = RoundedCornerShape(23.dp),
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)      // Box 안에서 하단 중앙
-                    .fillMaxWidth(0.87f)
-                    .padding(bottom = 33.dp) //33
-                    .height(54.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
+                        .fillMaxWidth(0.87f)
+                        .padding(bottom = 33.dp) // 33
+                        .height(54.dp),
             ) {
                 Text(
                     fontFamily = pretendardVariable,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    text = "다음"
+                    text = "다음",
                 )
             }
         }
