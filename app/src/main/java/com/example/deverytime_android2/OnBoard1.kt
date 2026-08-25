@@ -28,7 +28,7 @@ fun OnBoard1Screen(navController: NavHostController) {
     LaunchedEffect(Unit) {
         delay(3000)
         navController.navigate(Screen.OnBoard2.route) {
-            popUpTo("splash") { inclusive = true }
+            popUpTo(Screen.OnBoard1.route) { inclusive = true }
         }
     }
     Box(modifier = Modifier
