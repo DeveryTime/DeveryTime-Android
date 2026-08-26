@@ -27,17 +27,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 
 @Composable
 fun SignUp4Screen(
@@ -53,16 +58,15 @@ fun SignUp4Screen(
     var isWrong by remember { mutableStateOf(false) }
     val buttonColor =
         when {
-            isClicked -> Color(0xFF999999)
+            isClicked -> colorResource(id = R.color.buttonGray)
 
             // 버튼 클릭 후 회색
-            id.isNotEmpty() -> Color(0xFF3469F9)
+            id.isNotEmpty() -> colorResource(id = R.color.mainBlue)
 
             // 글자가 있으면 파란색
-            else -> Color(0xFF999999) // 글자가 없으면 회색
+            else -> colorResource(id = R.color.buttonGray) // 글자가 없으면 회색
         }
-    Box(modifier = modifier.fillMaxSize()) {
-        Button(
+    Button(
             onClick = {
                 navController.navigate(Screen.Login.route) {
                     popUpTo(Screen.Login.route) { inclusive = true }
@@ -97,116 +101,120 @@ fun SignUp4Screen(
                     .padding(start = 8.dp, top = 52.dp),
             contentScale = ContentScale.Fit,
         )
-        Column {
-            Spacer(modifier = Modifier.height(128.dp))
-            Text(
-                text = "사용자님의 모습이 궁금해요!",
-                fontSize = 23.5.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = pretendardVariable,
-                color = Color.Black,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier = Modifier.height(50.dp))
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Image(
-                    painter = painterResource(id = R.drawable.vector),
-                    contentDescription = "디자인 미리보기",
-                    modifier =
-                        Modifier
-                            .width(200.dp)
-                            .align(Alignment.BottomCenter),
-                    contentScale = ContentScale.Fit,
+        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+            Spacer(modifier = Modifier.weight(1.5f))
+            Column {
+                Text(
+                    text = "사용자님의 모습이 궁금해요!",
+                    fontSize = 23.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = pretendardVariable,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
                 )
-                Button(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                    onClick = { /* 이미지 업로드 로직 */ },
-                ) {
+                Spacer(modifier = Modifier.height(55.dp))
+                Box(modifier = Modifier.fillMaxWidth()) {
                     Image(
-                        painter = painterResource(id = R.drawable.frame_83),
-                        contentDescription = "디자인 미리보기",
-                        modifier = Modifier.padding(start = 150.dp, bottom = 2.dp),
+                        painter = painterResource(id = R.drawable.vector),
+                        contentDescription = "사용자 프로필",
+                        modifier =
+                            Modifier
+                                .width(200.dp)
+                                .align(Alignment.BottomCenter),
                         contentScale = ContentScale.Fit,
                     )
+                    Button(
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomCenter),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                        onClick = { /* 이미지 업로드 로직 */ },
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.frame_83),
+                            contentDescription = "디자인 미리보기",
+                            modifier = Modifier.padding(start = 150.dp, bottom = 2.dp),
+                            contentScale = ContentScale.Fit,
+                        )
+                    }
                 }
             }
-        }
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(top = 183.dp, start = 16.dp, end = 16.dp),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            // 아이디 입력창
-            Text(
-                fontSize = 12.sp,
-                text = "아이디",
-                color = Color(0xFF999999),
-            )
-            Row {
-                OutlinedTextField(
-                    colors =
-                        OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
-                            focusedPlaceholderColor = Color.Transparent,
-                            unfocusedPlaceholderColor = Color(0xFF999999),
-                            errorBorderColor = Color.Red,
-                        ),
-                    placeholder = { Text(text = "우아한 강아지") },
-                    value = id,
-                    onValueChange = {
-                        id = it
-                        isClicked = false
-                    },
-                    modifier = Modifier.padding(top = 3.dp).weight(0.5f),
-                    shape = RoundedCornerShape(12.dp),
+            Spacer(modifier = Modifier.height(60.dp))
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                // 아이디 입력창
+                Text(
+                    fontSize = 12.sp,
+                    text = "아이디",
+                    color = colorResource(R.color.buttonGray),
                 )
-                Button(
-                    onClick = {
-                        isClicked = true
+                Row {
+                    OutlinedTextField(
+                        colors =
+                            OutlinedTextFieldDefaults.colors(
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                                focusedPlaceholderColor = Color.Transparent,
+                                unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                                errorBorderColor = Color.Red,
+                            ),
+                        placeholder = { Text(text = "우아한 강아지") },
+                        value = id,
+                        onValueChange = {
+                            id = it
+                            isClicked = false
+                        },
+                        modifier = Modifier.padding(top = 3.dp).weight(0.5f),
+                        shape = RoundedCornerShape(12.dp),
+                    )
+                    Button(
+                        onClick = {
+                            isClicked = true
 //                        if () {
 //
 //                        }
-                    },
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = buttonColor,
-                        ),
-                    shape = RoundedCornerShape(12.dp),
-                    modifier =
-                        Modifier
-                            .padding(start = 10.dp)
-                            .weight(0.15f)
-                            .height(56.dp)
-                            .padding(top = 6.dp),
-                    contentPadding = PaddingValues(0.dp),
-                ) {
+                        },
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = buttonColor,
+                            ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier =
+                            Modifier
+                                .padding(start = 10.dp)
+                                .weight(0.15f)
+                                .height(56.dp)
+                                .padding(top = 6.dp),
+                        contentPadding = PaddingValues(0.dp),
+                    ) {
+                        Text(
+                            fontFamily = pretendardVariable,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            text = "중복확인",
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Visible,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
+                if (isIdExisting) {
                     Text(
-                        fontFamily = pretendardVariable,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        text = "중복확인",
-                        maxLines = 1,
-                        softWrap = false,
-                        overflow = TextOverflow.Visible,
-                        textAlign = TextAlign.Center,
+                        fontSize = 14.sp,
+                        text = "이미 있는 이름이에요.",
+                        color = colorResource(R.color.buttonGray),
+                        modifier = Modifier.padding(top = 5.dp, start = 0.dp),
                     )
                 }
             }
-            if (isIdExisting) {
-                Text(
-                    fontSize = 14.sp,
-                    text = "이미 있는 이름이에요.",
-                    color = Color(0xFF999999),
-                    modifier = Modifier.padding(top = 5.dp, start = 0.dp),
-                )
-            }
+            Spacer(modifier = Modifier.weight(3.4f))
         }
         Box(modifier = Modifier.fillMaxSize()) {
             Text(
@@ -221,7 +229,7 @@ fun SignUp4Screen(
             Text(
                 fontSize = 14.sp,
                 text = "로그인",
-                color = Color(0xFF3469F9),
+                color = colorResource(id = R.color.mainBlue),
                 textDecoration = TextDecoration.Underline,
                 modifier =
                     Modifier
@@ -239,13 +247,13 @@ fun SignUp4Screen(
                         launchSingleTop = true
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
                 shape = RoundedCornerShape(23.dp),
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
-                        .fillMaxWidth(0.87f)
-                        .padding(bottom = 33.dp) // 33
+                        .fillMaxWidth()
+                        .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
                         .height(54.dp),
             ) {
                 Text(
@@ -255,6 +263,36 @@ fun SignUp4Screen(
                     text = "다음",
                 )
             }
+        }
+    }
+
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun SignUpScreenPreview233() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // 디자인 이미지를 반투명하게 배경에 깔기
+            Image(
+                painter = painterResource(id = R.drawable.signup5),
+                contentDescription = "디자인 미리보기",
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .alpha(0.3f),
+                contentScale = ContentScale.Fit,
+            )
+            // 실제 UI 겹치기
+            SignUp4Screen(navController = rememberNavController())
+        }
+    }
+}
+
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun SignUpScreenPreview1241() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            SignUp4Screen(navController = rememberNavController())
         }
     }
 }

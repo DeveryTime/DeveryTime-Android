@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -88,7 +90,9 @@ fun SignUpScreen(
             contentScale = ContentScale.Fit,
         )
 
-        Column {
+        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 18.dp)) {
+            Spacer(modifier = Modifier.weight(1f))
+
             // 제목 문구
             Text(
                 text = "학번과 이름부터 알려주세요!",
@@ -96,15 +100,13 @@ fun SignUpScreen(
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
                 color = Color.Black,
-                modifier = Modifier.padding(start = 22.dp, top = 128.dp, bottom = 23.dp),
+                modifier = Modifier,
             )
 
             Column(
                 modifier =
                     modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                verticalArrangement = Arrangement.Top,
+                        .padding(top = 37.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // 학번 입력창
@@ -112,7 +114,7 @@ fun SignUpScreen(
                     Text(
                         fontSize = 12.sp,
                         text = "학번",
-                        color = Color(0xFF999999),
+                        color = colorResource(R.color.buttonGray),
                     )
                     OutlinedTextField(
                         colors =
@@ -120,7 +122,7 @@ fun SignUpScreen(
                                 focusedTextColor = Color.Black,
                                 unfocusedTextColor = Color.Black,
                                 focusedPlaceholderColor = Color.Transparent,
-                                unfocusedPlaceholderColor = Color(0xFF999999),
+                                unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
                                 errorBorderColor = Color.Red,
                             ),
                         placeholder = { Text(text = "학번") },
@@ -138,7 +140,7 @@ fun SignUpScreen(
                         Text(
                             fontSize = 12.sp,
                             text = "이름",
-                            color = Color(0xFF999999),
+                            color = colorResource(R.color.buttonGray),
                         )
                         OutlinedTextField(
                             colors =
@@ -146,7 +148,7 @@ fun SignUpScreen(
                                     focusedTextColor = Color.Black,
                                     unfocusedTextColor = Color.Black,
                                     focusedPlaceholderColor = Color.Transparent,
-                                    unfocusedPlaceholderColor = Color(0xFF999999),
+                                    unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
                                     errorBorderColor = Color.Red,
                                 ),
                             placeholder = { Text(text = "이름") },
@@ -161,12 +163,13 @@ fun SignUpScreen(
                         Text(
                             fontSize = 12.sp,
                             text = "학번과 이름을 정확히 입력해주세요.",
-                            color = Color(0xFF999999),
+                            color = colorResource(R.color.buttonGray),
                             modifier = Modifier.padding(top = 3.dp),
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.weight(3.75f))
         }
         Column(
             modifier =
@@ -189,7 +192,7 @@ fun SignUpScreen(
                 Text(
                     fontSize = 14.sp,
                     text = "로그인",
-                    color = Color(0xFF3469F9),
+                    color = colorResource(id = R.color.mainBlue),
                     textDecoration = TextDecoration.Underline,
                     modifier =
                         Modifier
@@ -210,12 +213,12 @@ fun SignUpScreen(
                         isWrong = true
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
                 shape = RoundedCornerShape(23.dp),
                 modifier =
                     Modifier
-                        .fillMaxWidth(0.89f)
-                        .padding(bottom = 33.dp) // 33
+                        .fillMaxWidth()
+                        .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
                         .height(54.dp),
             ) {
                 Text(

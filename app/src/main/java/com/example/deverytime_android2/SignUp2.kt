@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -114,29 +115,26 @@ fun SignUp2Screen(
                     .padding(start = 8.dp, top = 52.dp),
             contentScale = ContentScale.Fit,
         )
-
+        Column(
+            modifier =
+                modifier
+                    .padding(16.dp),
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
         Text(
             text = "이메일을 인증해주세요!",
             fontSize = 23.5.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = pretendardVariable,
             color = Color.Black,
-            modifier = Modifier.padding(start = 22.dp, top = 128.dp),
+            modifier = Modifier.padding(start = 3.dp, bottom = 42 .dp),
         )
-
-        Column(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-        ) {
-            Spacer(modifier = Modifier.height(180.dp))
 
             // 이메일 입력창
             Text(
                 fontSize = 12.sp,
                 text = "이메일",
-                color = Color(0xFF999999),
+                color = colorResource(R.color.buttonGray),
             )
             OutlinedTextField(
                 colors =
@@ -144,7 +142,7 @@ fun SignUp2Screen(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = Color(0xFF999999),
+                        unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
                     ),
                 placeholder = { Text(text = "이메일") },
                 value = email,
@@ -179,7 +177,7 @@ fun SignUp2Screen(
                 Text(
                     text = "잘못된 이메일 형식입니다.",
                     fontSize = 12.sp,
-                    color = Color(0xFF999999),
+                    color = colorResource(R.color.buttonGray),
                     modifier = Modifier.padding(top = 5.dp),
                 )
             }
@@ -190,7 +188,7 @@ fun SignUp2Screen(
                     Text(
                         fontSize = 12.sp,
                         text = "인증번호",
-                        color = Color(0xFF999999),
+                        color = colorResource(R.color.buttonGray),
                     )
                     Row(modifier = Modifier.height(62.dp)) {
                         OutlinedTextField(
@@ -199,7 +197,7 @@ fun SignUp2Screen(
                                     focusedTextColor = Color.Black,
                                     unfocusedTextColor = Color.Black,
                                     focusedPlaceholderColor = Color.Transparent,
-                                    unfocusedPlaceholderColor = Color(0xFF999999),
+                                    unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
                                 ),
                             placeholder = { Text(text = "인증번호") },
                             trailingIcon = {
@@ -211,7 +209,7 @@ fun SignUp2Screen(
                                             elapsedSecond % 60,
                                         ),
                                     fontSize = 16.sp,
-                                    color = Color(0xFF999999),
+                                    color = colorResource(R.color.buttonGray),
                                 )
                             },
                             value = certifiedNum,
@@ -260,9 +258,9 @@ fun SignUp2Screen(
                                 ButtonDefaults.buttonColors(
                                     containerColor =
                                         if (isClicked) {
-                                            Color(0xFF3469F9)
+                                            colorResource(R.color.mainBlue)
                                         } else {
-                                            Color(0xFF999999)
+                                            colorResource(R.color.buttonGray)
                                         },
                                 ),
                             shape = RoundedCornerShape(18.dp),
@@ -290,7 +288,7 @@ fun SignUp2Screen(
                         Text(
                             fontSize = 12.sp,
                             text = "인증번호가 달라요.",
-                            color = Color(0xFF999999),
+                            color = colorResource(R.color.buttonGray),
                             modifier = Modifier.padding(top = 5.dp),
                         )
                     } // 틀렸을 떄 나오는 문구
@@ -298,12 +296,13 @@ fun SignUp2Screen(
                         Text(
                             fontSize = 12.sp,
                             text = "시간이 초과되었어요. 다시 시도해주세요.",
-                            color = Color(0xFF999999),
+                            color = colorResource(R.color.buttonGray),
                             modifier = Modifier.padding(top = 5.dp),
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.weight(4.9f)) // Spacer를 사용하여 버튼을 하단에 고정
         }
         Box(modifier = Modifier.fillMaxSize()) {
             Text(
@@ -318,7 +317,7 @@ fun SignUp2Screen(
             Text(
                 fontSize = 14.sp,
                 text = "로그인",
-                color = Color(0xFF3469F9),
+                color = colorResource(id = R.color.mainBlue),
                 textDecoration = TextDecoration.Underline,
                 modifier =
                     Modifier
@@ -343,13 +342,13 @@ fun SignUp2Screen(
                             isEmailWrong = true
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
                     shape = RoundedCornerShape(23.dp),
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .fillMaxWidth(0.87f)
-                            .padding(bottom = 33.dp) // 33
+                            .fillMaxWidth()
+                            .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
                             .height(54.dp)
                             .zIndex(1f),
                 ) {
@@ -374,13 +373,13 @@ fun SignUp2Screen(
                         }
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
                 shape = RoundedCornerShape(23.dp),
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
-                        .fillMaxWidth(0.89f)
-                        .padding(bottom = 33.dp) // 33
+                        .fillMaxWidth()
+                        .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
                         .height(54.dp),
             ) {
                 Text(
@@ -401,7 +400,7 @@ fun SignUpScreenPreview7() {
         Box(modifier = Modifier.fillMaxSize()) {
             // 디자인 이미지를 반투명하게 배경에 깔기
             Image(
-                painter = painterResource(id = R.drawable.signup2),
+                painter = painterResource(id = R.drawable.signup3),
                 contentDescription = "디자인 미리보기",
                 modifier =
                     Modifier

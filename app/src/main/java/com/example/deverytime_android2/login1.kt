@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -97,13 +98,15 @@ fun LoginScreen(
                     .align(Alignment.CenterVertically),
         )
     }
+
     Column(
         modifier =
             Modifier
-                .fillMaxHeight(0.5f)
+                .fillMaxSize()
                 .padding(horizontal = 18.dp),
-        verticalArrangement = Arrangement.Bottom,
+        verticalArrangement = Arrangement.Top,
     ) {
+        Spacer(modifier = Modifier.weight(1f))
         Box(modifier = Modifier.padding(start = 4.dp)) {
             Text(
                 text = "데브리타임을 사용하고\n일상, 전공, 멘토링 등 쉽게 소통해봐요.",
@@ -114,12 +117,12 @@ fun LoginScreen(
             )
         }
 
-        Column(modifier = Modifier.padding(top = 35.dp, bottom = 48.dp)) {
+        Column(modifier = Modifier.padding(top = 35.dp)) {
             // 이메일 입력창
             Text(
                 fontSize = 12.sp,
                 text = "이메일",
-                color = Color(0xFF999999),
+                color = colorResource(R.color.buttonGray),
             )
             OutlinedTextField(
                 colors =
@@ -127,7 +130,7 @@ fun LoginScreen(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = Color(0xFF999999),
+                        unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
                         errorBorderColor = Color.Red,
                     ),
                 placeholder = { Text(text = "이메일") },
@@ -143,7 +146,7 @@ fun LoginScreen(
             Text(
                 fontSize = 12.sp,
                 text = "비밀번호",
-                color = Color(0xFF999999),
+                color = colorResource(R.color.buttonGray),
             )
             OutlinedTextField(
                 colors =
@@ -151,7 +154,7 @@ fun LoginScreen(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = Color(0xFF999999),
+                        unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
                         errorBorderColor = Color.Red,
                     ),
                 placeholder = { Text(text = "비밀번호") },
@@ -162,6 +165,7 @@ fun LoginScreen(
                 visualTransformation = PasswordVisualTransformation(),
             )
         }
+        Spacer(modifier = Modifier.weight(3.8f))
     }
     Column(
         modifier =
@@ -180,7 +184,7 @@ fun LoginScreen(
             Text(
                 fontSize = 14.sp,
                 text = "회원가입",
-                color = Color(0xFF3469F9),
+                color = colorResource(R.color.mainBlue),
                 textDecoration = TextDecoration.Underline,
                 modifier =
                     Modifier
@@ -191,12 +195,12 @@ fun LoginScreen(
         }
         Button(
             onClick = { },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.mainBlue)),
             shape = RoundedCornerShape(23.dp),
             modifier =
                 Modifier
-                    .fillMaxWidth(0.89f)
-                    .padding(bottom = 33.dp) // 33
+                    .fillMaxWidth()
+                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
                     .height(54.dp),
         ) {
             Text(

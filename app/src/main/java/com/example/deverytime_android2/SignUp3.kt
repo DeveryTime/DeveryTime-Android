@@ -25,16 +25,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 
 @Composable
 fun SignUp3Screen(
@@ -81,79 +86,82 @@ fun SignUp3Screen(
             contentScale = ContentScale.Fit,
         )
 
-        Text(
-            text = "비밀번호를 알려주세요!",
-            fontSize = 23.5.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = pretendardVariable,
-            color = Color.Black,
-            modifier = Modifier.padding(start = 22.dp, top = 128.dp),
-        )
-
-        Column(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-        ) {
-            Spacer(modifier = Modifier.height(180.dp))
-
-            // 비밀번호 입력창
+        Column(modifier = Modifier) {
+            Spacer(modifier = Modifier.weight(1f))
             Text(
-                fontSize = 12.sp,
-                text = "비밀번호",
-                color = Color(0xFF999999),
-            )
-            OutlinedTextField(
-                colors =
-                    OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = Color(0xFF999999),
-                        errorBorderColor = Color.Red,
-                    ),
-                placeholder = { Text(text = "비밀번호") },
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                visualTransformation = PasswordVisualTransformation(),
+                text = "비밀번호를 알려주세요!",
+                fontSize = 23.5.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = pretendardVariable,
+                color = Color.Black,
+                modifier = Modifier.padding(start = 22.dp),
             )
 
-            Spacer(modifier = Modifier.height(9.dp))
+            Column(
+                modifier =
+                    modifier
+                        .padding(16.dp),
+            ) {
+                Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                fontSize = 12.sp,
-                text = "비밀번호 확인",
-                color = Color(0xFF999999),
-            )
-            OutlinedTextField(
-                colors =
-                    OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = Color(0xFF999999),
-                        errorBorderColor = Color.Red,
-                    ),
-                placeholder = { Text(text = "비밀번호 확인") },
-                value = recheckNumber,
-                onValueChange = { recheckNumber = it },
-                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                visualTransformation = PasswordVisualTransformation(),
-            )
-            if (isWrong) {
+                // 비밀번호 입력창
                 Text(
-                    text = "비밀번호가 일치하지 않습니다.",
-                    color = Color(0xFF999999),
                     fontSize = 12.sp,
-                    modifier =
-                        modifier
-                            .padding(top = 5.dp),
+                    text = "비밀번호",
+                    color = colorResource(R.color.buttonGray),
                 )
+                OutlinedTextField(
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            focusedPlaceholderColor = Color.Transparent,
+                            unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                            errorBorderColor = Color.Red,
+                        ),
+                    placeholder = { Text(text = "비밀번호") },
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                )
+
+                Spacer(modifier = Modifier.height(9.dp))
+
+                Text(
+                    fontSize = 12.sp,
+                    text = "비밀번호 확인",
+                    color = colorResource(R.color.buttonGray),
+                )
+                OutlinedTextField(
+                    colors =
+                        OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            focusedPlaceholderColor = Color.Transparent,
+                            unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                            errorBorderColor = Color.Red,
+                        ),
+                    placeholder = { Text(text = "비밀번호 확인") },
+                    value = recheckNumber,
+                    onValueChange = { recheckNumber = it },
+                    modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                )
+                if (isWrong) {
+                    Text(
+                        text = "비밀번호가 일치하지 않습니다.",
+                        color = colorResource(R.color.buttonGray),
+                        fontSize = 12.sp,
+                        modifier =
+                            modifier
+                                .padding(top = 5.dp),
+                    )
+                }
             }
+            Spacer(modifier = Modifier.weight(3.6f))
         }
         Box(modifier = Modifier.fillMaxSize()) {
             Text(
@@ -168,7 +176,7 @@ fun SignUp3Screen(
             Text(
                 fontSize = 14.sp,
                 text = "로그인",
-                color = Color(0xFF3469F9),
+                color = colorResource(id = R.color.mainBlue),
                 textDecoration = TextDecoration.Underline,
                 modifier =
                     Modifier
@@ -192,13 +200,13 @@ fun SignUp3Screen(
                         isWrong = true
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3469F9)),
+                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
                 shape = RoundedCornerShape(23.dp),
                 modifier =
                     Modifier
                         .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
-                        .fillMaxWidth(0.87f)
-                        .padding(bottom = 33.dp) // 33
+                        .fillMaxWidth()
+                        .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
                         .height(54.dp),
             ) {
                 Text(
@@ -208,6 +216,36 @@ fun SignUp3Screen(
                     text = "다음",
                 )
             }
+        }
+    }
+}
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun SignUpScreenPreview23() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // 디자인 이미지를 반투명하게 배경에 깔기
+            Image(
+                painter = painterResource(id = R.drawable.signup4),
+                contentDescription = "디자인 미리보기",
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .alpha(0.3f),
+                contentScale = ContentScale.Fit,
+            )
+            // 실제 UI 겹치기
+            SignUp3Screen(navController = rememberNavController())
+        }
+    }
+}
+
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun SignUpScreenPreview124() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            SignUp3Screen(navController = rememberNavController())
         }
     }
 }
