@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import com.example.deverytime_android2.ui.theme.mainBlue
 
 @Composable
 fun SignUpScreen(
@@ -114,7 +115,7 @@ fun SignUpScreen(
                     Text(
                         fontSize = 12.sp,
                         text = "학번",
-                        color = colorResource(R.color.buttonGray),
+                        color = buttonGray,
                     )
                     OutlinedTextField(
                         colors =
@@ -122,7 +123,7 @@ fun SignUpScreen(
                                 focusedTextColor = Color.Black,
                                 unfocusedTextColor = Color.Black,
                                 focusedPlaceholderColor = Color.Transparent,
-                                unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                                unfocusedPlaceholderColor = buttonGray,
                                 errorBorderColor = Color.Red,
                             ),
                         placeholder = { Text(text = "학번") },
@@ -140,7 +141,7 @@ fun SignUpScreen(
                         Text(
                             fontSize = 12.sp,
                             text = "이름",
-                            color = colorResource(R.color.buttonGray),
+                            color = buttonGray,
                         )
                         OutlinedTextField(
                             colors =
@@ -148,7 +149,7 @@ fun SignUpScreen(
                                     focusedTextColor = Color.Black,
                                     unfocusedTextColor = Color.Black,
                                     focusedPlaceholderColor = Color.Transparent,
-                                    unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                                    unfocusedPlaceholderColor = buttonGray,
                                     errorBorderColor = Color.Red,
                                 ),
                             placeholder = { Text(text = "이름") },
@@ -163,7 +164,7 @@ fun SignUpScreen(
                         Text(
                             fontSize = 12.sp,
                             text = "학번과 이름을 정확히 입력해주세요.",
-                            color = colorResource(R.color.buttonGray),
+                            color = buttonGray,
                             modifier = Modifier.padding(top = 3.dp),
                         )
                     }
@@ -192,7 +193,7 @@ fun SignUpScreen(
                 Text(
                     fontSize = 14.sp,
                     text = "로그인",
-                    color = colorResource(id = R.color.mainBlue),
+                    color = mainBlue,
                     textDecoration = TextDecoration.Underline,
                     modifier =
                         Modifier
@@ -213,7 +214,7 @@ fun SignUpScreen(
                         isWrong = true
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
+                colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                 shape = RoundedCornerShape(23.dp),
                 modifier =
                     Modifier

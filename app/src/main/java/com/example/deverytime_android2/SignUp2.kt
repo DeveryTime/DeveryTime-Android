@@ -3,6 +3,7 @@ package com.example.deverytime_android2
 import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -34,7 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +50,8 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import com.example.deverytime_android2.ui.theme.mainBlue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.regex.Pattern
@@ -121,20 +123,20 @@ fun SignUp2Screen(
                     .padding(16.dp),
         ) {
             Spacer(modifier = Modifier.weight(1f))
-        Text(
-            text = "이메일을 인증해주세요!",
-            fontSize = 23.5.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = pretendardVariable,
-            color = Color.Black,
-            modifier = Modifier.padding(start = 3.dp, bottom = 42 .dp),
-        )
+            Text(
+                text = "이메일을 인증해주세요!",
+                fontSize = 23.5.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = pretendardVariable,
+                color = Color.Black,
+                modifier = Modifier.padding(start = 3.dp, bottom = 42.dp),
+            )
 
             // 이메일 입력창
             Text(
                 fontSize = 12.sp,
                 text = "이메일",
-                color = colorResource(R.color.buttonGray),
+                color = buttonGray,
             )
             OutlinedTextField(
                 colors =
@@ -142,7 +144,7 @@ fun SignUp2Screen(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                        unfocusedPlaceholderColor = buttonGray,
                     ),
                 placeholder = { Text(text = "이메일") },
                 value = email,
@@ -177,18 +179,18 @@ fun SignUp2Screen(
                 Text(
                     text = "잘못된 이메일 형식입니다.",
                     fontSize = 12.sp,
-                    color = colorResource(R.color.buttonGray),
+                    color = buttonGray,
                     modifier = Modifier.padding(top = 5.dp),
                 )
             }
             Spacer(modifier = Modifier.height(9.dp))
-            if (onClickCertified == true && email.isNotEmpty()) {
+            if (onClickCertified&& email.isNotEmpty()) {
                 Column {
                     // 인증번호 입력창
                     Text(
                         fontSize = 12.sp,
                         text = "인증번호",
-                        color = colorResource(R.color.buttonGray),
+                        color = buttonGray,
                     )
                     Row(modifier = Modifier.height(62.dp)) {
                         OutlinedTextField(
@@ -197,7 +199,7 @@ fun SignUp2Screen(
                                     focusedTextColor = Color.Black,
                                     unfocusedTextColor = Color.Black,
                                     focusedPlaceholderColor = Color.Transparent,
-                                    unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                                    unfocusedPlaceholderColor = buttonGray,
                                 ),
                             placeholder = { Text(text = "인증번호") },
                             trailingIcon = {
@@ -209,7 +211,7 @@ fun SignUp2Screen(
                                             elapsedSecond % 60,
                                         ),
                                     fontSize = 16.sp,
-                                    color = colorResource(R.color.buttonGray),
+                                    color = buttonGray,
                                 )
                             },
                             value = certifiedNum,
@@ -258,9 +260,9 @@ fun SignUp2Screen(
                                 ButtonDefaults.buttonColors(
                                     containerColor =
                                         if (isClicked) {
-                                            colorResource(R.color.mainBlue)
+                                            mainBlue
                                         } else {
-                                            colorResource(R.color.buttonGray)
+                                            buttonGray
                                         },
                                 ),
                             shape = RoundedCornerShape(18.dp),
@@ -288,7 +290,7 @@ fun SignUp2Screen(
                         Text(
                             fontSize = 12.sp,
                             text = "인증번호가 달라요.",
-                            color = colorResource(R.color.buttonGray),
+                            color = buttonGray,
                             modifier = Modifier.padding(top = 5.dp),
                         )
                     } // 틀렸을 떄 나오는 문구
@@ -296,7 +298,7 @@ fun SignUp2Screen(
                         Text(
                             fontSize = 12.sp,
                             text = "시간이 초과되었어요. 다시 시도해주세요.",
-                            color = colorResource(R.color.buttonGray),
+                            color = buttonGray,
                             modifier = Modifier.padding(top = 5.dp),
                         )
                     }
@@ -304,90 +306,90 @@ fun SignUp2Screen(
             }
             Spacer(modifier = Modifier.weight(4.9f)) // Spacer를 사용하여 버튼을 하단에 고정
         }
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text(
-                fontSize = 14.sp,
-                text = "만약 계정이 있으신가요?",
-                color = Color(0xFFB1B1B1),
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(bottom = 95.dp, start = 105.dp),
-            )
-            Text(
-                fontSize = 14.sp,
-                text = "로그인",
-                color = colorResource(id = R.color.mainBlue),
-                textDecoration = TextDecoration.Underline,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 95.dp, start = 135.dp)
-                        .clickable {
-                            navController.navigate(Screen.Login.route)
+        Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
+                Text(
+                    fontSize = 14.sp,
+                    text = "만약 계정이 있으신가요?",
+                    color = Color(0xFFB1B1B1),
+                    modifier =
+                        Modifier,
+                )
+                Text(
+                    fontSize = 14.sp,
+                    text = "로그인",
+                    color = mainBlue,
+                    textDecoration = TextDecoration.Underline,
+                    modifier =
+                        Modifier
+                            .clickable {
+                                navController.navigate(Screen.Login.route)
+                            },
+                )
+            }
+            Box(modifier = Modifier, Alignment.BottomCenter) {
+                if (isVisible) {
+                    Button(
+                        onClick = {
+                            if (email.isNotBlank()) {
+                                val fullemail = "$email@$SCHOOL_EMAIL_DOMAIN"
+
+                                // API 성공 후 ->
+                                onClickCertified = true
+                                isVisible = false
+                                isEmailWrong = false
+                                elapsedSecond = 180
+                            } else {
+                                isEmailWrong = true
+                            }
                         },
-            )
-            if (isVisible) {
+                        colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
+                        shape = RoundedCornerShape(23.dp),
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
+                                .height(54.dp)
+                                .zIndex(1f),
+                    ) {
+                        Text(
+                            fontFamily = pretendardVariable,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp,
+                            text = "이메일 인증",
+                        )
+                    }
+                }
                 Button(
                     onClick = {
-                        if (email.isNotBlank()) {
-                            val fullemail = "$email@$SCHOOL_EMAIL_DOMAIN"
-
-                            // API 성공 후 ->
-                            onClickCertified = true
-                            isVisible = false
-                            isEmailWrong = false
-                            elapsedSecond = 180
+                        if (timeDone) {
+                            isWrong = false
                         } else {
-                            isEmailWrong = true
+                            if (certifiedNum.isNotBlank()) {
+                                // TODO: 여기서 서버에 검증 요청해서 true가 오면 넘어가도록 *서버가 검증해야함*
+                                navController.navigate(Screen.SignUp3.route)
+                            } else {
+                                isWrong = true
+                            }
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
+                    colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                     shape = RoundedCornerShape(23.dp),
                     modifier =
                         Modifier
-                            .align(Alignment.BottomCenter)
+                            .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
                             .fillMaxWidth()
                             .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
-                            .height(54.dp)
-                            .zIndex(1f),
+                            .height(54.dp),
                 ) {
                     Text(
                         fontFamily = pretendardVariable,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        text = "이메일 인증",
+                        text = "다음",
                     )
                 }
-            }
-            Button(
-                onClick = {
-                    if (timeDone) {
-                        isWrong = false
-                    } else {
-                        if (certifiedNum.isNotBlank()) {
-                            // TODO: 여기서 서버에 검증 요청해서 true가 오면 넘어가도록 *서버가 검증해야함*
-                            navController.navigate(Screen.SignUp3.route)
-                        } else {
-                            isWrong = true
-                        }
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
-                shape = RoundedCornerShape(23.dp),
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
-                        .fillMaxWidth()
-                        .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
-                        .height(54.dp),
-            ) {
-                Text(
-                    fontFamily = pretendardVariable,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    text = "다음",
-                )
             }
         }
     }

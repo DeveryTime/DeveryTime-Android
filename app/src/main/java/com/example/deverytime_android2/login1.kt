@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -50,6 +49,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import com.example.deverytime_android2.ui.theme.mainBlue
 
 @OptIn(ExperimentalTextApi::class)
 val pretendardVariable =
@@ -122,7 +123,7 @@ fun LoginScreen(
             Text(
                 fontSize = 12.sp,
                 text = "이메일",
-                color = colorResource(R.color.buttonGray),
+                color = buttonGray,
             )
             OutlinedTextField(
                 colors =
@@ -130,7 +131,7 @@ fun LoginScreen(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                        unfocusedPlaceholderColor = buttonGray,
                         errorBorderColor = Color.Red,
                     ),
                 placeholder = { Text(text = "이메일") },
@@ -146,7 +147,7 @@ fun LoginScreen(
             Text(
                 fontSize = 12.sp,
                 text = "비밀번호",
-                color = colorResource(R.color.buttonGray),
+                color = buttonGray,
             )
             OutlinedTextField(
                 colors =
@@ -154,7 +155,7 @@ fun LoginScreen(
                         focusedTextColor = Color.Black,
                         unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                        unfocusedPlaceholderColor = buttonGray,
                         errorBorderColor = Color.Red,
                     ),
                 placeholder = { Text(text = "비밀번호") },
@@ -184,7 +185,7 @@ fun LoginScreen(
             Text(
                 fontSize = 14.sp,
                 text = "회원가입",
-                color = colorResource(R.color.mainBlue),
+                color = mainBlue,
                 textDecoration = TextDecoration.Underline,
                 modifier =
                     Modifier
@@ -195,7 +196,7 @@ fun LoginScreen(
         }
         Button(
             onClick = { },
-            colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.mainBlue)),
+            colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
             shape = RoundedCornerShape(23.dp),
             modifier =
                 Modifier

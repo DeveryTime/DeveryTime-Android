@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,9 +37,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import com.example.deverytime_android2.ui.theme.mainBlue
 
 @Composable
 fun SignUp3Screen(
@@ -108,7 +111,7 @@ fun SignUp3Screen(
                 Text(
                     fontSize = 12.sp,
                     text = "비밀번호",
-                    color = colorResource(R.color.buttonGray),
+                    color = buttonGray,
                 )
                 OutlinedTextField(
                     colors =
@@ -116,7 +119,7 @@ fun SignUp3Screen(
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
                             focusedPlaceholderColor = Color.Transparent,
-                            unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                            unfocusedPlaceholderColor = buttonGray,
                             errorBorderColor = Color.Red,
                         ),
                     placeholder = { Text(text = "비밀번호") },
@@ -132,7 +135,7 @@ fun SignUp3Screen(
                 Text(
                     fontSize = 12.sp,
                     text = "비밀번호 확인",
-                    color = colorResource(R.color.buttonGray),
+                    color = buttonGray,
                 )
                 OutlinedTextField(
                     colors =
@@ -140,7 +143,7 @@ fun SignUp3Screen(
                             focusedTextColor = Color.Black,
                             unfocusedTextColor = Color.Black,
                             focusedPlaceholderColor = Color.Transparent,
-                            unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                            unfocusedPlaceholderColor = buttonGray,
                             errorBorderColor = Color.Red,
                         ),
                     placeholder = { Text(text = "비밀번호 확인") },
@@ -153,42 +156,42 @@ fun SignUp3Screen(
                 if (isWrong) {
                     Text(
                         text = "비밀번호가 일치하지 않습니다.",
-                        color = colorResource(R.color.buttonGray),
+                        color = buttonGray,
                         fontSize = 12.sp,
                         modifier =
-                            modifier
+                            Modifier
                                 .padding(top = 5.dp),
                     )
                 }
             }
             Spacer(modifier = Modifier.weight(3.6f))
         }
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text(
-                fontSize = 14.sp,
-                text = "만약 계정이 있으신가요?",
-                color = Color(0xFFB1B1B1),
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 95.dp, end = 55.dp),
-            )
-            Text(
-                fontSize = 14.sp,
-                text = "로그인",
-                color = colorResource(id = R.color.mainBlue),
-                textDecoration = TextDecoration.Underline,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 95.dp, start = 135.dp)
-                        .clickable {
-                            navController.navigate(Screen.Login.route)
-                        },
-            )
+        Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
+                Text(
+                    fontSize = 14.sp,
+                    text = "만약 계정이 있으신가요?",
+                    color = Color(0xFFB1B1B1),
+                    modifier =
+                    Modifier,
+                )
+                Text(
+                    fontSize = 14.sp,
+                    text = "로그인",
+                    color = mainBlue,
+                    textDecoration = TextDecoration.Underline,
+                    modifier =
+                        Modifier
+                            .clickable {
+                                navController.navigate(Screen.Login.route)
+                            },
+                )
+            }
+            Box(modifier = Modifier, Alignment.BottomCenter) {
+            }
             Button(
-                // TODO:최소 비밀번호 8 ~ 20자까지 글자수 제한 백엔드에 검증 요청
                 onClick = {
+                    // TODO:최소 비밀번호 8 ~ 20자까지 글자수 제한 백엔드에 검증 요청
                     if (password.isNotEmpty() && recheckNumber.isNotEmpty()) {
                         if (recheckNumber == password) {
                             // 비밀번호와 재확인 비밀번호가 일치면 통과
@@ -200,11 +203,10 @@ fun SignUp3Screen(
                         isWrong = true
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
+                colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                 shape = RoundedCornerShape(23.dp),
                 modifier =
                     Modifier
-                        .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
                         .fillMaxWidth()
                         .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
                         .height(54.dp),
@@ -219,6 +221,7 @@ fun SignUp3Screen(
         }
     }
 }
+
 @Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
 @Composable
 fun SignUpScreenPreview23() {

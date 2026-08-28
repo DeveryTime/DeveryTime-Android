@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,6 +42,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import com.example.deverytime_android2.ui.theme.mainBlue
 
 @Composable
 fun SignUp4Screen(
@@ -58,13 +59,13 @@ fun SignUp4Screen(
     var isWrong by remember { mutableStateOf(false) }
     val buttonColor =
         when {
-            isClicked -> colorResource(id = R.color.buttonGray)
+            isClicked -> buttonGray
 
             // 버튼 클릭 후 회색
-            id.isNotEmpty() -> colorResource(id = R.color.mainBlue)
+            id.isNotEmpty() -> mainBlue
 
             // 글자가 있으면 파란색
-            else -> colorResource(id = R.color.buttonGray) // 글자가 없으면 회색
+            else -> buttonGray // 글자가 없으면 회색
         }
     Button(
             onClick = {
@@ -152,7 +153,7 @@ fun SignUp4Screen(
                 Text(
                     fontSize = 12.sp,
                     text = "아이디",
-                    color = colorResource(R.color.buttonGray),
+                    color = buttonGray,
                 )
                 Row {
                     OutlinedTextField(
@@ -161,7 +162,7 @@ fun SignUp4Screen(
                                 focusedTextColor = Color.Black,
                                 unfocusedTextColor = Color.Black,
                                 focusedPlaceholderColor = Color.Transparent,
-                                unfocusedPlaceholderColor = colorResource(R.color.buttonGray),
+                                unfocusedPlaceholderColor = buttonGray,
                                 errorBorderColor = Color.Red,
                             ),
                         placeholder = { Text(text = "우아한 강아지") },
@@ -170,7 +171,7 @@ fun SignUp4Screen(
                             id = it
                             isClicked = false
                         },
-                        modifier = Modifier.padding(top = 3.dp).weight(0.5f),
+                        modifier = Modifier.padding(top = 3.dp).weight(1f),
                         shape = RoundedCornerShape(12.dp),
                     )
                     Button(
@@ -188,7 +189,7 @@ fun SignUp4Screen(
                         modifier =
                             Modifier
                                 .padding(start = 10.dp)
-                                .weight(0.15f)
+                                .weight(0.32f)
                                 .height(56.dp)
                                 .padding(top = 6.dp),
                         contentPadding = PaddingValues(0.dp),
@@ -209,7 +210,7 @@ fun SignUp4Screen(
                     Text(
                         fontSize = 14.sp,
                         text = "이미 있는 이름이에요.",
-                        color = colorResource(R.color.buttonGray),
+                        color = buttonGray,
                         modifier = Modifier.padding(top = 5.dp, start = 0.dp),
                     )
                 }
@@ -229,7 +230,7 @@ fun SignUp4Screen(
             Text(
                 fontSize = 14.sp,
                 text = "로그인",
-                color = colorResource(id = R.color.mainBlue),
+                color = mainBlue,
                 textDecoration = TextDecoration.Underline,
                 modifier =
                     Modifier
@@ -247,7 +248,7 @@ fun SignUp4Screen(
                         launchSingleTop = true
                     }
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.mainBlue)),
+                colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                 shape = RoundedCornerShape(23.dp),
                 modifier =
                     Modifier
