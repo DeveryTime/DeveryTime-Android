@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
@@ -67,7 +68,8 @@ fun SignUp4Screen(
             // 글자가 있으면 파란색
             else -> buttonGray // 글자가 없으면 회색
         }
-    Button(
+    Box {
+        Button(
             onClick = {
                 navController.navigate(Screen.Login.route) {
                     popUpTo(Screen.Login.route) { inclusive = true }
@@ -146,8 +148,8 @@ fun SignUp4Screen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
-                verticalArrangement = Arrangement.Center,
+                        .padding(start = 16.dp, end = 16.dp)
+                        .align(Alignment.CenterHorizontally),
             ) {
                 // 아이디 입력창
                 Text(
@@ -217,83 +219,53 @@ fun SignUp4Screen(
             }
             Spacer(modifier = Modifier.weight(3.4f))
         }
-        Box(modifier = Modifier.fillMaxSize()) {
-            Text(
-                fontSize = 14.sp,
-                text = "만약 계정이 있으신가요?",
-                color = Color(0xFFB1B1B1),
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 95.dp, end = 55.dp),
-            )
-            Text(
-                fontSize = 14.sp,
-                text = "로그인",
-                color = mainBlue,
-                textDecoration = TextDecoration.Underline,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 95.dp, start = 135.dp)
-                        .clickable {
-                            navController.navigate(Screen.Login.route)
-                        },
-            )
-            Button(
-                onClick = {
-                    // TODO: 여기서 아이디 확인 중복확인 이후 로그인으로 이동 *추가 수정 필요*
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
-                shape = RoundedCornerShape(23.dp),
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
-                        .fillMaxWidth()
-                        .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
-                        .height(54.dp),
-            ) {
+        Column(modifier = Modifier.align(Alignment.BottomCenter)) {
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
                 Text(
-                    fontFamily = pretendardVariable,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    text = "다음",
+                    fontSize = 14.sp,
+                    text = "만약 계정이 있으신가요?",
+                    color = Color(0xFFB1B1B1),
+                    modifier =
+                    Modifier,
+                )
+                Text(
+                    fontSize = 14.sp,
+                    text = "로그인",
+                    color = mainBlue,
+                    textDecoration = TextDecoration.Underline,
+                    modifier =
+                        Modifier
+                            .clickable {
+                                navController.navigate(Screen.Login.route)
+                            },
                 )
             }
-        }
-    }
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUpScreenPreview233() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-            Image(
-                painter = painterResource(id = R.drawable.signup5),
-                contentDescription = "디자인 미리보기",
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f),
-                contentScale = ContentScale.Fit,
-            )
-            // 실제 UI 겹치기
-            SignUp4Screen(navController = rememberNavController())
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUpScreenPreview1241() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            SignUp4Screen(navController = rememberNavController())
+            Box(modifier = Modifier, Alignment.BottomCenter) {
+                Button(
+                    onClick = {
+                        // TODO: 여기서 아이디 확인 중복확인 이후 로그인으로 이동 *추가 수정 필요*
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
+                    shape = RoundedCornerShape(23.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
+                            .fillMaxWidth()
+                            .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
+                            .height(54.dp),
+                ) {
+                    Text(
+                        fontFamily = pretendardVariable,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        text = "다음",
+                    )
+                }
+            }
         }
     }
 }

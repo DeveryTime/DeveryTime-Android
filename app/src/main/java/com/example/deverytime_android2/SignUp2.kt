@@ -184,7 +184,7 @@ fun SignUp2Screen(
                 )
             }
             Spacer(modifier = Modifier.height(9.dp))
-            if (onClickCertified&& email.isNotEmpty()) {
+            if (onClickCertified && email.isNotEmpty()) {
                 Column {
                     // 인증번호 입력창
                     Text(
@@ -313,7 +313,7 @@ fun SignUp2Screen(
                     text = "만약 계정이 있으신가요?",
                     color = Color(0xFFB1B1B1),
                     modifier =
-                        Modifier,
+                    Modifier,
                 )
                 Text(
                     fontSize = 14.sp,
@@ -391,37 +391,6 @@ fun SignUp2Screen(
                     )
                 }
             }
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUpScreenPreview7() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-            Image(
-                painter = painterResource(id = R.drawable.signup3),
-                contentDescription = "디자인 미리보기",
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f),
-                contentScale = ContentScale.Fit,
-            )
-            // 실제 UI 겹치기
-            SignUp2Screen(navController = rememberNavController())
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUpScreenPreview6() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            SignUp2Screen(navController = rememberNavController())
         }
     }
 }

@@ -232,34 +232,3 @@ fun SignUpScreen(
         }
     }
 }
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUpScreenPreview12() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-            Image(
-                painter = painterResource(id = R.drawable.signup1),
-                contentDescription = "디자인 미리보기",
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f),
-                contentScale = ContentScale.Fit,
-            )
-            // 실제 UI 겹치기
-            SignUpScreen(navController = rememberNavController())
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUpScreenPreview11() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            SignUpScreen(navController = rememberNavController())
-        }
-    }
-}
