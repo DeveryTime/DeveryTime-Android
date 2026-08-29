@@ -38,6 +38,7 @@ sealed class Screen(
     data object SignUp3 : Screen("signup3")
 
     data object SignUp4 : Screen("signup4")
+    data object myPage1 : Screen("myPage1")
 }
 
 class MainActivity : ComponentActivity() {
@@ -70,6 +71,7 @@ class MainActivity : ComponentActivity() {
             composable(route = Screen.SignUp2.route) { SignUp2Screen(navController) }
             composable(route = Screen.SignUp3.route) { SignUp3Screen(navController) }
             composable(route = Screen.SignUp4.route) { SignUp4Screen(navController) }
+            composable(route = Screen.myPage1.route) { myPage1Screen(navController) }
         }
     }
 }
