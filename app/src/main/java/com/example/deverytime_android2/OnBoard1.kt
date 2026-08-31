@@ -31,23 +31,20 @@ fun OnBoard1Screen(navController: NavHostController) {
             popUpTo(Screen.OnBoard1.route) { inclusive = true }
         }
     }
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color(0xFF5581FA))) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF5581FA))
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-
             ) {
                 Image(
-                    contentDescription = "null",
+                    contentDescription = null,
                     painter = painterResource(R.drawable.ic_onboarding1),
                     modifier = Modifier
                         .padding(bottom = 25.dp)

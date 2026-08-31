@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -31,11 +32,10 @@ import com.example.deverytime_android2.ui.theme.Pretendard
 fun OnBoard5Screen(navController: NavHostController) {
     Column(
         modifier = Modifier
-            .padding()
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.padding(top = 110.dp))
+        Spacer(modifier = Modifier.padding(110.dp))
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -56,7 +56,7 @@ fun OnBoard5Screen(navController: NavHostController) {
                 fontWeight = FontWeight.W700
             )
             Image(
-                contentDescription = "null",
+                contentDescription = null,
                 painter = painterResource(R.drawable.ic_onboarding5),
             )
         }

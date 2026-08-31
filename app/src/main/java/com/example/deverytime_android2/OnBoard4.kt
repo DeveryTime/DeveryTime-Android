@@ -56,13 +56,13 @@ fun OnBoard4Screen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                contentDescription = "null",
+                contentDescription = null,
                 painter = painterResource(R.drawable.ic_onboarding4),
                 modifier = Modifier
                     .padding(vertical = 50.dp),
             )
             Image(
-                contentDescription = "null",
+                contentDescription = null,
                 painter = painterResource(R.drawable.ic_kebab1),
             )
         }
