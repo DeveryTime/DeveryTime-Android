@@ -35,7 +35,7 @@ fun OnBoard5Screen(navController: NavHostController) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.padding(110.dp))
+        Spacer(modifier = Modifier.height(110.dp))
         Column(
             modifier = Modifier
                 .weight(1f)
