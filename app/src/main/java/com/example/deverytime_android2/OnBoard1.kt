@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +27,7 @@ import kotlinx.coroutines.delay
 fun OnBoard1Screen(navController: NavHostController) {
     //TODO: 로딩 후 이동
     LaunchedEffect(Unit) {
-        delay(3000)
+        delay(1000)
         navController.navigate(Screen.OnBoard2.route) {
             popUpTo(Screen.OnBoard1.route) { inclusive = true }
         }
@@ -70,11 +69,11 @@ fun OnBoard1Screen(navController: NavHostController) {
                 fontFamily = Pretendard,
                 fontWeight = FontWeight.W700,
                 color = Color.White,
-                modifier = Modifier.padding(bottom = 44.dp)
+
             )
+            Spacer(modifier = Modifier.height(44.dp))
         }
 
     }
 }
-
 

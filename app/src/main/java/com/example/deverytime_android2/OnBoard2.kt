@@ -30,9 +30,10 @@ fun OnBoard2Screen(navController: NavHostController) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp,top = 108.dp),
+                .padding(start = 20.dp),
             horizontalAlignment = Alignment.Start
         ) {
+            Spacer(Modifier.height(108.dp))
             Text(
                 text = stringResource(R.string.onboard2_1),
                 fontSize = 24.sp,
@@ -52,7 +53,7 @@ fun OnBoard2Screen(navController: NavHostController) {
                 .weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(70.dp))
+            Spacer(Modifier.height(68.dp))
             Image(
                 contentDescription = null,
                 painter = painterResource(R.drawable.ic_onboarding2),
@@ -70,4 +71,3 @@ fun OnBoard2Screen(navController: NavHostController) {
         )
     }
 }
-

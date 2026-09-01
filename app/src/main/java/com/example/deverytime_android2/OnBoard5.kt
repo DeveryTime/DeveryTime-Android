@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,11 +32,10 @@ fun OnBoard5Screen(navController: NavHostController) {
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(110.dp))
+        Spacer(modifier = Modifier.height(108.dp))
         Column(
             modifier = Modifier
-                .weight(1f)
-                .padding(bottom = 70.dp),
+                .weight(1f),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -55,10 +55,9 @@ fun OnBoard5Screen(navController: NavHostController) {
                 contentDescription = null,
                 painter = painterResource(R.drawable.ic_onboarding5),
             )
+            Spacer(Modifier.height(70.dp))
         }
         Column(
-            modifier = Modifier
-                .padding(bottom = 30.dp),
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -68,17 +67,16 @@ fun OnBoard5Screen(navController: NavHostController) {
                     fontFamily = Pretendard,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W500,
-                    modifier = Modifier
-                        .padding(bottom = 7.dp),
                     color = Color(0xFFb1b1b1)
                 )
+                Spacer(Modifier.width(7.dp))
                 Text(
                     text = stringResource(R.string.login),
                     fontFamily = Pretendard,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.W700,
                     modifier = Modifier
-                        .padding(start = 4.dp, bottom = 7.dp)
+                        .padding(bottom = 7.dp)
                         //TODO:로그인 경로 추가
                         .clickable {},
                     color = Color(0xFF3469f9),
