@@ -1,7 +1,6 @@
 package com.example.deverytime_android2
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,12 +13,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.ui.theme.CommonButton
-import com.example.deverytime_android2.ui.theme.Pretendard
+import com.example.deverytime_android2.ui.theme.Style
 
 @Composable
 fun OnBoard3Screen(navController: NavHostController) {
@@ -37,15 +34,11 @@ fun OnBoard3Screen(navController: NavHostController) {
             Spacer(Modifier.height(108.dp))
             Text(
                 text = stringResource(R.string.onboard3_1),
-                fontSize = 24.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700
+                style = Style.Title,
             )
             Text(
                 text = stringResource(R.string.onboard3_2),
-                fontSize = 24.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700
+                style = Style.Title,
             )
         }
         Column(

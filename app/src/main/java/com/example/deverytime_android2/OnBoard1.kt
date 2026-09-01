@@ -16,11 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.deverytime_android2.ui.theme.Pretendard
+import com.example.deverytime_android2.ui.theme.Style
 import kotlinx.coroutines.delay
 
 @Composable
@@ -50,26 +48,19 @@ fun OnBoard1Screen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(25.dp))
             Text(
                 text = stringResource(R.string.app_name),
-                fontSize = 24.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700,
+                style = Style.Title,
                 color = Color.White,
             )
             Spacer(modifier = Modifier.height(25.dp))
             Text(
                 text = stringResource(R.string.onboard1_1),
-                fontSize = 14.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700,
+                style = Style.Caption,
                 color = Color.White,
             )
             Text(
                 text = stringResource(R.string.onboard1_2),
-                fontSize = 14.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700,
+                style = Style.Caption,
                 color = Color.White,
-
             )
             Spacer(modifier = Modifier.height(44.dp))
         }

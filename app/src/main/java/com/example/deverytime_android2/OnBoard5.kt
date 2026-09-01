@@ -17,13 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.ui.theme.CommonButton
-import com.example.deverytime_android2.ui.theme.Pretendard
+import com.example.deverytime_android2.ui.theme.Style
 
 @Composable
 fun OnBoard5Screen(navController: NavHostController) {
@@ -41,15 +39,11 @@ fun OnBoard5Screen(navController: NavHostController) {
         ) {
             Text(
                 text = stringResource(R.string.onboard5_1),
-                fontSize = 24.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700
+                style = Style.Title,
             )
             Text(
                 text = stringResource(R.string.onboard5_2),
-                fontSize = 24.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700
+                style = Style.Title,
             )
             Image(
                 contentDescription = null,
@@ -64,17 +58,13 @@ fun OnBoard5Screen(navController: NavHostController) {
             Row() {
                 Text(
                     text = stringResource(R.string.onboard5_3),
-                    fontFamily = Pretendard,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W500,
+                    style = Style.Caption,
                     color = Color(0xFFb1b1b1)
                 )
                 Spacer(Modifier.width(7.dp))
                 Text(
                     text = stringResource(R.string.login),
-                    fontFamily = Pretendard,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.W700,
+                    style = Style.Caption,
                     modifier = Modifier
                         .padding(bottom = 7.dp)
                         //TODO:로그인 경로 추가

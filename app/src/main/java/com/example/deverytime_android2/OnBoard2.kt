@@ -14,11 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.ui.theme.CommonButton
-import com.example.deverytime_android2.ui.theme.Pretendard
+import com.example.deverytime_android2.ui.theme.Style
 
 @Composable
 fun OnBoard2Screen(navController: NavHostController) {
@@ -36,15 +34,11 @@ fun OnBoard2Screen(navController: NavHostController) {
             Spacer(Modifier.height(108.dp))
             Text(
                 text = stringResource(R.string.onboard2_1),
-                fontSize = 24.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700
+                style = Style.Title,
             )
             Text(
                 text = stringResource(R.string.onboard2_2),
-                fontSize = 24.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.W700
+                style = Style.Title,
             )
         }
         Column(
