@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,43 +39,42 @@ fun OnBoard1Screen(navController: NavHostController) {
             .background(Color(0xFF5581FA))
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Column(
-            ) {
-                Image(
-                    contentDescription = null,
-                    painter = painterResource(R.drawable.ic_onboarding1),
-                    modifier = Modifier
-                        .padding(bottom = 25.dp)
-                )
-                Text(
-                    text = stringResource(R.string.app_name),
-                    fontSize = 24.sp,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight.W700,
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = 25.dp)
-                )
-                Text(
-                    text = stringResource(R.string.onboard1_1),
-                    fontSize = 14.sp,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight.W700,
-                    color = Color.White,
-                )
-                Text(
-                    text = stringResource(R.string.onboard1_2),
-                    fontSize = 14.sp,
-                    fontFamily = Pretendard,
-                    fontWeight = FontWeight.W700,
-                    color = Color.White,
-                    modifier = Modifier.padding(bottom = 44.dp)
-                )
-            }
-
+            Image(
+                contentDescription = null,
+                painter = painterResource(R.drawable.ic_onboarding1),
+            )
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(
+                text = stringResource(R.string.app_name),
+                fontSize = 24.sp,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.W700,
+                color = Color.White,
+            )
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(
+                text = stringResource(R.string.onboard1_1),
+                fontSize = 14.sp,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.W700,
+                color = Color.White,
+            )
+            Text(
+                text = stringResource(R.string.onboard1_2),
+                fontSize = 14.sp,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.W700,
+                color = Color.White,
+                modifier = Modifier.padding(bottom = 44.dp)
+            )
         }
+
     }
 }
+
+
