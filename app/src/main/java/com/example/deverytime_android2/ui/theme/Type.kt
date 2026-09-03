@@ -9,7 +9,7 @@ import androidx.compose.ui.text.font.Font
 import com.example.deverytime_android2.R
 
 // Set of Material typography styles to start with
-val Typography = Typography(
+val appTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,

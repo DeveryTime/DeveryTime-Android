@@ -40,3 +40,33 @@
  #Git 매너 (이것만은 꼭!).
  #gitignore 설정: node_modules나 보안 파일(.env)은 Git에 안 올라가도록 미리 제외하기.
  #PR(Pull Request) 거치기: 내가 만든 코드는 최소 1명 이상의 팀원에게 검토(Approve)받고 메인에 합치기.
+
+ #// 디자인 이미지 + 실제 UI를 한 화면에 겹쳐서 보여주는 Preview
+   #@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+   #@Composable
+   #fun SignUpScreenPreview() {
+   #    DeveryTime_Android2Theme {
+   #        Box(modifier = Modifier.fillMaxSize()) {
+   #            // 디자인 이미지를 반투명하게 배경에 깔기
+   #            Image(
+   #                painter = painterResource(id = R.drawable.signup1),
+   #                contentDescription = "디자인 미리보기",
+   #                modifier = Modifier
+   #                    .fillMaxSize()
+   #                    .alpha(0.3f),
+   #                contentScale = ContentScale.Fit
+   #            )
+   #            // 실제 UI 겹치기
+   #            SignUpScreen(navController = rememberNavController())
+   #        }
+   #    }
+   #}
+   #@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+   #@Composable
+   #fun SignUpScreenPreview2() {
+   #    DeveryTime_Android2Theme {
+   #        Box(modifier = Modifier.fillMaxSize()) {
+   #            SignUpScreen(navController = rememberNavController())
+   #        }
+   #    }
+   #}
