@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">DeveryTime</string>
     <string name="back_arrow">goback</string>
+    <string name="thumbs_up">thumbs_up</string>
 </resources>

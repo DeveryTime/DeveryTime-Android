@@ -232,3 +232,13 @@ fun SignUpScreen(
         }
     }
 }
+
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun SignUp1Preview2() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            SignUpScreen(navController = rememberNavController())
+        }
+    }
+}
