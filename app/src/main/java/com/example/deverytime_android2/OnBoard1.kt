@@ -1,0 +1,70 @@
+package com.example.deverytime_android2
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.deverytime_android2.ui.theme.Style
+import kotlinx.coroutines.delay
+
+@Composable
+fun OnBoard1Screen(navController: NavHostController) {
+    //TODO: 로딩 후 이동
+    LaunchedEffect(Unit) {
+        delay(1000)
+        navController.navigate(Screen.OnBoard2.route) {
+            popUpTo(Screen.OnBoard1.route) { inclusive = true }
+        }
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF5581FA))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Image(
+                contentDescription = null,
+                painter = painterResource(R.drawable.ic_onboarding1),
+            )
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(
+                text = stringResource(R.string.app_name),
+                style = Style.Title,
+                color = Color.White,
+            )
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(
+                text = stringResource(R.string.onboard1_1),
+                style = Style.Caption,
+                color = Color.White,
+            )
+            Text(
+                text = stringResource(R.string.onboard1_2),
+                style = Style.Caption,
+                color = Color.White,
+            )
+            Spacer(modifier = Modifier.height(44.dp))
+        }
+
+    }
+}
+
