@@ -112,7 +112,6 @@ fun SignUp4Screen(
                     fontSize = 23.5.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = pretendardVariable,
-                    color = Color.Black,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
@@ -161,8 +160,6 @@ fun SignUp4Screen(
                     OutlinedTextField(
                         colors =
                             OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.Black,
-                                unfocusedTextColor = Color.Black,
                                 focusedPlaceholderColor = Color.Transparent,
                                 unfocusedPlaceholderColor = buttonGray,
                                 errorBorderColor = Color.Red,

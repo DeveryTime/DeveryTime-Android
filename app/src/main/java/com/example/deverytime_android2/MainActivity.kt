@@ -68,6 +68,7 @@ sealed class Screen(
     data object MyPage1 : Screen("myPage1")
 
     data object MyPage2 : Screen("myPage2")
+
     data object MyPage3 : Screen("myPage3")
 }
 
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity() {
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
 
+        //이게 어디 어디에 네비바 넣을지 설정하는 코드
         val showBottomBar =
             currentRoute == Screen.MyPage1.route ||
                 currentRoute == Screen.MyPage2.route
@@ -155,9 +157,9 @@ class MainActivity : ComponentActivity() {
                 // TODO: 추후 홈 페이지 완성 이후 연동
                 NavigationBarItem(
                     modifier = Modifier.zIndex(1f).weight(1f),
-                    selected = currentRoute == Screen.MyPage1.route,
+                    //selected는 임시 코드 홈으로 바꿔야함
+                    selected = currentRoute == Screen.Login.route,
                     onClick = {
-                        onNavigate(Screen.MyPage1.route)
                     },
                     colors =
                         NavigationBarItemDefaults.colors(
@@ -183,9 +185,9 @@ class MainActivity : ComponentActivity() {
 
                 NavigationBarItem(
                     modifier = Modifier.zIndex(1f).weight(1f),
-                    selected = currentRoute == Screen.MyPage2.route,
+                    selected = currentRoute == Screen.MyPage1.route,
                     onClick = {
-                        onNavigate(Screen.MyPage2.route)
+                        onNavigate(Screen.MyPage1.route)
                     },
                     colors =
                         NavigationBarItemDefaults.colors(
@@ -198,7 +200,7 @@ class MainActivity : ComponentActivity() {
                     icon = {
                         Icon(
                             painter = painterResource(id = R.drawable.mypage_icon),
-                            contentDescription = "내가 쓴 글",
+                            contentDescription = "마이페이지",
                         )
                     },
                     label = {

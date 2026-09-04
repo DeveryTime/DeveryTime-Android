@@ -114,7 +114,6 @@ fun LoginScreen(
                 fontSize = 23.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
-                color = Color.Black,
             )
         }
 
@@ -128,8 +127,6 @@ fun LoginScreen(
             OutlinedTextField(
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
                         unfocusedPlaceholderColor = buttonGray,
                         errorBorderColor = Color.Red,
@@ -152,8 +149,6 @@ fun LoginScreen(
             OutlinedTextField(
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
                         unfocusedPlaceholderColor = buttonGray,
                         errorBorderColor = Color.Red,

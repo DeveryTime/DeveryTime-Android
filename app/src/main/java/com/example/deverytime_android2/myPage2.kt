@@ -254,7 +254,7 @@ fun myPage2Screen(
     Box(modifier = modifier.fillMaxSize()) {
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
+                navController.navigate(Screen.MyPage1.route) {
                     popUpTo(Screen.Login.route) { inclusive = true }
                     launchSingleTop = true
                 }

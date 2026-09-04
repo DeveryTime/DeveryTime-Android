@@ -60,7 +60,7 @@ import java.util.Locale
 public val name = "박XX"
 public val userName = "발랄한 바둑이"
 val schoolNumber = 1107
-val email = "deverytime2026@gmail.com"
+val userEmail = "deverytime2026@gmail.com"
 
 private fun formatTime(time: String): String {
     val inputFormat =
@@ -207,17 +207,21 @@ fun myPage1Screen(
                     fontFamily = pretendardVariable,
                 )
                 Text(
-                    text = email,
+                    text = userEmail,
                     fontSize = 14.sp,
                     fontFamily = pretendardVariable,
                 )
             }
         }
+        Spacer(modifier = Modifier.height(33.dp))
         Column {
             Row(
                 modifier =
                     Modifier
-                        .padding(start = 22.dp, top = 33.dp),
+                        .padding(start = 22.dp)
+                        .clickable {
+                            navController.navigate(Screen.MyPage2.route)
+                        },
             ) {
                 Text(
                     text = "내가 쓴 글",
@@ -236,7 +240,14 @@ fun myPage1Screen(
                     contentDescription = "화살표 버튼",
                 )
             }
-            LazyColumn(modifier = Modifier.padding(top = 19.dp)) {
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .padding(top = 19.dp)
+                        .clickable {
+                            navController.navigate(Screen.MyPage2.route)
+                        },
+            ) {
                 item {
                     postItem(title[0], time[0], like[0], true)
                 }

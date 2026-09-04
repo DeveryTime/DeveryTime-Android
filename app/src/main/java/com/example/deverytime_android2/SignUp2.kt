@@ -128,7 +128,6 @@ fun SignUp2Screen(
                 fontSize = 23.5.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
-                color = Color.Black,
                 modifier = Modifier.padding(start = 3.dp, bottom = 42.dp),
             )
 
@@ -141,8 +140,6 @@ fun SignUp2Screen(
             OutlinedTextField(
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
                         unfocusedPlaceholderColor = buttonGray,
                     ),
@@ -196,8 +193,6 @@ fun SignUp2Screen(
                         OutlinedTextField(
                             colors =
                                 OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.Black,
-                                    unfocusedTextColor = Color.Black,
                                     focusedPlaceholderColor = Color.Transparent,
                                     unfocusedPlaceholderColor = buttonGray,
                                 ),

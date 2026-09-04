@@ -100,7 +100,6 @@ fun SignUpScreen(
                 fontSize = 23.5.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
-                color = Color.Black,
                 modifier = Modifier,
             )
 
@@ -120,8 +119,6 @@ fun SignUpScreen(
                     OutlinedTextField(
                         colors =
                             OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.Black,
-                                unfocusedTextColor = Color.Black,
                                 focusedPlaceholderColor = Color.Transparent,
                                 unfocusedPlaceholderColor = buttonGray,
                                 errorBorderColor = Color.Red,
@@ -146,8 +143,6 @@ fun SignUpScreen(
                         OutlinedTextField(
                             colors =
                                 OutlinedTextFieldDefaults.colors(
-                                    focusedTextColor = Color.Black,
-                                    unfocusedTextColor = Color.Black,
                                     focusedPlaceholderColor = Color.Transparent,
                                     unfocusedPlaceholderColor = buttonGray,
                                     errorBorderColor = Color.Red,
