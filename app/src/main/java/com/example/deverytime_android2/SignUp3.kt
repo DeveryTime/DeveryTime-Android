@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -29,9 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,13 +57,15 @@ fun SignUp3Screen(
     var password by remember { mutableStateOf("") }
     var recheckNumber by remember { mutableStateOf("") }
     var isWrong by remember { mutableStateOf(false) }
+
+    // 포커스 매니저
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     Box {
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             },
             modifier =
                 Modifier
@@ -121,7 +128,25 @@ fun SignUp3Screen(
                         ),
                     placeholder = { Text(text = "비밀번호") },
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { newValue ->
+                        password =
+                            newValue
+                                .take(20) // 최대 20자 제한
+                                .replace("\n", "")
+                    },
+                    singleLine = true,
+                    maxLines = 1,
+                    keyboardOptions =
+                        KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                            },
+                        ),
                     modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
@@ -143,7 +168,25 @@ fun SignUp3Screen(
                         ),
                     placeholder = { Text(text = "비밀번호 확인") },
                     value = recheckNumber,
-                    onValueChange = { recheckNumber = it },
+                    onValueChange = { newValue ->
+                        recheckNumber =
+                            newValue
+                                .take(20) // 최대 20자 제한
+                                .replace("\n", "")
+                    },
+                    singleLine = true,
+                    maxLines = 1,
+                    keyboardOptions =
+                        KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                            },
+                        ),
                     modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),

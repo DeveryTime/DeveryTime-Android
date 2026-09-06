@@ -16,6 +16,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.maxLength
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -31,9 +37,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,14 +62,16 @@ fun SignUpScreen(
     var studentNumber by remember { mutableStateOf("") } // 학번
     var name by remember { mutableStateOf("") } // 이름
     var isWrong by remember { mutableStateOf(false) } // 틀렸는가?
+
+    // 포커스 매니저
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     Box {
         // 뒤로가기 버튼
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             },
             modifier =
                 Modifier
@@ -125,7 +137,23 @@ fun SignUpScreen(
                             ),
                         placeholder = { Text(text = "학번") },
                         value = studentNumber,
-                        onValueChange = { studentNumber = it },
+                        onValueChange = { newValue ->
+                            studentNumber = newValue
+                                .take(4)
+                                .replace("\n", "")
+                        },
+                        singleLine = true,
+                        maxLines = 1,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                            keyboardType = KeyboardType.Number,
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                            }
+                        ),
                         modifier = Modifier.padding(top = 5.dp).fillMaxWidth(0.97f),
                         shape = RoundedCornerShape(12.dp),
                     )
@@ -149,7 +177,23 @@ fun SignUpScreen(
                                 ),
                             placeholder = { Text(text = "이름") },
                             value = name,
-                            onValueChange = { name = it },
+                            onValueChange = { newValue ->
+                                name = newValue
+                                    .take(10) // 최대 10자 제한
+                                    .replace("\n", "")
+                            },
+                            singleLine = true,
+                            maxLines = 1,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus()
+                                }
+                            ),
                             modifier = Modifier.padding(top = 5.dp).fillMaxWidth(0.97f),
                             shape = RoundedCornerShape(12.dp),
                         )

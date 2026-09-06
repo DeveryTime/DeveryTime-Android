@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -33,6 +35,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -41,6 +45,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,8 +85,14 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // 포커스 매니저
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     Button(
-        onClick = { navController.popBackStack() },
+        onClick = {
+//            navController.navigate(Screen.Onboarding.route)
+        },
         modifier =
             Modifier
                 .padding(start = 8.dp, top = 40.dp)
@@ -133,9 +145,33 @@ fun LoginScreen(
                     ),
                 placeholder = { Text(text = "이메일") },
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { input ->
+                    email =
+                        input
+                            .substringBefore("@")
+                            .filter { it.isDigit() }
+                            .take(8)
+                            .replace("\n", "")
+                },
+                singleLine = true,
+                maxLines = 1,
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        },
+                    ),
                 modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
+                suffix = {
+                    Text("@$SCHOOL_EMAIL_DOMAIN")
+                },
             )
 
             Spacer(modifier = Modifier.height(11.dp))
@@ -155,7 +191,25 @@ fun LoginScreen(
                     ),
                 placeholder = { Text(text = "비밀번호") },
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { input ->
+                    password =
+                        input
+                            .take(20)
+                            .replace("\n", "")
+                },
+                singleLine = true,
+                maxLines = 1,
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        },
+                    ),
                 modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 visualTransformation = PasswordVisualTransformation(),

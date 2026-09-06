@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
 
-        //이게 어디 어디에 네비바 넣을지 설정하는 코드
+        // 이게 어디 어디에 네비바 넣을지 설정하는 코드
         val showBottomBar =
             currentRoute == Screen.MyPage1.route ||
                 currentRoute == Screen.MyPage2.route
@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Screen.MyPage2.route,
+                startDestination = Screen.MyPage1.route,
                 modifier = Modifier.padding(innerPadding),
             ) {
                 composable(route = Screen.Login.route) { LoginScreen(navController) }
@@ -157,7 +157,7 @@ class MainActivity : ComponentActivity() {
                 // TODO: 추후 홈 페이지 완성 이후 연동
                 NavigationBarItem(
                     modifier = Modifier.zIndex(1f).weight(1f),
-                    //selected는 임시 코드 홈으로 바꿔야함
+                    // selected는 임시 코드이므로 바꿔야함
                     selected = currentRoute == Screen.Login.route,
                     onClick = {
                     },

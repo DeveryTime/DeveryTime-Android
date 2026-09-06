@@ -1,6 +1,10 @@
 package com.example.deverytime_android2
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -22,10 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -38,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil3.compose.AsyncImage
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
@@ -47,27 +55,37 @@ fun myPage3Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    var id by remember { mutableStateOf("") }
+    var profileImageUri by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    val profileImagePicker =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia(),
+        ) { uri ->
+            if (uri != null) {
+                profileImageUri = uri.toString()
+            }
+        }
+
+    var changedId by remember { mutableStateOf("") }
     var isClicked by remember { mutableStateOf(false) }
     var onVerify by remember { mutableStateOf(false) }
     val buttonColor =
         when {
-            isClicked -> buttonGray
+            isClicked -> mainBlue
 
             // 버튼 클릭 후 회색
-            id.isNotEmpty() -> mainBlue
+            changedId.isNotEmpty() -> buttonGray
 
             // 글자가 있으면 파란색
             else -> buttonGray // 글자가 없으면 회색
         }
-    Box {
+    Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Button(
                 onClick = {
-                    navController.navigate(Screen.MyPage2.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
+                    navController.popBackStack()
                 },
                 modifier =
                     Modifier
@@ -88,12 +106,22 @@ fun myPage3Screen(
                 )
             }
             Row(modifier = Modifier.padding(top = 20.dp, start = 6.dp)) {
-                Image(
-                    painter = painterResource(id = R.drawable.vector_5),
+                AsyncImage(
+                    model = profileImageUri ?: R.drawable.vector_5,
                     contentDescription = "마이페이지프로필",
+                    contentScale = ContentScale.Crop,
                     modifier =
                         Modifier
-                            .padding(start = 30.dp),
+                            .padding(start = 30.dp)
+                            .size(63.dp)
+                            .clip(CircleShape)
+                            .clickable {
+                                profileImagePicker.launch(
+                                    PickVisualMediaRequest(
+                                        ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                    ),
+                                )
+                            },
                 )
                 Text(
                     text = "$name | $schoolNumber",
@@ -152,11 +180,14 @@ fun myPage3Screen(
                                 unfocusedPlaceholderColor = buttonGray,
                                 errorBorderColor = Color.Red,
                             ),
-                        placeholder = { Text(text = "우아한 강아지") },
-                        value = id,
+                        placeholder = { Text(text = userName) },
+                        value = changedId,
                         onValueChange = {
-                            id = it
-                            isClicked = false
+                            changedId = it
+                            if (changedId.isNotBlank() && changedId != userName) {
+                                isClicked = true
+                            }
+                            onVerify = false
                         },
                         modifier =
                             Modifier
@@ -169,8 +200,10 @@ fun myPage3Screen(
                     Button(
                         onClick = {
                             // TODO: 백엔드와 연동하여 중복 확인 이후 onVerity를 true로 만들어 변경사항 저장 버튼이 작동 가능하게 한다.
-                            isClicked = true
+
+                            isClicked = false
                         },
+                        enabled = isClicked,
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = buttonColor,
@@ -202,12 +235,9 @@ fun myPage3Screen(
         }
         Button(
             onClick = {
-                // TODO: 아이디 중복 확인 백엔드 연동 필요 *추가 수정 필요*
+                // TODO: 변경사항 저장 백엔드 연동 필요 *추가 수정 필요*
                 if (onVerify) {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
+                    navController.popBackStack()
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = mainBlue),

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -56,7 +60,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 
-private const val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
+public val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
 
 @Composable
 fun SignUp2Screen(
@@ -77,6 +81,10 @@ fun SignUp2Screen(
     var timeDone by remember { mutableStateOf(false) } // 시간이 다 지났는지 확인하는 변수
     var timerRestartKey by remember { mutableStateOf(0) } // 코루틴 키값
 
+    // 포커스 매니저
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     // 경과시간 계산 포맷
     val minutes = elapsedSecond / 60 // 분
     val seconds = elapsedSecond % 60 // 초
@@ -84,10 +92,7 @@ fun SignUp2Screen(
     Box {
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             },
             modifier =
                 Modifier
@@ -150,6 +155,8 @@ fun SignUp2Screen(
                         input
                             .substringBefore("@")
                             .filter { it.isDigit() }
+                            .take(8) // ex: 20261114 총 8자
+                            .replace("\n", "")
                     isEmailWrong = false
                     timeDone = false
                     isVisible = true
@@ -170,6 +177,13 @@ fun SignUp2Screen(
                 keyboardOptions =
                     KeyboardOptions(
                         keyboardType = KeyboardType.Number,
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        },
                     ),
             )
             if (isEmailWrong) {
@@ -210,12 +224,28 @@ fun SignUp2Screen(
                                 )
                             },
                             value = certifiedNum,
-                            onValueChange = { certifiedNum = it },
+                            onValueChange = { newValue ->
+                                certifiedNum =
+                                    newValue
+                                        .take(6) // 최대 6자 제한
+                                        .replace("\n", "")
+                            },
                             modifier =
                                 Modifier
                                     .padding(top = 3.dp)
                                     .fillMaxWidth(0.78f),
                             shape = RoundedCornerShape(12.dp),
+                            keyboardOptions =
+                                KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                ),
+                            keyboardActions =
+                                KeyboardActions(
+                                    onDone = {
+                                        keyboardController?.hide()
+                                        focusManager.clearFocus()
+                                    },
+                                ),
                         )
                         LaunchedEffect(onClickCertified, timerRestartKey) {
                             if (onClickCertified) {

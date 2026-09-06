@@ -1,6 +1,9 @@
 package com.example.deverytime_android2
 
 import android.graphics.drawable.Icon
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,130 +65,27 @@ public val userName = "발랄한 바둑이"
 val schoolNumber = 1107
 val userEmail = "deverytime2026@gmail.com"
 
-private fun formatTime(time: String): String {
-    val inputFormat =
-        SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss",
-            Locale.KOREA,
-        )
-
-    val outputFormat =
-        SimpleDateFormat(
-            "yy.MM.dd",
-            Locale.KOREA,
-        )
-
-    return runCatching {
-        val date = inputFormat.parse(time)
-        date?.let { outputFormat.format(it) } ?: time
-    }.getOrElse {
-        time
-    }
-}
-
-@Composable
-private fun postItem(
-    title: String,
-    time: String,
-    like: Int,
-    showTopBorder: Boolean = false,
-) {
-    val changeTime = formatTime(time)
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .clickable {
-                    // TODO:페이지 생성 후 연계 필요
-                },
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(48.8.dp)
-                    .drawBehind {
-                        val strokeWidth = 1.dp.toPx()
-
-                        if (showTopBorder) {
-                            drawLine(
-                                color = buttonGray,
-                                start = Offset(0f, strokeWidth / 2),
-                                end = Offset(size.width, strokeWidth / 2),
-                                strokeWidth = strokeWidth,
-                            )
-                        }
-
-                        drawLine(
-                            color = buttonGray,
-                            start = Offset(0f, size.height - strokeWidth / 2),
-                            end = Offset(size.width, size.height - strokeWidth / 2),
-                            strokeWidth = strokeWidth,
-                        )
-                    },
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.padding(horizontal = 21.dp).weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 15.65.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = pretendardVariable,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color(0xFF000000),
-                )
-                Text(
-                    text = changeTime,
-                    fontSize = 12.sp,
-                    fontFamily = pretendardVariable,
-                    color = buttonGray,
-                )
-            }
-            Row(
-                modifier = Modifier.padding(end = 21.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.uil_thumbs_up),
-                    contentDescription = stringResource(id = R.string.thumbs_up),
-                    contentScale = ContentScale.Fit,
-                    modifier =
-                        Modifier
-                            .padding(end = 5.dp)
-                            .size(18.dp),
-                )
-                Text(
-                    text = like.toString(),
-                    fontSize = 12.sp,
-                    fontFamily = pretendardVariable,
-                    color = buttonGray,
-                )
-            }
-        }
-    }
-}
-
 @Composable
 fun myPage1Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(id = R.drawable.deverytime_logo),
-            contentDescription = "로고",
-            modifier =
-                Modifier
-                    .size(90.dp)
-                    .align(Alignment.End)
-                    .padding(top = 40.dp, end = 8.dp)
-                    .clickable {
-                        // TODO:이미지 교체 가능하게
-                    },
-        )
+        //디자인 상으로 있으나 개인의 판단으로 애매하다고 판단해 잠시 삭제
+//        Image(
+//            painter = painterResource(id = R.drawable.deverytime_logo),
+//            contentDescription = "로고",
+//            modifier =
+//                Modifier
+//                    .size(90.dp)
+//                    .align(Alignment.End)
+//                    .padding(top = 40.dp, end = 8.dp)
+//                    .clickable {
+//                    },
+//        )
+        Spacer(modifier = Modifier.weight(1f))
         Row(modifier = Modifier.padding(top = 10.dp)) {
+            //TODO: 사진을 백엔드에서 가져와야함
             Image(
                 painter = painterResource(id = R.drawable.vector_5),
                 contentDescription = "마이페이지프로필",
@@ -285,10 +185,12 @@ fun myPage1Screen(
                 modifier =
                     Modifier
                         .clickable {
-                            // TODO: 토큰 연동 이후
+                            // TODO: 토큰 삭제 로직 추가 (백엔드)
+                            navController.navigate(Screen.Login.route)
                         },
             )
         }
+        Spacer(modifier = Modifier.weight(3f))
     }
 }
 

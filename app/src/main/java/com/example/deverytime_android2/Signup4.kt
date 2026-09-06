@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -30,9 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -68,13 +73,12 @@ fun SignUp4Screen(
             // 글자가 있으면 파란색
             else -> buttonGray // 글자가 없으면 회색
         }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
     Box {
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             },
             modifier =
                 Modifier
@@ -133,6 +137,7 @@ fun SignUp4Screen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         onClick = { /* 이미지 업로드 로직 */ },
                     ) {
+                        // 나는 바보 ㅋㅋㅋ
                         Image(
                             painter = painterResource(id = R.drawable.frame_83),
                             contentDescription = "디자인 미리보기",
@@ -166,19 +171,32 @@ fun SignUp4Screen(
                             ),
                         placeholder = { Text(text = "우아한 강아지") },
                         value = id,
-                        onValueChange = {
-                            id = it
+                        onValueChange = { newValue ->
+                            id =
+                                newValue
+                                    .take(10)
+                                    .replace("\n", "") // 최대 10글자 제한
                             isClicked = false
                         },
+                        singleLine = true,
+                        maxLines = 1,
+                        keyboardOptions =
+                            KeyboardOptions(
+                                imeAction = ImeAction.Done,
+                            ),
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = {
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus()
+                                },
+                            ),
                         modifier = Modifier.padding(top = 3.dp).weight(1f),
                         shape = RoundedCornerShape(12.dp),
                     )
                     Button(
                         onClick = {
                             isClicked = true
-//                        if () {
-//
-//                        }
                         },
                         colors =
                             ButtonDefaults.buttonColors(

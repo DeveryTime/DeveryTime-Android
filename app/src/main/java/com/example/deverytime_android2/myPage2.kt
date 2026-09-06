@@ -141,7 +141,7 @@ public val like =
 // TODO: indexSize는 추후 백엔드에서 받아오는 값으로 변경 필요
 val indexSize = title.size - 2
 
-private fun formatTime(time: String): String {
+public fun formatTime(time: String): String {
     val inputFormat =
         SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss",
@@ -163,7 +163,7 @@ private fun formatTime(time: String): String {
 }
 
 @Composable
-private fun postItem(
+public fun postItem(
     title: String,
     time: String,
     like: Int,
@@ -254,10 +254,7 @@ fun myPage2Screen(
     Box(modifier = modifier.fillMaxSize()) {
         Button(
             onClick = {
-                navController.navigate(Screen.MyPage1.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             },
             modifier =
                 Modifier
