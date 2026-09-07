@@ -1,5 +1,6 @@
 package com.example.deverytime_android2
 
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,18 +61,24 @@ fun myPage3Screen(
         mutableStateOf<String?>(null)
     }
 
+    val context = LocalContext.current
+
     val profileImagePicker =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia(),
         ) { uri ->
             if (uri != null) {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
                 profileImageUri = uri.toString()
             }
         }
 
     var changedId by remember { mutableStateOf("") }
     var isClicked by remember { mutableStateOf(false) }
-    var onVerify by remember { mutableStateOf(false) }
+    var onVerify by remember { mutableStateOf(true) } // 임시로 true false로 변경 예정
     val buttonColor =
         when {
             isClicked -> mainBlue
@@ -187,7 +195,7 @@ fun myPage3Screen(
                             if (changedId.isNotBlank() && changedId != userName) {
                                 isClicked = true
                             }
-                            onVerify = false
+//                            onVerify = false
                         },
                         modifier =
                             Modifier
@@ -237,6 +245,7 @@ fun myPage3Screen(
             onClick = {
                 // TODO: 변경사항 저장 백엔드 연동 필요 *추가 수정 필요*
                 if (onVerify) {
+                    userName = changedId
                     navController.popBackStack()
                 }
             },
@@ -255,36 +264,6 @@ fun myPage3Screen(
                 fontSize = 16.sp,
                 text = "변경사항 저장",
             )
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun myPage3Preview() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-            Image(
-                painter = painterResource(id = R.drawable.mypage3),
-                contentDescription = "디자인 미리보기",
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f),
-                contentScale = ContentScale.Fit,
-            )
-            myPage3Screen(navController = rememberNavController())
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun myPage3Preview2() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            myPage3Screen(navController = rememberNavController())
         }
     }
 }

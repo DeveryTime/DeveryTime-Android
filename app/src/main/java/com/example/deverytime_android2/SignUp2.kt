@@ -227,8 +227,8 @@ fun SignUp2Screen(
                             onValueChange = { newValue ->
                                 certifiedNum =
                                     newValue
-                                        .take(6) // 최대 6자 제한
                                         .replace("\n", "")
+                                        .take(6) // 최대 6자 제한
                             },
                             modifier =
                                 Modifier

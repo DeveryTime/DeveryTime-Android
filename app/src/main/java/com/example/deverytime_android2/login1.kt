@@ -91,7 +91,8 @@ fun LoginScreen(
 
     Button(
         onClick = {
-//            navController.navigate(Screen.Onboarding.route)
+            // 온보딩 페이지 연동 이후
+            // navController.navigate(Screen.Onboarding.route)
         },
         modifier =
             Modifier
@@ -194,15 +195,13 @@ fun LoginScreen(
                 onValueChange = { input ->
                     password =
                         input
-                            .take(20)
                             .replace("\n", "")
+                            .take(20)
                 },
                 singleLine = true,
                 maxLines = 1,
                 keyboardOptions =
-                    KeyboardOptions(
-                        imeAction = ImeAction.Done,
-                    ),
+                    KeyboardOptions(),
                 keyboardActions =
                     KeyboardActions(
                         onDone = {

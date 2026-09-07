@@ -174,8 +174,8 @@ fun SignUp4Screen(
                         onValueChange = { newValue ->
                             id =
                                 newValue
-                                    .take(10)
                                     .replace("\n", "") // 최대 10글자 제한
+                                    .take(10)
                             isClicked = false
                         },
                         singleLine = true,

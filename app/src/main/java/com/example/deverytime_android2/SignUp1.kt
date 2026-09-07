@@ -139,8 +139,8 @@ fun SignUpScreen(
                         value = studentNumber,
                         onValueChange = { newValue ->
                             studentNumber = newValue
-                                .take(4)
                                 .replace("\n", "")
+                                .take(4)
                         },
                         singleLine = true,
                         maxLines = 1,
@@ -179,8 +179,8 @@ fun SignUpScreen(
                             value = name,
                             onValueChange = { newValue ->
                                 name = newValue
-                                    .take(10) // 최대 10자 제한
                                     .replace("\n", "")
+                                    .take(10) // 최대 10자 제한
                             },
                             singleLine = true,
                             maxLines = 1,
@@ -268,16 +268,6 @@ fun SignUpScreen(
                     text = "다음",
                 )
             }
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun SignUp1Preview2() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            SignUpScreen(navController = rememberNavController())
         }
     }
 }

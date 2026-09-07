@@ -61,7 +61,7 @@ import java.util.Locale
 
 // TODO: 백엔드에서 연동 해와야 함
 public val name = "박XX"
-public val userName = "발랄한 바둑이"
+public var userName = "발랄한 바둑이"
 val schoolNumber = 1107
 val userEmail = "deverytime2026@gmail.com"
 
@@ -191,35 +191,5 @@ fun myPage1Screen(
             )
         }
         Spacer(modifier = Modifier.weight(3f))
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun myPage1Preview() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-            Image(
-                painter = painterResource(id = R.drawable.mypage1),
-                contentDescription = "디자인 미리보기",
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f),
-                contentScale = ContentScale.Fit,
-            )
-            myPage1Screen(navController = rememberNavController())
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun myPage1Preview2() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            myPage1Screen(navController = rememberNavController())
-        }
     }
 }

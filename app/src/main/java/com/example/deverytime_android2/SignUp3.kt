@@ -131,8 +131,8 @@ fun SignUp3Screen(
                     onValueChange = { newValue ->
                         password =
                             newValue
-                                .take(20) // 최대 20자 제한
                                 .replace("\n", "")
+                                .take(20) // 최대 20자 제한
                     },
                     singleLine = true,
                     maxLines = 1,
@@ -171,8 +171,8 @@ fun SignUp3Screen(
                     onValueChange = { newValue ->
                         recheckNumber =
                             newValue
-                                .take(20) // 최대 20자 제한
                                 .replace("\n", "")
+                                .take(20) // 최대 20자 제한
                     },
                     singleLine = true,
                     maxLines = 1,
