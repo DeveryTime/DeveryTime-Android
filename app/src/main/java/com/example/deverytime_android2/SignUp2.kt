@@ -335,7 +335,7 @@ fun SignUp2Screen(
             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
                 Text(
                     fontSize = 14.sp,
-                    text = "만약 계정이 있으신가요?",
+                    text = "계정이 있으신가요?",
                     color = Color(0xFFB1B1B1),
                     modifier =
                     Modifier,
@@ -347,6 +347,7 @@ fun SignUp2Screen(
                     textDecoration = TextDecoration.Underline,
                     modifier =
                         Modifier
+                            .padding(horizontal = 3.dp)
                             .clickable {
                                 navController.navigate(Screen.Login.route)
                             },

@@ -52,19 +52,33 @@ import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
-sealed class Screen(val route: String) {
+sealed class Screen(
+    val route: String,
+) {
     data object Login : Screen("login")
+
     data object SignUp1 : Screen("signup1")
+
     data object SignUp2 : Screen("signup2")
+
     data object SignUp3 : Screen("signup3")
+
     data object SignUp4 : Screen("signup4")
+
     data object MyPage1 : Screen("myPage1")
+
     data object MyPage2 : Screen("myPage2")
+
     data object MyPage3 : Screen("myPage3")
+
     data object OnBoard1 : Screen(route = "OnBoard1")
+
     data object OnBoard2 : Screen(route = "OnBoard2")
+
     data object OnBoard3 : Screen(route = "OnBoard3")
+
     data object OnBoard4 : Screen(route = "OnBoard4")
+
     data object OnBoard5 : Screen(route = "OnBoard5")
 }
 
@@ -243,5 +257,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+        }
     }
 }
