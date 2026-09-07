@@ -76,9 +76,10 @@ fun myPage3Screen(
             }
         }
 
-    var changedId by remember { mutableStateOf("") }
+    var changedId by remember { mutableStateOf(userName) }
     var isClicked by remember { mutableStateOf(false) }
-    var onVerify by remember { mutableStateOf(true) } // 임시로 true false로 변경 예정
+    var onVerify by remember { mutableStateOf(true) } // TODO: 백엔드 연동 이후 사용
+    val canSave = changedId.isNotBlank()
     val buttonColor =
         when {
             isClicked -> mainBlue
@@ -244,11 +245,12 @@ fun myPage3Screen(
         Button(
             onClick = {
                 // TODO: 변경사항 저장 백엔드 연동 필요 *추가 수정 필요*
-                if (onVerify) {
+                if (canSave) {
                     userName = changedId
                     navController.popBackStack()
                 }
             },
+            enabled = canSave,
             colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
             shape = RoundedCornerShape(23.dp),
             modifier =

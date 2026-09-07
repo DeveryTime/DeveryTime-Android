@@ -201,7 +201,7 @@ fun LoginScreen(
                 singleLine = true,
                 maxLines = 1,
                 keyboardOptions =
-                    KeyboardOptions(),
+                    KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions =
                     KeyboardActions(
                         onDone = {
