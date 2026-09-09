@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -151,8 +152,7 @@ fun LoginScreen(navController: NavHostController) {
                 keyboardActions =
                     KeyboardActions(
                         onNext = {
-                            keyboardController?.hide()
-                            focusManager.clearFocus()
+                            focusManager.moveFocus(FocusDirection.Next)
                         },
                     ),
                 modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
