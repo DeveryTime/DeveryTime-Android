@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,7 +58,11 @@ fun SignUp3Screen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
 
-    Box {
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize(),
+    ) {
         Button(
             onClick = {
                 navController.popBackStack()
@@ -91,8 +96,12 @@ fun SignUp3Screen(
             contentScale = ContentScale.Fit,
         )
 
-        Column(modifier = Modifier) {
-            Spacer(modifier = Modifier.weight(1f))
+        Column(
+            modifier =
+                Modifier
+                    .padding(top = 120.dp)
+                    .align(Alignment.TopCenter),
+        ) {
             Text(
                 text = "비밀번호를 알려주세요!",
                 fontSize = 23.5.sp,
@@ -103,7 +112,7 @@ fun SignUp3Screen(
 
             Column(
                 modifier =
-                    modifier
+                    Modifier
                         .padding(16.dp),
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -193,7 +202,6 @@ fun SignUp3Screen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(3.6f))
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {

@@ -94,17 +94,20 @@ fun SignUpScreen(
                     .padding(start = 8.dp, top = 52.dp),
             contentScale = ContentScale.Fit,
         )
-
-        Column(modifier = Modifier.fillMaxSize().padding(horizontal = 18.dp)) {
-            Spacer(modifier = Modifier.weight(1f))
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 18.dp)
+                .padding(top = 120.dp),
+            Arrangement.Top,
+            ) {
             // 제목 문구
             Text(
                 text = "학번과 이름부터 알려주세요!",
                 fontSize = 23.5.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
-                modifier = Modifier,
+                modifier = Modifier.align(Alignment.Start),
             )
 
             Column(
@@ -153,8 +156,8 @@ fun SignUpScreen(
                 }
                 Column(
                     verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(top = 10.dp)
                 ) {
-                    Column(modifier = Modifier.padding(top = 10.dp)) {
                         // 이름 입력창
                         Text(
                             fontSize = 12.sp,
@@ -198,12 +201,11 @@ fun SignUpScreen(
                             fontSize = 12.sp,
                             text = "학번과 이름을 정확히 입력해주세요.",
                             color = buttonGray,
-                            modifier = Modifier.padding(top = 3.dp),
+                            modifier = Modifier.align(Alignment.Start).padding(top = 3.dp),
                         )
                     }
                 }
-            }
-            Spacer(modifier = Modifier.weight(3.75f))
+            Spacer(modifier = Modifier.height(10.dp))
         }
         Column(
             modifier =

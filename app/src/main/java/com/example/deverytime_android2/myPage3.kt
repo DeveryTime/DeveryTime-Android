@@ -136,10 +136,7 @@ fun myPage3Screen(
                             .padding(start = 12.dp),
                 )
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Column {
+            Column(modifier = Modifier.padding(top = 20.dp)) {
                 Text(
                     fontSize = 12.sp,
                     text = "이메일",
@@ -164,10 +161,7 @@ fun myPage3Screen(
                     shape = RoundedCornerShape(12.dp),
                 )
             }
-
-            Spacer(modifier = Modifier.weight(0.15f))
-
-            Column {
+            Column(modifier = modifier.padding(top = 3.dp)) {
                 Text(
                     fontSize = 12.sp,
                     text = "아이디",
@@ -231,7 +225,6 @@ fun myPage3Screen(
                     }
                 }
             }
-            Spacer(modifier = Modifier.weight(14f))
         }
         Button(
             onClick = {

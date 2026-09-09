@@ -36,7 +36,7 @@ fun myPage1Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.padding(top = 80.dp).fillMaxSize()) {
         // 디자인 상으로 있으나 개인의 판단으로 애매하다고 판단해 잠시 삭제
 //        Image(
 //            painter = painterResource(id = R.drawable.deverytime_logo),
@@ -49,7 +49,6 @@ fun myPage1Screen(
 //                    .clickable {
 //                    },
 //        )
-        Spacer(modifier = Modifier.weight(1f))
         Row(modifier = Modifier.padding(top = 10.dp)) {
             // TODO: 사진을 백엔드에서 가져와야함
             Image(
@@ -153,6 +152,5 @@ fun myPage1Screen(
                         },
             )
         }
-        Spacer(modifier = Modifier.weight(3f))
     }
 }

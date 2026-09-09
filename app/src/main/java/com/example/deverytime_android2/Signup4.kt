@@ -70,7 +70,11 @@ fun SignUp4Screen(
         }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
-    Box {
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize(),
+    ) {
         Button(
             onClick = {
                 navController.popBackStack()
@@ -103,8 +107,13 @@ fun SignUp4Screen(
                     .padding(start = 8.dp, top = 52.dp),
             contentScale = ContentScale.Fit,
         )
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-            Spacer(modifier = Modifier.weight(1.5f))
+        Column(
+            modifier =
+                Modifier
+                    .padding(top = 120.dp, start = 18.dp, end = 18.dp)
+                    .fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+        ) {
             Column {
                 Text(
                     text = "사용자님의 모습이 궁금해요!",
@@ -224,7 +233,6 @@ fun SignUp4Screen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(3.4f))
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {

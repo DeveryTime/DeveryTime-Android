@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -80,7 +81,7 @@ fun SignUp2Screen(
     val minutes = elapsedSecond / 60 // 분
     val seconds = elapsedSecond % 60 // 초
     val formattedTime = "%02d:%02d".format(minutes, seconds)
-    Box {
+    Box(modifier = modifier.fillMaxSize()) {
         Button(
             onClick = {
                 navController.popBackStack()
@@ -116,9 +117,10 @@ fun SignUp2Screen(
         Column(
             modifier =
                 modifier
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 120.dp)
+                    .align(Alignment.TopCenter),
         ) {
-            Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "이메일을 인증해주세요!",
                 fontSize = 23.5.sp,
@@ -320,7 +322,6 @@ fun SignUp2Screen(
                     }
                 }
             }
-            Spacer(modifier = Modifier.weight(4.9f)) // Spacer를 사용하여 버튼을 하단에 고정
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
