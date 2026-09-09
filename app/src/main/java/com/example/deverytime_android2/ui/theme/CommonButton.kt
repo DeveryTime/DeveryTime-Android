@@ -18,30 +18,31 @@ import androidx.compose.ui.unit.sp
 fun CommonButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(25.dp),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(
-                start = 22.dp,
-                end = 22.dp,
-                bottom = 30.dp
-            ),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 22.dp,
+                    end = 22.dp,
+                    bottom = 30.dp,
+                ),
         contentPadding = PaddingValues(vertical = 18.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = mainBlue,
-            contentColor = Color.White
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = mainBlue,
+                contentColor = Color.White,
+            ),
     ) {
         Text(
             text = text,
             fontSize = 16.sp,
             fontFamily = Pretendard,
-            fontWeight = FontWeight.W700
+            fontWeight = FontWeight.W700,
         )
     }
 }
-

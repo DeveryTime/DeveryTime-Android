@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -32,7 +31,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -42,13 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -84,11 +79,9 @@ fun myPage3Screen(
         when {
             isClicked -> mainBlue
 
-            // 버튼 클릭 후 회색
-            changedId.isNotEmpty() -> buttonGray
-
             // 글자가 있으면 파란색
-            else -> buttonGray // 글자가 없으면 회색
+            else -> buttonGray
+            // 글자가 없으면 회색
         }
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -160,13 +153,13 @@ fun myPage3Screen(
                             unfocusedPlaceholderColor = buttonGray,
                             errorBorderColor = Color.Red,
                         ),
-                    value = "$userEmail",
+                    value = userEmail,
                     onValueChange = {},
                     readOnly = true,
                     modifier =
                         Modifier
                             .height(50.dp)
-                            .fillMaxWidth(1f)
+                            .fillMaxWidth()
                             .padding(horizontal = 22.dp),
                     shape = RoundedCornerShape(12.dp),
                 )
@@ -189,7 +182,6 @@ fun myPage3Screen(
                                 unfocusedPlaceholderColor = buttonGray,
                                 errorBorderColor = Color.Red,
                             ),
-                        placeholder = { Text(text = userName) },
                         value = changedId,
                         onValueChange = {
                             changedId = it
@@ -221,10 +213,9 @@ fun myPage3Screen(
                         modifier =
                             Modifier
                                 .align(Alignment.CenterVertically)
-                                .padding(start = 10.dp)
+                                .padding(start = 10.dp, top = 6.dp)
                                 .weight(0.38f)
-                                .height(56.dp)
-                                .padding(top = 6.dp),
+                                .height(56.dp),
                         contentPadding = PaddingValues(0.dp),
                     ) {
                         Text(
@@ -255,9 +246,9 @@ fun myPage3Screen(
             shape = RoundedCornerShape(23.dp),
             modifier =
                 Modifier
-                    .align(Alignment.BottomCenter) // Box 안에서 하단 중앙
+                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
+                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp)
                     .height(54.dp),
         ) {
             Text(

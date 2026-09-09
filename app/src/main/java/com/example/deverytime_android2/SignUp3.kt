@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,7 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -39,13 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -73,7 +68,7 @@ fun SignUp3Screen(
                     .size(32.dp),
             contentPadding = PaddingValues(0.dp),
             shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.back_arrow),
@@ -131,20 +126,18 @@ fun SignUp3Screen(
                     onValueChange = { newValue ->
                         password =
                             newValue
-                                .replace("\n", "")
                                 .take(20) // 최대 20자 제한
                     },
                     singleLine = true,
-                    maxLines = 1,
                     keyboardOptions =
                         KeyboardOptions(
-                            imeAction = ImeAction.Done,
+                            imeAction = ImeAction.Next,
                         ),
                     keyboardActions =
                         KeyboardActions(
-                            onDone = {
+                            onNext = {
                                 keyboardController?.hide()
-                                focusManager.clearFocus()
+                                focusManager.moveFocus(FocusDirection.Down)
                             },
                         ),
                     modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
@@ -171,11 +164,9 @@ fun SignUp3Screen(
                     onValueChange = { newValue ->
                         recheckNumber =
                             newValue
-                                .replace("\n", "")
                                 .take(20) // 최대 20자 제한
                     },
                     singleLine = true,
-                    maxLines = 1,
                     keyboardOptions =
                         KeyboardOptions(
                             imeAction = ImeAction.Done,

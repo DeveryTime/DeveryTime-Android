@@ -13,19 +13,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.example.deverytime_android2.appTypography
 
-private val darkColorSchemeColors = darkColorScheme(
-    primary = purple80,
-    secondary = purpleGrey80,
-    tertiary = pink80
-)
+private val darkColorSchemeColors =
+    darkColorScheme(
+        primary = purple80,
+        secondary = purpleGrey80,
+        tertiary = pink80,
+    )
 
-private val lightColorSchemeColors = lightColorScheme(
-    primary = purple40,
-    secondary = purpleGrey40,
-    tertiary = pink40 ,
-    background = Color.White,
-    surface = Color.White,
-
+private val lightColorSchemeColors =
+    lightColorScheme(
+        primary = purple40,
+        secondary = purpleGrey40,
+        tertiary = pink40,
+        background = Color.White,
+        surface = Color.White,
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -34,29 +35,35 @@ private val lightColorSchemeColors = lightColorScheme(
     onTertiary = Color.White,
     onBackground = Color(0xFF1C1B1F),
     onSurface = Color(0xFF1C1B1F),
-    */
-)
+     */
+    )
 
 @Composable
 fun DeveryTime_Android2Theme(
     darkTheme: Boolean = false,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    val colorScheme =
+        when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
 
-        darkTheme -> darkColorSchemeColors
-        else -> lightColorSchemeColors
-    }
+            darkTheme -> {
+                darkColorSchemeColors
+            }
+
+            else -> {
+                lightColorSchemeColors
+            }
+        }
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = appTypography,
-        content = content
+        content = content,
     )
 }

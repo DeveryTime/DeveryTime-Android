@@ -1,15 +1,12 @@
 package com.example.deverytime_android2
 
-import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,7 +22,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -41,26 +37,21 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.core.text.isDigitsOnly
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.regex.Pattern
 
-public val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
+val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
 
 @Composable
 fun SignUp2Screen(
@@ -156,7 +147,6 @@ fun SignUp2Screen(
                             .substringBefore("@")
                             .filter { it.isDigit() }
                             .take(8) // ex: 20261114 총 8자
-                            .replace("\n", "")
                     isEmailWrong = false
                     timeDone = false
                     isVisible = true
@@ -176,13 +166,14 @@ fun SignUp2Screen(
                 isError = isEmailWrong,
                 keyboardOptions =
                     KeyboardOptions(
+                        imeAction = ImeAction.Next,
                         keyboardType = KeyboardType.Number,
                     ),
                 keyboardActions =
                     KeyboardActions(
                         onDone = {
                             keyboardController?.hide()
-                            focusManager.clearFocus()
+                            focusManager.moveFocus(FocusDirection.Down)
                         },
                     ),
             )
@@ -227,7 +218,6 @@ fun SignUp2Screen(
                             onValueChange = { newValue ->
                                 certifiedNum =
                                     newValue
-                                        .replace("\n", "")
                                         .take(6) // 최대 6자 제한
                             },
                             modifier =
@@ -237,6 +227,7 @@ fun SignUp2Screen(
                             shape = RoundedCornerShape(12.dp),
                             keyboardOptions =
                                 KeyboardOptions(
+                                    imeAction = ImeAction.Done,
                                     keyboardType = KeyboardType.Number,
                                 ),
                             keyboardActions =

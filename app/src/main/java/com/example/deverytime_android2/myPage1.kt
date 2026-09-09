@@ -1,69 +1,35 @@
 package com.example.deverytime_android2
 
-import android.graphics.drawable.Icon
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
-import com.example.deverytime_android2.ui.theme.mainBlue
-import java.text.SimpleDateFormat
-import java.util.Locale
 
-// TODO: 백엔드에서 연동 해와야 함
-public val name = "박XX"
-public var userName = "발랄한 바둑이"
-val schoolNumber = 1107
-val userEmail = "deverytime2026@gmail.com"
+var name = "박XX"
+var userName = "발랄한 바둑이"
+var schoolNumber = 1107
+var userEmail = "deverytime2026@gmail.com"
 
 @Composable
 fun myPage1Screen(
@@ -71,7 +37,7 @@ fun myPage1Screen(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        //디자인 상으로 있으나 개인의 판단으로 애매하다고 판단해 잠시 삭제
+        // 디자인 상으로 있으나 개인의 판단으로 애매하다고 판단해 잠시 삭제
 //        Image(
 //            painter = painterResource(id = R.drawable.deverytime_logo),
 //            contentDescription = "로고",
@@ -85,10 +51,10 @@ fun myPage1Screen(
 //        )
         Spacer(modifier = Modifier.weight(1f))
         Row(modifier = Modifier.padding(top = 10.dp)) {
-            //TODO: 사진을 백엔드에서 가져와야함
+            // TODO: 사진을 백엔드에서 가져와야함
             Image(
                 painter = painterResource(id = R.drawable.vector_5),
-                contentDescription = "마이페이지프로필",
+                contentDescription = "마이페이지 프로필",
                 modifier =
                     Modifier
                         .padding(start = 30.dp),
@@ -143,30 +109,28 @@ fun myPage1Screen(
             LazyColumn(
                 modifier =
                     Modifier
-                        .padding(top = 19.dp)
-                        .clickable {
-                            navController.navigate(Screen.MyPage2.route)
-                        },
+                        .padding(top = 19.dp),
             ) {
-                item {
-                    postItem(title[0], time[0], like[0], true)
-                }
-                item {
-                    postItem(title[1], time[1], like[1])
-                }
-                item {
-                    postItem(title[2], time[2], like[2])
+                items(3) { index ->
+                    PostItem(
+                        post = posts[index],
+                        showTopBorder = index == 0,
+                    )
                 }
             }
         }
-        Column(modifier = Modifier.padding(start = 22.dp, top = 50.dp)) {
+        Column(
+            modifier =
+                Modifier
+                    .padding(start = 22.dp, top = 50.dp),
+            verticalArrangement = Arrangement.spacedBy(25.dp),
+        ) {
             Text(
                 text = "MY",
                 fontFamily = pretendardVariable,
                 fontSize = 19.sp,
                 fontWeight = FontWeight.Bold,
             )
-            Spacer(modifier = Modifier.height(18.dp))
             Text(
                 modifier =
                     Modifier
@@ -177,7 +141,6 @@ fun myPage1Screen(
                 fontFamily = pretendardVariable,
                 fontSize = 18.sp,
             )
-            Spacer(modifier = Modifier.height(25.dp))
             Text(
                 text = "로그아웃",
                 fontFamily = pretendardVariable,

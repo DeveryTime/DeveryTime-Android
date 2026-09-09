@@ -8,13 +8,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -31,8 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -49,12 +45,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -78,10 +71,7 @@ val appTypography =
     )
 
 @Composable
-fun LoginScreen(
-    navController: NavHostController,
-    modifier: Modifier = Modifier,
-) {
+fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -91,8 +81,7 @@ fun LoginScreen(
 
     Button(
         onClick = {
-            // 온보딩 페이지 연동 이후
-            // navController.navigate(Screen.Onboarding.route)
+            navController.navigate(Screen.OnBoard1.route)
         },
         modifier =
             Modifier
@@ -152,18 +141,16 @@ fun LoginScreen(
                             .substringBefore("@")
                             .filter { it.isDigit() }
                             .take(8)
-                            .replace("\n", "")
                 },
                 singleLine = true,
-                maxLines = 1,
                 keyboardOptions =
                     KeyboardOptions(
                         keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done,
+                        imeAction = ImeAction.Next,
                     ),
                 keyboardActions =
                     KeyboardActions(
-                        onDone = {
+                        onNext = {
                             keyboardController?.hide()
                             focusManager.clearFocus()
                         },
@@ -195,7 +182,6 @@ fun LoginScreen(
                 onValueChange = { input ->
                     password =
                         input
-                            .replace("\n", "")
                             .take(20)
                 },
                 singleLine = true,
@@ -244,13 +230,15 @@ fun LoginScreen(
             )
         }
         Button(
-            onClick = { },
+            onClick = {
+                navController.navigate(Screen.MyPage1.route)
+            },
             colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
             shape = RoundedCornerShape(23.dp),
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
+                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp)
                     .height(54.dp),
         ) {
             Text(

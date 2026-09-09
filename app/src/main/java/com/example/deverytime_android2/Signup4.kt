@@ -29,7 +29,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -41,13 +40,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -174,12 +169,10 @@ fun SignUp4Screen(
                         onValueChange = { newValue ->
                             id =
                                 newValue
-                                    .replace("\n", "") // 최대 10글자 제한
                                     .take(10)
                             isClicked = false
                         },
                         singleLine = true,
-                        maxLines = 1,
                         keyboardOptions =
                             KeyboardOptions(
                                 imeAction = ImeAction.Done,
@@ -216,7 +209,6 @@ fun SignUp4Screen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             text = "중복확인",
-                            maxLines = 1,
                             softWrap = false,
                             overflow = TextOverflow.Visible,
                             textAlign = TextAlign.Center,

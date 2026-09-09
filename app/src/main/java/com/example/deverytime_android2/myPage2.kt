@@ -1,7 +1,6 @@
 package com.example.deverytime_android2
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,137 +8,54 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
-import com.example.deverytime_android2.ui.theme.mainBlue
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-public val title =
-    listOf(
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "오늘 저녁은 치킨이다",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-        "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다.",
-    )
+data class Post(
+    val title: String,
+    val time: String,
+    val like: Int,
+)
 
-public val time =
-    listOf<String>(
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-        "2026-08-04T12:30:00",
-    )
-
-public val like =
-    listOf(
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-        5,
-    )
-
-// TODO: indexSize는 추후 백엔드에서 받아오는 값으로 변경 필요
-val indexSize = title.size - 2
+val posts =
+    List(24) { index ->
+        Post(
+            title =
+                if (index % 3 == 0) {
+                    "오늘 저녁은 치킨이다"
+                } else {
+                    "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다."
+                },
+            time = "2026-08-04T12:30:00",
+            like = 5,
+        )
+    }
 
 public fun formatTime(time: String): String {
     val inputFormat =
@@ -163,13 +79,12 @@ public fun formatTime(time: String): String {
 }
 
 @Composable
-public fun postItem(
-    title: String,
-    time: String,
-    like: Int,
+public fun PostItem(
+    post: Post,
     showTopBorder: Boolean = false,
+    modifier: Modifier = Modifier,
 ) {
-    val changeTime = formatTime(time)
+    val changeTime = formatTime(post.time)
     Box(
         modifier =
             Modifier
@@ -182,7 +97,7 @@ public fun postItem(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(48.8.dp)
+                    .height(49.dp)
                     .drawBehind {
                         val strokeWidth = 1.dp.toPx()
 
@@ -206,13 +121,12 @@ public fun postItem(
         ) {
             Column(modifier = Modifier.padding(horizontal = 21.dp).weight(1f)) {
                 Text(
-                    text = title,
+                    text = post.title,
                     fontSize = 15.65.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = pretendardVariable,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = Color(0xFF000000),
                 )
                 Text(
                     text = changeTime,
@@ -236,7 +150,7 @@ public fun postItem(
                             .size(18.dp),
                 )
                 Text(
-                    text = like.toString(),
+                    text = post.like.toString(),
                     fontSize = 12.sp,
                     fontFamily = pretendardVariable,
                     color = buttonGray,
@@ -261,7 +175,7 @@ fun myPage2Screen(
                     .padding(start = 12.dp, top = 45.dp)
                     .size(32.dp),
             contentPadding = PaddingValues(0.dp),
-            shape = RoundedCornerShape(50),
+            shape = CircleShape,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
         ) {
             Image(
@@ -278,7 +192,7 @@ fun myPage2Screen(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.88f)
+                    .padding(top = 100.dp)
                     .align(Alignment.BottomCenter),
         ) {
             Text(
@@ -292,14 +206,13 @@ fun myPage2Screen(
             )
             Spacer(modifier = Modifier.height(25.dp))
             LazyColumn {
-                item {
-                    postItem(title[0], time[0], like[0], true)
-                }
-                items(indexSize) { index ->
-                    postItem(title[index + 1], time[index + 1], like[index + 1])
-                }
-                item {
-                    postItem(title.last(), time.last(), like.last())
+                itemsIndexed(
+                    posts,
+                ) { index, item ->
+                    PostItem(
+                        post = posts[index],
+                        showTopBorder = index == 0,
+                    )
                 }
             }
         }

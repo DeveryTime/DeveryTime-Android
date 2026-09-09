@@ -3,5 +3,11 @@
   <component name="com.nbadal.ktlint.KtlintProjectSettings">
     <ktlintMode>DISTRACT_FREE</ktlintMode>
     <ktlintRulesetVersion>DEFAULT</ktlintRulesetVersion>
+    <externalJarPaths>
+      <list>
+        <option value="[*.{kt" />
+        <option value="kts}] ktlint_standard_package-name = disabled ktlint_function_naming_ignore_when_annotated_with = Composable ktlint_standard_filename = disabled" />
+      </list>
+    </externalJarPaths>
   </component>
 </project>

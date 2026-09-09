@@ -21,15 +21,17 @@ import com.example.deverytime_android2.ui.theme.Style
 @Composable
 fun OnBoard4Screen(navController: NavHostController) {
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp),
-            horizontalAlignment = Alignment.Start
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp),
+            horizontalAlignment = Alignment.Start,
         ) {
             Spacer(Modifier.height(108.dp))
             Text(
@@ -42,16 +44,17 @@ fun OnBoard4Screen(navController: NavHostController) {
             )
         }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(Modifier.height(87.dp))
             Image(
                 contentDescription = null,
                 painter = painterResource(R.drawable.ic_onboarding4),
-                modifier = Modifier
+                modifier = Modifier,
             )
             Spacer(Modifier.height(50.dp))
             Image(
@@ -62,7 +65,7 @@ fun OnBoard4Screen(navController: NavHostController) {
         }
         CommonButton(
             text = stringResource(R.string.next),
-            onClick = { navController.navigate(Screen.OnBoard5.route) }
+            onClick = { navController.navigate(Screen.OnBoard5.route) },
         )
     }
 }

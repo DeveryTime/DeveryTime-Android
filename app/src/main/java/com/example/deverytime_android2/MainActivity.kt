@@ -4,21 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.snapping.SnapPosition
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
@@ -30,20 +22,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -57,13 +44,13 @@ sealed class Screen(
 ) {
     data object Login : Screen("login")
 
-    data object SignUp1 : Screen("signup1")
+    data object SignUp1 : Screen("signUp1")
 
-    data object SignUp2 : Screen("signup2")
+    data object SignUp2 : Screen("signUp2")
 
-    data object SignUp3 : Screen("signup3")
+    data object SignUp3 : Screen("signUp3")
 
-    data object SignUp4 : Screen("signup4")
+    data object SignUp4 : Screen("signUp4")
 
     data object MyPage1 : Screen("myPage1")
 
@@ -71,15 +58,15 @@ sealed class Screen(
 
     data object MyPage3 : Screen("myPage3")
 
-    data object OnBoard1 : Screen(route = "OnBoard1")
+    data object OnBoard1 : Screen(route = "onBoard1")
 
-    data object OnBoard2 : Screen(route = "OnBoard2")
+    data object OnBoard2 : Screen(route = "onBoard2")
 
-    data object OnBoard3 : Screen(route = "OnBoard3")
+    data object OnBoard3 : Screen(route = "onBoard3")
 
-    data object OnBoard4 : Screen(route = "OnBoard4")
+    data object OnBoard4 : Screen(route = "onBoard4")
 
-    data object OnBoard5 : Screen(route = "OnBoard5")
+    data object OnBoard5 : Screen(route = "onBoard5")
 }
 
 class MainActivity : ComponentActivity() {
@@ -123,7 +110,7 @@ class MainActivity : ComponentActivity() {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Screen.MyPage1.route,
+                startDestination = Screen.OnBoard1.route,
                 modifier = Modifier.padding(innerPadding),
             ) {
                 composable(route = Screen.Login.route) { LoginScreen(navController) }
