@@ -12,3 +12,5 @@ val pink40 = Color(0xFF7D5260)
 
 val mainBlue = Color(0xFF3469F9)
 val buttonGray = Color(0xFF999999)
+
+val lightBlue = Color(0xff5581FA)
