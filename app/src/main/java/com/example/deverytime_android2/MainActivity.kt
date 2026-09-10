@@ -34,6 +34,8 @@ sealed class Screen(val route: String) {
     data object OnBoard3 : Screen(route = "OnBoard3")
     data object OnBoard4 : Screen(route = "OnBoard4")
     data object OnBoard5 : Screen(route = "OnBoard5")
+
+    data object  Main1 : Screen(route = "Main1")
 }
 
 class MainActivity : ComponentActivity() {
@@ -71,6 +73,7 @@ class MainActivity : ComponentActivity() {
             composable(route = Screen.SignUp2.route) { SignUp2Screen(navController) }
             composable(route = Screen.SignUp3.route) { SignUp3Screen(navController) }
             composable(route = Screen.SignUp4.route) { SignUp4Screen(navController) }
+            composable(route = Screen.Main1.route) { Main1Screen(navController) }
         }
     }
 }
