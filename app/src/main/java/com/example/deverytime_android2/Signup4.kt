@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -27,22 +29,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -68,13 +68,16 @@ fun SignUp4Screen(
             // 글자가 있으면 파란색
             else -> buttonGray // 글자가 없으면 회색
         }
-    Box {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize(),
+    ) {
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             },
             modifier =
                 Modifier
@@ -104,15 +107,19 @@ fun SignUp4Screen(
                     .padding(start = 8.dp, top = 52.dp),
             contentScale = ContentScale.Fit,
         )
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
-            Spacer(modifier = Modifier.weight(1.5f))
+        Column(
+            modifier =
+                Modifier
+                    .padding(top = 120.dp, start = 18.dp, end = 18.dp)
+                    .fillMaxSize(),
+            verticalArrangement = Arrangement.Top,
+        ) {
             Column {
                 Text(
                     text = "사용자님의 모습이 궁금해요!",
                     fontSize = 23.5.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = pretendardVariable,
-                    color = Color.Black,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
@@ -134,6 +141,7 @@ fun SignUp4Screen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         onClick = { /* 이미지 업로드 로직 */ },
                     ) {
+                        // 나는 바보 ㅋㅋㅋ
                         Image(
                             painter = painterResource(id = R.drawable.frame_83),
                             contentDescription = "디자인 미리보기",
@@ -161,27 +169,36 @@ fun SignUp4Screen(
                     OutlinedTextField(
                         colors =
                             OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.Black,
-                                unfocusedTextColor = Color.Black,
                                 focusedPlaceholderColor = Color.Transparent,
                                 unfocusedPlaceholderColor = buttonGray,
                                 errorBorderColor = Color.Red,
                             ),
                         placeholder = { Text(text = "우아한 강아지") },
                         value = id,
-                        onValueChange = {
-                            id = it
+                        onValueChange = { newValue ->
+                            id =
+                                newValue
+                                    .take(10)
                             isClicked = false
                         },
+                        singleLine = true,
+                        keyboardOptions =
+                            KeyboardOptions(
+                                imeAction = ImeAction.Done,
+                            ),
+                        keyboardActions =
+                            KeyboardActions(
+                                onDone = {
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus()
+                                },
+                            ),
                         modifier = Modifier.padding(top = 3.dp).weight(1f),
                         shape = RoundedCornerShape(12.dp),
                     )
                     Button(
                         onClick = {
                             isClicked = true
-//                        if () {
-//
-//                        }
                         },
                         colors =
                             ButtonDefaults.buttonColors(
@@ -201,7 +218,6 @@ fun SignUp4Screen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             text = "중복확인",
-                            maxLines = 1,
                             softWrap = false,
                             overflow = TextOverflow.Visible,
                             textAlign = TextAlign.Center,
@@ -217,13 +233,12 @@ fun SignUp4Screen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(3.4f))
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
                 Text(
                     fontSize = 14.sp,
-                    text = "만약 계정이 있으신가요?",
+                    text = "계정이 있으신가요?",
                     color = Color(0xFFB1B1B1),
                     modifier =
                     Modifier,
@@ -235,6 +250,7 @@ fun SignUp4Screen(
                     textDecoration = TextDecoration.Underline,
                     modifier =
                         Modifier
+                            .padding(horizontal = 3.dp)
                             .clickable {
                                 navController.navigate(Screen.Login.route)
                             },

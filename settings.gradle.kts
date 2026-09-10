@@ -24,4 +24,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "DeveryTime_Android2"
 include(":app")
- 

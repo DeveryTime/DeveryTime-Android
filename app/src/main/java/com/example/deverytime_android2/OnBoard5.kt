@@ -26,16 +26,18 @@ import com.example.deverytime_android2.ui.theme.Style
 @Composable
 fun OnBoard5Screen(navController: NavHostController) {
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            Modifier
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(108.dp))
         Column(
-            modifier = Modifier
-                .weight(1f),
+            modifier =
+                Modifier
+                    .weight(1f),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(R.string.onboard5_1),
@@ -53,30 +55,33 @@ fun OnBoard5Screen(navController: NavHostController) {
         }
         Column(
             verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row() {
+            Row {
                 Text(
                     text = stringResource(R.string.onboard5_3),
                     style = Style.Caption,
-                    color = Color(0xFFb1b1b1)
+                    color = Color(0xFFb1b1b1),
                 )
                 Spacer(Modifier.width(7.dp))
                 Text(
                     text = stringResource(R.string.login),
                     style = Style.Caption,
-                    modifier = Modifier
-                        .padding(bottom = 7.dp)
-                        //TODO:로그인 경로 추가
-                        .clickable {},
+                    modifier =
+                        Modifier
+                            .padding(bottom = 7.dp)
+                            .clickable {
+                                navController.navigate(Screen.Login.route)
+                            },
                     color = Color(0xFF3469f9),
-                    textDecoration = TextDecoration.Underline
+                    textDecoration = TextDecoration.Underline,
                 )
             }
             CommonButton(
                 text = stringResource(R.string.start),
-                //TODO: 회원가입 경로 추가
-                onClick = {},
+                onClick = {
+                    navController.navigate(Screen.SignUp1.route)
+                },
             )
         }
     }

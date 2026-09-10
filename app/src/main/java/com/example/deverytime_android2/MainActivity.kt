@@ -4,36 +4,69 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import com.example.deverytime_android2.ui.theme.mainBlue
 
-sealed class Screen(val route: String) {
+sealed class Screen(
+    val route: String,
+) {
     data object Login : Screen("login")
-    data object SignUp1 : Screen("signup1")
-    data object SignUp2 : Screen("signup2")
-    data object SignUp3 : Screen("signup3")
-    data object SignUp4 : Screen("signup4")
-    data object OnBoard1 : Screen(route = "OnBoard1")
-    data object OnBoard2 : Screen(route = "OnBoard2")
-    data object OnBoard3 : Screen(route = "OnBoard3")
-    data object OnBoard4 : Screen(route = "OnBoard4")
-    data object OnBoard5 : Screen(route = "OnBoard5")
+
+    data object SignUp1 : Screen("signUp1")
+
+    data object SignUp2 : Screen("signUp2")
+
+    data object SignUp3 : Screen("signUp3")
+
+    data object SignUp4 : Screen("signUp4")
+
+    data object MyPage1 : Screen("myPage1")
+
+    data object MyPage2 : Screen("myPage2")
+
+    data object MyPage3 : Screen("myPage3")
+
+    data object OnBoard1 : Screen(route = "onBoard1")
+
+    data object OnBoard2 : Screen(route = "onBoard2")
+
+    data object OnBoard3 : Screen(route = "onBoard3")
+
+    data object OnBoard4 : Screen(route = "onBoard4")
+
+    data object OnBoard5 : Screen(route = "onBoard5")
 }
 
 class MainActivity : ComponentActivity() {
@@ -42,13 +75,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             DeveryTime_Android2Theme {
-                Scaffold(
+                Navigation(
                     modifier = Modifier.fillMaxSize(),
-                ) { innerPadding ->
-                    Navigation(
-                        modifier = Modifier.padding(innerPadding),
-                    )
-                }
+                )
             }
         }
     }
@@ -56,21 +85,48 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun Navigation(modifier: Modifier = Modifier) {
         val navController = rememberNavController()
-        NavHost(
-            navController = navController,
-            startDestination = Screen.OnBoard1.route,
-            modifier = modifier
-        ) {
-            composable(route = Screen.Login.route) { LoginScreen(navController) }
-            composable(route = Screen.OnBoard1.route) { OnBoard1Screen(navController) }
-            composable(route = Screen.OnBoard2.route) { OnBoard2Screen(navController) }
-            composable(route = Screen.OnBoard3.route) { OnBoard3Screen(navController) }
-            composable(route = Screen.OnBoard4.route) { OnBoard4Screen(navController) }
-            composable(route = Screen.OnBoard5.route) { OnBoard5Screen(navController) }
-            composable(route = Screen.SignUp1.route) { SignUpScreen(navController) }
-            composable(route = Screen.SignUp2.route) { SignUp2Screen(navController) }
-            composable(route = Screen.SignUp3.route) { SignUp3Screen(navController) }
-            composable(route = Screen.SignUp4.route) { SignUp4Screen(navController) }
+        val backStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = backStackEntry?.destination?.route
+
+        // 이게 어디 어디에 네비바 넣을지 설정하는 코드
+        val showBottomBar =
+            currentRoute == Screen.MyPage1.route ||
+                currentRoute == Screen.MyPage2.route
+
+        Scaffold(
+            modifier = modifier,
+            bottomBar = {
+                if (showBottomBar) {
+                    BottomNavigationBar(
+                        currentRoute = currentRoute,
+                        onNavigate = { route ->
+                            navController.navigate(route) {
+                                launchSingleTop = true
+                            }
+                        },
+                    )
+                }
+            },
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = Screen.OnBoard1.route,
+                modifier = Modifier.padding(innerPadding),
+            ) {
+                composable(route = Screen.Login.route) { LoginScreen(navController) }
+                composable(route = Screen.SignUp1.route) { SignUpScreen(navController) }
+                composable(route = Screen.SignUp2.route) { SignUp2Screen(navController) }
+                composable(route = Screen.SignUp3.route) { SignUp3Screen(navController) }
+                composable(route = Screen.SignUp4.route) { SignUp4Screen(navController) }
+                composable(route = Screen.MyPage1.route) { myPage1Screen(navController) }
+                composable(route = Screen.MyPage2.route) { myPage2Screen(navController) }
+                composable(route = Screen.MyPage3.route) { myPage3Screen(navController) }
+                composable(route = Screen.OnBoard1.route) { OnBoard1Screen(navController) }
+                composable(route = Screen.OnBoard2.route) { OnBoard2Screen(navController) }
+                composable(route = Screen.OnBoard3.route) { OnBoard3Screen(navController) }
+                composable(route = Screen.OnBoard4.route) { OnBoard4Screen(navController) }
+                composable(route = Screen.OnBoard5.route) { OnBoard5Screen(navController) }
+            }
         }
     }
 }

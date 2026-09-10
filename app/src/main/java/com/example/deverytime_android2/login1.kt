@@ -8,14 +8,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -29,10 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -41,14 +42,13 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -72,15 +72,18 @@ val appTypography =
     )
 
 @Composable
-fun LoginScreen(
-    navController: NavHostController,
-    modifier: Modifier = Modifier,
-) {
+fun LoginScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // 포커스 매니저
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
     Button(
-        onClick = { navController.popBackStack() },
+        onClick = {
+            navController.navigate(Screen.OnBoard1.route)
+        },
         modifier =
             Modifier
                 .padding(start = 8.dp, top = 40.dp)
@@ -114,7 +117,6 @@ fun LoginScreen(
                 fontSize = 23.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
-                color = Color.Black,
             )
         }
 
@@ -128,17 +130,36 @@ fun LoginScreen(
             OutlinedTextField(
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
                         unfocusedPlaceholderColor = buttonGray,
                         errorBorderColor = Color.Red,
                     ),
                 placeholder = { Text(text = "이메일") },
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { input ->
+                    email =
+                        input
+                            .substringBefore("@")
+                            .filter { it.isDigit() }
+                            .take(8)
+                },
+                singleLine = true,
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Next)
+                        },
+                    ),
                 modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
+                suffix = {
+                    Text("@$SCHOOL_EMAIL_DOMAIN")
+                },
             )
 
             Spacer(modifier = Modifier.height(11.dp))
@@ -152,15 +173,28 @@ fun LoginScreen(
             OutlinedTextField(
                 colors =
                     OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
                         focusedPlaceholderColor = Color.Transparent,
                         unfocusedPlaceholderColor = buttonGray,
                         errorBorderColor = Color.Red,
                     ),
                 placeholder = { Text(text = "비밀번호") },
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { input ->
+                    password =
+                        input
+                            .take(20)
+                },
+                singleLine = true,
+                maxLines = 1,
+                keyboardOptions =
+                    KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        },
+                    ),
                 modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 visualTransformation = PasswordVisualTransformation(),
@@ -178,7 +212,7 @@ fun LoginScreen(
         Row(modifier = Modifier.padding(bottom = 10.dp)) {
             Text(
                 fontSize = 14.sp,
-                text = "만약 계정이 없으신가요?",
+                text = "계정이 없으신가요?",
                 color = Color(0xFFB1B1B1),
                 modifier = Modifier,
             )
@@ -189,19 +223,22 @@ fun LoginScreen(
                 textDecoration = TextDecoration.Underline,
                 modifier =
                     Modifier
+                        .padding(horizontal = 3.dp)
                         .clickable {
                             navController.navigate(Screen.SignUp1.route)
                         },
             )
         }
         Button(
-            onClick = { },
+            onClick = {
+                navController.navigate(Screen.MyPage1.route)
+            },
             colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
             shape = RoundedCornerShape(23.dp),
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
+                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp)
                     .height(54.dp),
         ) {
             Text(
