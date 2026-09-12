@@ -50,7 +50,6 @@ fun CommonSearchBar(
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 48.dp)
             .height(45.dp),
         interactionSource = interactionSource,
         singleLine = true,
