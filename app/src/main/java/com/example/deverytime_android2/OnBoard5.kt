@@ -67,16 +67,14 @@ fun OnBoard5Screen(navController: NavHostController) {
                     style = Style.Caption,
                     modifier = Modifier
                         .padding(bottom = 7.dp)
-                        //TODO:로그인 경로 추가
-                        .clickable {},
+                        .clickable {navController.navigate(Screen.Login.route)},
                     color = Color(0xFF3469f9),
                     textDecoration = TextDecoration.Underline
                 )
             }
             CommonButton(
                 text = stringResource(R.string.start),
-                //TODO: 회원가입 경로 추가
-                onClick = {},
+                onClick = {navController.navigate(Screen.SignUp1.route)},
             )
         }
     }

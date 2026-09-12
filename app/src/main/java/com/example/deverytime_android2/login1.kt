@@ -195,7 +195,7 @@ fun LoginScreen(
             )
         }
         Button(
-            onClick = { },
+            onClick = {navController.navigate(Screen.Main1.route)},
             colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
             shape = RoundedCornerShape(23.dp),
             modifier =
