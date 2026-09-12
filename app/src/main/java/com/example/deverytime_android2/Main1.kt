@@ -120,7 +120,6 @@ fun PostItem(
                     fontFamily = pretendardVariable,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = Color(0xFF000000),
                 )
                 Text(
                     text = changeTime,
@@ -222,7 +221,8 @@ fun Main1Screen(navigator: NavHostController) {
         }
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Spacer(modifier = Modifier.height(25.dp))

@@ -3,6 +3,7 @@ package com.example.deverytime_android2.ui.theme
 import android.R.attr.onClick
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,18 +46,16 @@ fun CommonCategory(
     selected: Boolean,
     modifier: Modifier = Modifier
 ){
-    var buttonColor = if (selected) lightBlue else Color.Gray
-    var borderColor = if (selected) lightBlue else Color.Gray
+    val isDark = if (isSystemInDarkTheme()) White else Black
+    val buttonColor = if (selected) lightBlue else Color.Transparent
+    val borderColor = if (selected) lightBlue else Color.Gray
+    val textColor = if (selected) White else isDark
+
     OutlinedButton(
         modifier = modifier
             .height(23.dp)
             .padding(horizontal = 4.dp),
-        onClick = {
-            buttonColor = if (buttonColor == lightBlue) Color.Gray else lightBlue
-            borderColor = if (borderColor == lightBlue) Color.Gray else lightBlue
-            onclick(text)
-
-        },
+        onClick = { onclick(text) },
         border = BorderStroke(1.dp, borderColor),
         contentPadding = PaddingValues(
             horizontal = 9.dp,
@@ -62,13 +63,14 @@ fun CommonCategory(
         ),
         colors = ButtonDefaults.buttonColors(
             containerColor = buttonColor,
+            contentColor = textColor
         ),
     ) {
         Text(
             text = text,
             fontFamily = Pretendard,
             fontSize = 12.sp,
-
+            color = textColor
         )
     }
 
