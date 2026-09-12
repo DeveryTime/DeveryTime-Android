@@ -1,7 +1,7 @@
 package com.example.deverytime_android2
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -184,6 +184,7 @@ fun Main1Screen(navigator: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CommonSearchBar(
+                modifier = Modifier.padding(top = 48.dp),
                 query = query,                          // 현재 검색어 상태 전달
                 onQueryChange = { query = it },         // 입력값 변경 시 상태 업데이트
                 onSearch = {                            // 검색 버튼 누르거나 IME 액션 실행 시 동작
@@ -228,6 +229,7 @@ fun Main1Screen(navigator: NavHostController) {
             Spacer(modifier = Modifier.height(25.dp))
             Text(
                 modifier = Modifier
+                    .clickable{navigator.navigate(Screen.Main2.route)}
                     .padding(start = 15.dp),
                 text = "인기순 >",
                 style = Style.SubTitle,
@@ -255,6 +257,7 @@ fun Main1Screen(navigator: NavHostController) {
             Spacer(modifier = Modifier.height(15.dp))
             Text(
                 modifier = Modifier
+                    .clickable{navigator.navigate(Screen.Main3.route)}
                     .padding(start = 15.dp),
                 text = "최신순 >",
                 style = Style.SubTitle,
@@ -282,6 +285,7 @@ fun Main1Screen(navigator: NavHostController) {
             Spacer(modifier = Modifier.height(15.dp))
             Text(
                 modifier = Modifier
+                    .clickable{navigator.navigate(Screen.Main4.route)}
                     .padding(start = 15.dp),
                 text = "조회순 >",
                 style = Style.SubTitle,
