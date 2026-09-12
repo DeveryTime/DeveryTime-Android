@@ -5,12 +5,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.OutlinedTextFieldDefaults.contentPadding
@@ -42,6 +46,7 @@ import com.example.deverytime_android2.ui.theme.CommonSearchBar
 
 
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.Style
 import com.example.deverytime_android2.ui.theme.buttonGray
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -66,21 +71,18 @@ fun formatTime(time: String): String {
 }
 
 @Composable
-fun postItem(
+fun PostItem(
     title: String,
     time: String,
     like: Int,
     showTopBorder: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     val changeTime = formatTime(time)
-    val scrollState = rememberScrollState()
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .clickable {
-                // TODO:페이지 생성 후 연계 필요
-            },
+            .fillMaxWidth()
+            .clickable { onClick() },
     ) {
         Row(
             modifier = Modifier
@@ -151,6 +153,24 @@ fun postItem(
     }
 }
 
+data class Post(
+    val id: Int,
+    val title: String,
+    val time: String,
+    val like: Int
+)
+
+val dummyPosts = listOf(
+    Post(1, "오늘 점심 메뉴 돈까스", "2026-09-11T12:30:00", 15),
+    Post(2, "안드로이드 컴포즈 스터디원 모집합니다", "2026-09-11T11:20:00", 8),
+    Post(3, "프로젝트 멘토링 일정 공지 확인하세요", "2026-09-10T18:00:00", 23),
+    Post(4, "프로그래밍기능사 필기 기출문제 요약본 공유", "2026-09-09T14:10:00", 42),
+    Post(5, "다과실에 카드 두고 가신분 찾습니다", "2026-09-08T09:05:00", 3),
+    Post(6, "취업 포트폴리오 피드백 부탁드립니다", "2026-09-07T21:40:00", 19),
+    Post(7, "검은색 버즈 케이스 보신분 찾습니다", "2026-09-06T16:15:00", 5),
+    Post(8, "코틀린 스터디원 모집합니다", "2026-09-05T13:25:00", 31),
+)
+
 @Composable
 fun Main1Screen(navigator: NavHostController) {
     var query by remember { mutableStateOf("") }
@@ -184,7 +204,10 @@ fun Main1Screen(navigator: NavHostController) {
                     "프로젝트"
                 )
 
-                Row{
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
                     categories.forEach { category ->
                         CommonCategory(
                             text = category,
@@ -197,18 +220,103 @@ fun Main1Screen(navigator: NavHostController) {
                 }
             }
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Spacer(modifier = Modifier.height(25.dp))
+            Text(
+                modifier = Modifier
+                    .padding(start = 15.dp),
+                text = "인기순 >",
+                style = Style.SubTitle,
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .height(195.2.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                itemsIndexed(
+                    items = dummyPosts,
+                    key = { _, post -> post.id }
+                ) { index, post ->
+                    PostItem(
+                        title = post.title,
+                        time = post.time,
+                        like = post.like,
+                        showTopBorder = (index == 0),
+                        onClick = {}
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Text(
+                modifier = Modifier
+                    .padding(start = 15.dp),
+                text = "최신순 >",
+                style = Style.SubTitle,
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .height(195.2.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                itemsIndexed(
+                    items = dummyPosts,
+                    key = { _, post -> post.id }
+                ) { index, post ->
+                    PostItem(
+                        title = post.title,
+                        time = post.time,
+                        like = post.like,
+                        showTopBorder = (index == 0),
+                        onClick = {}
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Text(
+                modifier = Modifier
+                    .padding(start = 15.dp),
+                text = "조회순 >",
+                style = Style.SubTitle,
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+                    .height(195.2.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                itemsIndexed(
+                    items = dummyPosts,
+                    key = { _, post -> post.id }
+                ) { index, post ->
+                    PostItem(
+                        title = post.title,
+                        time = post.time,
+                        like = post.like,
+                        showTopBorder = (index == 0),
+                        onClick = {}
+                    )
+                }
+            }
+        }
     }
 }
 
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Preview(showBackground = true, widthDp = 393, heightDp = 1150, showSystemUi = true)
 @Composable
 fun SignUpScreenPreview() {
     DeveryTime_Android2Theme {
-        val scrollState = rememberScrollState()
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState)
         ) {
             // 디자인 이미지를 반투명하게 배경에 깔기
             Image(

@@ -10,6 +10,11 @@ object Style {
         fontWeight = FontWeight.W700,
         fontFamily = Pretendard
     )
+    val SubTitle = TextStyle(
+        fontSize = 20.sp,
+        fontWeight = FontWeight.W700,
+        fontFamily = Pretendard
+    )
     val Body = TextStyle(
         fontSize = 16.sp,
         fontWeight = FontWeight.W700,
