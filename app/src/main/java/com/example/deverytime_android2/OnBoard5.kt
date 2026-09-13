@@ -71,7 +71,9 @@ fun OnBoard5Screen(navController: NavHostController) {
                         Modifier
                             .padding(bottom = 7.dp)
                             .clickable {
-                                navController.navigate(Screen.Login.route)
+                                navController.navigate(Screen.Login.route) {
+                                    popUpTo(Screen.OnBoard5.route) { inclusive = true }
+                                }
                             },
                     color = Color(0xFF3469f9),
                     textDecoration = TextDecoration.Underline,
@@ -80,7 +82,9 @@ fun OnBoard5Screen(navController: NavHostController) {
             CommonButton(
                 text = stringResource(R.string.start),
                 onClick = {
-                    navController.navigate(Screen.SignUp1.route)
+                    navController.navigate(Screen.SignUp1.route) {
+                        popUpTo(Screen.OnBoard5.route) { inclusive = true }
+                    }
                 },
             )
         }

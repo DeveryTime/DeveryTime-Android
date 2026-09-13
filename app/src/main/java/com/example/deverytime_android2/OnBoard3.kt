@@ -64,7 +64,11 @@ fun OnBoard3Screen(navController: NavHostController) {
         }
         CommonButton(
             text = stringResource(R.string.next),
-            onClick = { navController.navigate(Screen.OnBoard4.route) },
+            onClick = {
+                navController.navigate(Screen.OnBoard4.route) {
+                    popUpTo(Screen.OnBoard3.route) { inclusive = true }
+                }
+            },
         )
     }
 }

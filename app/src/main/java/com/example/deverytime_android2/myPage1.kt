@@ -113,6 +113,7 @@ fun myPage1Screen(
                 items(3) { index ->
                     PostItem(
                         post = posts[index],
+                        navController = navController,
                         showTopBorder = index == 0,
                     )
                 }
@@ -148,7 +149,10 @@ fun myPage1Screen(
                     Modifier
                         .clickable {
                             // TODO: 토큰 삭제 로직 추가 (백엔드)
-                            navController.navigate(Screen.Login.route)
+                            navController.navigate(Screen.Login.route) {
+                                popUpTo(Screen.MyPage1.route) { inclusive = true }
+                                launchSingleTop = true
+                            }
                         },
             )
         }
