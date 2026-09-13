@@ -165,7 +165,12 @@ public fun PostItem2(
                             modifier = Modifier.align(Alignment.CenterVertically),
                         )
                     }
-                    Box(modifier = Modifier.weight(1f).align(Alignment.CenterVertically)) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .align(Alignment.CenterVertically)
+                    ) {
                         Text(
                             text = yearMonthDay(post.time),
                             fontSize = 12.sp,
@@ -381,8 +386,8 @@ fun PostViewScreen(
                     singleLine = true,
                     modifier =
                         Modifier
-                            .fillMaxWidth(0.85f)
-                            .height(32.dp)
+                            .weight(1f)
+                            .height(35.dp)
                             .background(commentTextFieldColor, CircleShape)
                             .padding(horizontal = 14.dp),
                     decorationBox = { innerTextField ->
@@ -402,7 +407,7 @@ fun PostViewScreen(
                     contentDescription = "댓글 전송",
                     modifier =
                         Modifier
-                            .padding(start = 10.dp)
+                            .padding(horizontal = 15.dp)
                             .size(24.dp)
                             .align(Alignment.CenterVertically),
                 )
