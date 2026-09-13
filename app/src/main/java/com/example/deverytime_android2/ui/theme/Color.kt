@@ -18,3 +18,5 @@ val lightBlue = Color(0xFF5581FA)
 val grayLineColor = Color(0xFFDBDBDB)
 
 val commentTextFieldColor = Color(0xFFEDEDED)
+
+val nonprofile = Color(0xFFCDCDCD)

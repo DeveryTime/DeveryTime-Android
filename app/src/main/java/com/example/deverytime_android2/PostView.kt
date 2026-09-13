@@ -56,6 +56,7 @@ import androidx.navigation.NavHostController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.commentTextFieldColor
+import com.example.deverytime_android2.ui.theme.nonprofile
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -164,6 +165,7 @@ public fun commentItem2(
                                 Modifier
                                     .padding(end = 5.dp)
                                     .size(24.dp),
+                            tint = nonprofile
                         )
                         Text(
                             text = post.otherUserName,
