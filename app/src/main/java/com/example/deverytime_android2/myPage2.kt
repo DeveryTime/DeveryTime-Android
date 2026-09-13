@@ -41,6 +41,7 @@ data class Post(
     val title: String,
     val time: String,
     val like: Int,
+    val otherUserName: String
 )
 
 val posts =
@@ -53,11 +54,12 @@ val posts =
                     "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다."
                 },
             time = "2026-08-04T12:30:00",
+            otherUserName = "다른 사용자",
             like = 5,
         )
     }
 
-public fun formatTime(time: String): String {
+private fun formatTime(time: String): String {
     val inputFormat =
         SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss",

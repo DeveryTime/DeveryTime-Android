@@ -21,16 +21,47 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+val time = "2026-08-04T12:30:00"
+val view = 3
+
+private fun formatTime(time: String): String {
+    val inputFormat =
+        SimpleDateFormat(
+            "yyyy-MM-dd'T'HH:mm:ss",
+            Locale.KOREA,
+        )
+
+    val outputFormat =
+        SimpleDateFormat(
+            "yyyy년 MM월 dd일 HH:mm",
+            Locale.KOREA,
+        )
+
+    return runCatching {
+        val date = inputFormat.parse(time)
+        date?.let { outputFormat.format(it) } ?: time
+    }.getOrElse {
+        time
+    }
+}
 
 @Composable
 fun PostViewScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    val changeTime = formatTime(time)
+
     Column(modifier = modifier.fillMaxSize()) {
         Row(
             modifier = Modifier.padding(start = 15.dp, top = 45.dp),
@@ -56,13 +87,35 @@ fun PostViewScreen(
                             .align(Alignment.CenterVertically),
                 )
             }
-            Text(
-                text = "글쓰기",
+        }
+        Row(modifier = Modifier.padding(top = 16.dp)) {
+            // TODO: 사진을 백엔드에서 가져와야함
+            Image(
+                painter = painterResource(id = R.drawable.frame_799),
+                contentDescription = "마이페이지 프로필",
                 modifier =
                     Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(start = 3.dp),
+                        .padding(start = 28.dp),
             )
+            Column(
+                modifier =
+                    Modifier
+                        .padding(start = 8.dp)
+                        .align(Alignment.CenterVertically),
+            ) {
+                Text(
+                    text = userName,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = pretendardVariable,
+                )
+                Text(
+                    text = "$changeTime - $view 조회",
+                    fontSize = 13.sp,
+                    fontFamily = pretendardVariable,
+                )
+            }
+
         }
     }
 }
@@ -82,6 +135,6 @@ fun GreetingPrevie1w() {
                 contentScale = ContentScale.Fit,
             )
         }
-        PostingScreen(navController = NavHostController(LocalContext.current))
+        PostViewScreen(navController = NavHostController(LocalContext.current))
     }
 }
