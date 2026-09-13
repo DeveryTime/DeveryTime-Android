@@ -23,11 +23,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -171,7 +178,7 @@ public fun PostItem2(
                         modifier =
                             Modifier
                                 .weight(1f)
-                                .align(Alignment.CenterVertically)
+                                .align(Alignment.CenterVertically),
                     ) {
                         Text(
                             text = yearMonthDay(post.time),
@@ -213,6 +220,7 @@ fun PostViewScreen(
     modifier: Modifier = Modifier,
 ) {
     val changeTime = formatTime(time)
+    var expanded by remember { mutableStateOf(false) }
 
     Box {
         Column(modifier = modifier.fillMaxSize()) {
@@ -273,7 +281,13 @@ fun PostViewScreen(
                         fontFamily = pretendardVariable,
                     )
                 }
-                Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                            },
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_menu_kebab),
                         contentDescription = "케밥",
@@ -281,8 +295,21 @@ fun PostViewScreen(
                             Modifier
                                 .padding(end = 20.dp, top = 6.dp)
                                 .size(16.dp)
-                                .align(Alignment.TopEnd),
+                                .align(Alignment.TopEnd)
+                                .clickable {
+                                    expanded = !expanded
+                                },
                     )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        containerColor = Color.White,
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("신고하기") },
+                            onClick = {},
+                        )
+                    }
                 }
             }
             Text(
@@ -316,7 +343,9 @@ fun PostViewScreen(
                         modifier =
                             Modifier
                                 .padding(start = 26.dp)
-                                .size(20.dp),
+                                .size(20.dp)
+                                .clickable {
+                                },
                     )
                     Text(
                         text = "6",
@@ -377,11 +406,11 @@ fun PostViewScreen(
                     .background(Color.White)
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 20.dp, start = 10.dp)
+                    .padding(bottom = 20.dp, start = 10.dp),
         ) {
             Row(
                 modifier =
-                    Modifier,
+                Modifier,
             ) {
                 BasicTextField(
                     value = "",
