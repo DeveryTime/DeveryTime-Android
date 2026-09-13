@@ -16,3 +16,5 @@ val buttonGray = Color(0xFF999999)
 val lightBlue = Color(0xFF5581FA)
 
 val grayLineColor = Color(0xFFDBDBDB)
+
+val commentTextFieldColor = Color(0xFFEDEDED)

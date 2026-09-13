@@ -41,7 +41,8 @@ data class Post(
     val title: String,
     val time: String,
     val like: Int,
-    val otherUserName: String
+    val otherUserName: String,
+    val comment: String
 )
 
 val posts =
@@ -56,6 +57,7 @@ val posts =
             time = "2026-08-04T12:30:00",
             otherUserName = "다른 사용자",
             like = 5,
+            comment = "마라탕"
         )
     }
 
