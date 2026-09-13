@@ -60,7 +60,7 @@ fun BottomNavigationBar(
                 // selected는 임시 코드이므로 바꿔야함
                 selected = currentRoute == Screen.Login.route,
                 onClick = {
-                    onNavigate(Screen.Posting.route)
+                    onNavigate(Screen.Login.route)
                 },
                 colors =
                     NavigationBarItemDefaults.colors(
@@ -114,7 +114,7 @@ fun BottomNavigationBar(
         }
         IconButton(
             onClick = {
-                onNavigate(Screen.Login.route)
+                onNavigate(Screen.Posting.route)
             },
             modifier =
                 Modifier

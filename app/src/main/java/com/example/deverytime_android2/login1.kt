@@ -87,7 +87,9 @@ fun LoginScreen(navController: NavHostController) {
 
     Button(
         onClick = {
-            navController.navigate(Screen.OnBoard1.route)
+            navController.navigate(Screen.OnBoard1.route) {
+                popUpTo(Screen.Login.route) { inclusive = true }
+            }
         },
         modifier =
             Modifier
@@ -255,7 +257,11 @@ fun LoginScreen(navController: NavHostController) {
 //        }
         CommonButton(
             text = stringResource(R.string.login),
-            onClick = { navController.navigate(Screen.MyPage1.route) },
+            onClick = {
+                navController.navigate(Screen.MyPage1.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                }
+            },
         )
     }
 }

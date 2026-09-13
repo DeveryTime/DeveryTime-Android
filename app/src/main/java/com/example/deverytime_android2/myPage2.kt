@@ -42,7 +42,7 @@ data class Post(
     val time: String,
     val like: Int,
     val otherUserName: String,
-    val comment: String
+    val comment: String,
 )
 
 val posts =
@@ -57,7 +57,7 @@ val posts =
             time = "2026-08-04T12:30:00",
             otherUserName = "다른 사용자",
             like = 5,
-            comment = "마라탕"
+            comment = "마라탕",
         )
     }
 
@@ -84,6 +84,7 @@ private fun formatTime(time: String): String {
 
 @Composable
 public fun PostItem(
+    navController: NavHostController,
     post: Post,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
@@ -94,7 +95,11 @@ public fun PostItem(
             Modifier
                 .fillMaxSize()
                 .clickable {
-                    // TODO:페이지 생성 후 연계 필요
+                    navController.navigate(Screen.PostView.route) {
+                        popUpTo(Screen.MyPage2.route) {
+                            inclusive = true
+                        }
+                    }
                 },
     ) {
         Row(
@@ -215,6 +220,7 @@ fun myPage2Screen(
                 ) { index, item ->
                     PostItem(
                         post = posts[index],
+                        navController = navController,
                         showTopBorder = index == 0,
                     )
                 }

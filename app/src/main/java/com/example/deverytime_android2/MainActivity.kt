@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
                         currentRoute = currentRoute,
                         onNavigate = { route ->
                             navController.navigate(route) {
+                                popUpTo(Screen.MyPage1.route)
                                 launchSingleTop = true
                             }
                         },
