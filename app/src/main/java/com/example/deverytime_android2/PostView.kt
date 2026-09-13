@@ -43,6 +43,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -105,19 +106,19 @@ private fun yearMonthDay(time: String): String {
 }
 
 @Composable
-public fun PostItem2(
+public fun commentItem2(
     post: Post,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val changeTime = formatTime(post.time)
+    var commentExpanded by remember { mutableStateOf(false) }
+    val uriHandler = LocalUriHandler.current
+
     Box(
         modifier =
             Modifier
-                .fillMaxSize()
-                .clickable {
-                    // TODO:페이지 생성 후 연계 필요
-                },
+                .fillMaxSize(),
     ) {
         Row(
             modifier =
@@ -191,14 +192,36 @@ public fun PostItem2(
                                     .padding(end = 5.dp),
                         )
                     }
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_comment_menu_kebob),
-                        contentDescription = "케밥",
+                    Box(
                         modifier =
                             Modifier
-                                .size(14.dp)
-                                .align(Alignment.CenterVertically),
-                    )
+                                .align(Alignment.CenterVertically)
+                                .clickable {
+                                    commentExpanded = !commentExpanded
+                                },
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_comment_menu_kebob),
+                            contentDescription = "케밥",
+                            modifier =
+                                Modifier
+                                    .size(14.dp),
+                        )
+                        DropdownMenu(
+                            expanded = commentExpanded,
+                            onDismissRequest = { commentExpanded = false },
+                            containerColor = Color.White,
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("신고하기") },
+                                onClick = {
+                                    uriHandler.openUri(
+                                        "https://docs.google.com/forms/d/e/1FAIpQLSdZfb16smuoFx3K4JUiB-dqX5hKLywfr2FcyAI4KqWuSYdLZg/viewform?usp=header",
+                                    )
+                                },
+                            )
+                        }
+                    }
                 }
                 Text(
                     text = post.comment,
@@ -221,6 +244,8 @@ fun PostViewScreen(
 ) {
     val changeTime = formatTime(time)
     var expanded by remember { mutableStateOf(false) }
+    var comment by remember { mutableStateOf("") }
+    val uriHandler = LocalUriHandler.current
 
     Box {
         Column(modifier = modifier.fillMaxSize()) {
@@ -307,7 +332,11 @@ fun PostViewScreen(
                     ) {
                         DropdownMenuItem(
                             text = { Text("신고하기") },
-                            onClick = {},
+                            onClick = {
+                                uriHandler.openUri(
+                                    "https://docs.google.com/forms/d/e/1FAIpQLSeLaXHB-Wo9VVqcbNtGBlzQtL5rscli2KoiMpWsRs277_8Qbw/viewform",
+                                )
+                            },
                         )
                     }
                 }
@@ -391,7 +420,7 @@ fun PostViewScreen(
                 itemsIndexed(
                     posts,
                 ) { index, item ->
-                    PostItem2(
+                    commentItem2(
                         post = posts[index],
                         showTopBorder = index == 0,
                     )
@@ -406,15 +435,15 @@ fun PostViewScreen(
                     .background(Color.White)
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 20.dp, start = 10.dp),
+                    .padding(bottom = 20.dp, start = 10.dp, top = 10.dp),
         ) {
             Row(
                 modifier =
                 Modifier,
             ) {
                 BasicTextField(
-                    value = "",
-                    onValueChange = {},
+                    value = comment,
+                    onValueChange = { comment = it },
                     singleLine = true,
                     modifier =
                         Modifier
@@ -424,12 +453,13 @@ fun PostViewScreen(
                             .padding(horizontal = 14.dp),
                     decorationBox = { innerTextField ->
                         Box(contentAlignment = Alignment.CenterStart) {
-                            Text(
-                                "댓글",
-                                color = Color.Black,
-                                fontSize = 12.sp,
-                                fontFamily = pretendardVariable,
-                            )
+                            if (comment.isEmpty()) {
+                                Text(
+                                    text = "댓글",
+                                    fontSize = 12.sp,
+                                    fontFamily = pretendardVariable,
+                                )
+                            }
                             innerTextField()
                         }
                     },
@@ -441,7 +471,12 @@ fun PostViewScreen(
                         Modifier
                             .padding(horizontal = 15.dp)
                             .size(24.dp)
-                            .align(Alignment.CenterVertically),
+                            .align(Alignment.CenterVertically)
+                            .clickable(enabled = comment.isNotBlank()) {
+                                val submittedComment = comment.trim()
+                                // TODO: submittedComment를 서버에 전송
+                                comment = ""
+                            },
                 )
             }
         }
@@ -471,7 +506,7 @@ fun GreetingPrevie1w() {
 @Composable
 fun post() {
     DeveryTime_Android2Theme {
-        PostItem2(
+        commentItem2(
             post =
                 Post(
                     title = "오늘 저녁은 치킨이다",
