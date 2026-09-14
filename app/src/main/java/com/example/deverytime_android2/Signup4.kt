@@ -252,10 +252,7 @@ fun SignUp4Screen(
                         Modifier
                             .padding(horizontal = 3.dp)
                             .clickable {
-                                navController.navigate(Screen.Login.route) {
-                                    popUpTo(Screen.SignUp1.route) { inclusive = true }
-                                    launchSingleTop = true
-                                }
+                                navController.navigate(Screen.Login.route)
                             },
                 )
             }
@@ -264,7 +261,7 @@ fun SignUp4Screen(
                     onClick = {
                         // TODO: 여기서 아이디 확인 중복확인 이후 로그인으로 이동 *추가 수정 필요*
                         navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.SignUp1.route) { inclusive = true }
+                            popUpTo(Screen.Login.route) { inclusive = true }
                             launchSingleTop = true
                         }
                     },

@@ -4,19 +4,40 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.BottomNavigationBar
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.ui.theme.buttonGray
+import com.example.deverytime_android2.ui.theme.mainBlue
 
 sealed class Screen(
     val route: String,
@@ -46,10 +67,6 @@ sealed class Screen(
     data object OnBoard4 : Screen(route = "onBoard4")
 
     data object OnBoard5 : Screen(route = "onBoard5")
-
-    data object PostView : Screen(route = "postView")
-
-    data object Posting : Screen(route = "posting")
 }
 
 class MainActivity : ComponentActivity() {
@@ -84,7 +101,6 @@ class MainActivity : ComponentActivity() {
                         currentRoute = currentRoute,
                         onNavigate = { route ->
                             navController.navigate(route) {
-                                popUpTo(Screen.MyPage1.route)
                                 launchSingleTop = true
                             }
                         },
@@ -95,10 +111,7 @@ class MainActivity : ComponentActivity() {
             NavHost(
                 navController = navController,
                 startDestination = Screen.OnBoard1.route,
-                modifier =
-                    Modifier
-                        .padding(innerPadding)
-                        .consumeWindowInsets(innerPadding),
+                modifier = Modifier.padding(innerPadding),
             ) {
                 composable(route = Screen.Login.route) { LoginScreen(navController) }
                 composable(route = Screen.SignUp1.route) { SignUpScreen(navController) }
@@ -113,8 +126,6 @@ class MainActivity : ComponentActivity() {
                 composable(route = Screen.OnBoard3.route) { OnBoard3Screen(navController) }
                 composable(route = Screen.OnBoard4.route) { OnBoard4Screen(navController) }
                 composable(route = Screen.OnBoard5.route) { OnBoard5Screen(navController) }
-                composable(route = Screen.Posting.route) { PostingScreen(navController) }
-                composable(route = Screen.PostView.route) { PostViewScreen(navController) }
             }
         }
     }

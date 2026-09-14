@@ -41,8 +41,6 @@ data class Post(
     val title: String,
     val time: String,
     val like: Int,
-    val otherUserName: String,
-    val comment: String,
 )
 
 val posts =
@@ -55,13 +53,11 @@ val posts =
                     "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다."
                 },
             time = "2026-08-04T12:30:00",
-            otherUserName = "다른 사용자",
             like = 5,
-            comment = "마라탕",
         )
     }
 
-private fun formatTime(time: String): String {
+public fun formatTime(time: String): String {
     val inputFormat =
         SimpleDateFormat(
             "yyyy-MM-dd'T'HH:mm:ss",
@@ -84,7 +80,6 @@ private fun formatTime(time: String): String {
 
 @Composable
 public fun PostItem(
-    navController: NavHostController,
     post: Post,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
@@ -95,11 +90,7 @@ public fun PostItem(
             Modifier
                 .fillMaxSize()
                 .clickable {
-                    navController.navigate(Screen.PostView.route) {
-                        popUpTo(Screen.MyPage2.route) {
-                            inclusive = true
-                        }
-                    }
+                    // TODO:페이지 생성 후 연계 필요
                 },
     ) {
         Row(
@@ -220,7 +211,6 @@ fun myPage2Screen(
                 ) { index, item ->
                     PostItem(
                         post = posts[index],
-                        navController = navController,
                         showTopBorder = index == 0,
                     )
                 }

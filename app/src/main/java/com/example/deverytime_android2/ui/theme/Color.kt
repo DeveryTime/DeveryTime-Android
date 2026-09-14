@@ -12,11 +12,3 @@ val pink40 = Color(0xFF7D5260)
 
 val mainBlue = Color(0xFF3469F9)
 val buttonGray = Color(0xFF999999)
-
-val lightBlue = Color(0xFF5581FA)
-
-val grayLineColor = Color(0xFFDBDBDB)
-
-val commentTextFieldColor = Color(0xFFEDEDED)
-
-val nonprofile = Color(0xFFCDCDCD)

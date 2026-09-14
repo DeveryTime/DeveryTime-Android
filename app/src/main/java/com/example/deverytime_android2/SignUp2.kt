@@ -341,10 +341,7 @@ fun SignUp2Screen(
                         Modifier
                             .padding(horizontal = 3.dp)
                             .clickable {
-                                navController.navigate(Screen.Login.route) {
-                                    popUpTo(Screen.SignUp1.route) { inclusive = true }
-                                    launchSingleTop = true
-                                }
+                                navController.navigate(Screen.Login.route)
                             },
                 )
             }
