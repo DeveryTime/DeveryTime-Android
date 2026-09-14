@@ -116,7 +116,7 @@ fun SignUp2Screen(
         )
         Column(
             modifier =
-                modifier
+                Modifier
                     .padding(horizontal = 16.dp)
                     .padding(top = 120.dp)
                     .align(Alignment.TopCenter),
@@ -206,7 +206,7 @@ fun SignUp2Screen(
                             placeholder = { Text(text = "인증번호") },
                             trailingIcon = {
                                 Text(
-                                    modifier = modifier.padding(end = 12.dp),
+                                    modifier = Modifier.padding(end = 12.dp),
                                     text =
                                         "%02d:%02d".format(
                                             elapsedSecond / 60,
@@ -341,7 +341,10 @@ fun SignUp2Screen(
                         Modifier
                             .padding(horizontal = 3.dp)
                             .clickable {
-                                navController.navigate(Screen.Login.route)
+                                navController.navigate(Screen.Login.route) {
+                                    popUpTo(Screen.SignUp1.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             },
                 )
             }

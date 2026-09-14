@@ -1,4 +1,4 @@
-package com.example.deverytime_android2
+package com.example.deverytime_android2.ui.theme
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,8 +25,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.deverytime_android2.ui.theme.buttonGray
-import com.example.deverytime_android2.ui.theme.mainBlue
+import com.example.deverytime_android2.R
+import com.example.deverytime_android2.Screen
 
 @Composable
 fun BottomNavigationBar(
@@ -60,6 +60,7 @@ fun BottomNavigationBar(
                 // selected는 임시 코드이므로 바꿔야함
                 selected = currentRoute == Screen.Login.route,
                 onClick = {
+                    onNavigate(Screen.Login.route)
                 },
                 colors =
                     NavigationBarItemDefaults.colors(
@@ -113,7 +114,7 @@ fun BottomNavigationBar(
         }
         IconButton(
             onClick = {
-                onNavigate(Screen.Login.route)
+                onNavigate(Screen.Posting.route)
             },
             modifier =
                 Modifier
@@ -127,7 +128,7 @@ fun BottomNavigationBar(
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.add_button),
+                    painter = painterResource(id = R.drawable.ic_add_button),
                     contentDescription = "로그인",
                     tint = Color(0xFF3469F9),
                 )
