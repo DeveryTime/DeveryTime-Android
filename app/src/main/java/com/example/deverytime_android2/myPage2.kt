@@ -95,11 +95,7 @@ public fun PostItem(
             Modifier
                 .fillMaxSize()
                 .clickable {
-                    navController.navigate(Screen.PostView.route) {
-                        popUpTo(Screen.MyPage2.route) {
-                            inclusive = true
-                        }
-                    }
+                    navController.navigate(Screen.PostView.route)
                 },
     ) {
         Row(

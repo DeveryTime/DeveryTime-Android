@@ -179,7 +179,7 @@ fun PostingScreen(
             Box(modifier = modifier.fillMaxSize()) {
                 Button(
                     onClick = {
-                        // TODO: 여기서 아이디 확인 중복확인 이후 로그인으로 이동 *추가 수정 필요*
+                        // TODO: 검증 후 백엔드로 전송(저장)
                         navController.navigate(Screen.MyPage1.route) {
                             popUpTo(Screen.MyPage1.route) { inclusive = true }
                             launchSingleTop = true
