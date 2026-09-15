@@ -11,10 +11,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.deverytime_android2.ui.theme.BottomNavigationBar
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 
@@ -47,7 +49,7 @@ sealed class Screen(
 
     data object OnBoard5 : Screen(route = "onBoard5")
 
-    data object PostView : Screen(route = "postView")
+    data object PostView : Screen(route = "postView/{postId}")
 
     data object Posting : Screen(route = "posting"
     
@@ -127,6 +129,24 @@ class MainActivity : ComponentActivity() {
                 composable(route = Screen.Main2.route) { Main2Screen(navController) }
                 composable(route = Screen.Main3.route) { Main3Screen(navController) }
                 composable(route = Screen.Main4.route) { Main4Screen(navController) }
+                composable(
+                    route = Screen.PostView.route,
+                    arguments = listOf(
+                        navArgument("postId") {
+                            type = NavType.IntType
+                        },
+                    ),
+                    ) { backStackEntry ->
+                    val postId = backStackEntry.arguments?.getInt("postId")
+                    val post = posts.find { it.id == postId }
+
+                    if (post != null) {
+                        PostViewScreen(
+                            navController = navController,
+                            post = post
+                        )
+                    }
+                }
             }
         }
     }

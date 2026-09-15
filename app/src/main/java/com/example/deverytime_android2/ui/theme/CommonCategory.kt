@@ -50,5 +50,4 @@ fun CommonCategory(
             color = textColor
         )
     }
-
 }
