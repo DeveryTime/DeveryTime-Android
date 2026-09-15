@@ -54,23 +54,28 @@ import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
 @OptIn(ExperimentalTextApi::class)
-val pretendardVariable =
-    FontFamily(
-        Font(
-            resId = R.font.pretendard,
-            variationSettings =
-                FontVariation.Settings(
-                    FontVariation.weight(FontWeight.Normal.weight),
-                ),
+val pretendardVariable = FontFamily(
+    Font(
+        resId = R.font.pretendard,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Normal.weight),
         ),
-    )
-val appTypography =
-    Typography(
-        bodyLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 16.sp),
-        bodyMedium = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 14.sp),
-        titleLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Bold, fontSize = 22.sp),
-        labelLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    )
+    ),
+)
+val appTypography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 16.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 14.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Bold, fontSize = 22.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp
+    ),
+)
 
 @Composable
 fun LoginScreen(navController: NavHostController) {
@@ -82,15 +87,10 @@ fun LoginScreen(navController: NavHostController) {
     val focusManager = LocalFocusManager.current
 
     Button(
-        onClick = {
-            navController.navigate(Screen.OnBoard1.route) {
-                popUpTo(Screen.Login.route) { inclusive = true }
-            }
-        },
-        modifier =
-            Modifier
-                .padding(start = 8.dp, top = 40.dp)
-                .size(32.dp),
+        onClick = { navController.popBackStack() },
+        modifier = Modifier
+            .padding(start = 8.dp, top = 40.dp)
+            .size(32.dp),
         contentPadding = PaddingValues(0.dp),
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
@@ -99,18 +99,16 @@ fun LoginScreen(navController: NavHostController) {
             painter = painterResource(id = R.drawable.back_arrow),
             contentDescription = stringResource(id = R.string.back_arrow),
             contentScale = ContentScale.Fit,
-            modifier =
-                Modifier
-                    .size(32.dp)
-                    .align(Alignment.CenterVertically),
+            modifier = Modifier
+                .size(32.dp)
+                .align(Alignment.CenterVertically),
         )
     }
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 18.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 18.dp),
         verticalArrangement = Arrangement.Top,
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -206,9 +204,7 @@ fun LoginScreen(navController: NavHostController) {
         Spacer(modifier = Modifier.weight(3.8f))
     }
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
