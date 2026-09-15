@@ -38,7 +38,9 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 data class Post(
+    val id: Int,
     val title: String,
+    val content: String,
     val time: String,
     val like: Int,
     val otherUserName: String,
@@ -48,12 +50,14 @@ data class Post(
 val posts =
     List(24) { index ->
         Post(
+            id = index,
             title =
                 if (index % 3 == 0) {
                     "오늘 저녁은 치킨이다"
                 } else {
                     "집에가 인것은 길이 측정을 위해서 하는 긴 글입니다."
                 },
+            content = "오늘 저녁은 치킨이다",
             time = "2026-08-04T12:30:00",
             otherUserName = "다른 사용자",
             like = 5,
@@ -95,7 +99,7 @@ public fun PostItem(
             Modifier
                 .fillMaxSize()
                 .clickable {
-                    navController.navigate(Screen.PostView.route)
+                    navController.navigate("postView/${post.id}")
                 },
     ) {
         Row(

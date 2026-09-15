@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,6 +33,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -53,6 +55,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.room.util.copy
 import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.commentTextFieldColor
@@ -61,7 +64,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 val otherUserName = "홍길동"
-val time = "2026-08-04T12:30:00"
 val view = 3
 
 private fun formatTime(time: String): String {
@@ -165,7 +167,7 @@ public fun commentItem2(
                                 Modifier
                                     .padding(end = 5.dp)
                                     .size(24.dp),
-                            tint = nonprofile
+                            tint = nonprofile,
                         )
                         Text(
                             text = post.otherUserName,
@@ -242,11 +244,16 @@ public fun commentItem2(
 @Composable
 fun PostViewScreen(
     navController: NavHostController,
+    post: Post,
     modifier: Modifier = Modifier,
 ) {
-    val changeTime = formatTime(time)
+    val changeTime = formatTime(post.time)
     var expanded by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf("") }
+    val comments =
+        remember(post.id) {
+            mutableStateListOf(post.comment)
+        }
     val uriHandler = LocalUriHandler.current
 
     Box {
@@ -344,7 +351,7 @@ fun PostViewScreen(
                 }
             }
             Text(
-                text = "저메추",
+                text = post.title,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
@@ -354,12 +361,13 @@ fun PostViewScreen(
                         .fillMaxWidth(),
             )
             Text(
-                text = "제곧내",
+                text = post.content,
                 fontSize = 18.sp,
                 fontFamily = pretendardVariable,
                 modifier =
                     Modifier
-                        .padding(start = 25.dp, top = 18.dp)
+                        .padding(top = 18.dp)
+                        .padding(horizontal = 25.dp)
                         .fillMaxWidth(),
             )
             Row(modifier = Modifier.fillMaxWidth()) {
@@ -420,12 +428,15 @@ fun PostViewScreen(
                         .fillMaxSize(),
             ) {
                 itemsIndexed(
-                    posts,
-                ) { index, item ->
+                    comments,
+                ) { index, commentText ->
                     commentItem2(
-                        post = posts[index],
+                        post = post.copy(comment = commentText),
                         showTopBorder = index == 0,
                     )
+                }
+                item {
+                    Spacer(modifier = Modifier.height(80.dp))
                 }
             }
         }
@@ -475,7 +486,7 @@ fun PostViewScreen(
                             .size(24.dp)
                             .align(Alignment.CenterVertically)
                             .clickable(enabled = comment.isNotBlank()) {
-                                val submittedComment = comment.trim()
+                                comments.add(comment.trim())
                                 // TODO: submittedComment를 서버에 전송
                                 comment = ""
                             },
@@ -485,38 +496,21 @@ fun PostViewScreen(
     }
 }
 
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun GreetingPrevie1w() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.post_view),
-                contentDescription = "디자인 미리보기",
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f),
-                contentScale = ContentScale.Fit,
-            )
-        }
-        PostViewScreen(navController = NavHostController(LocalContext.current))
-    }
-}
-
-@Preview
-@Composable
-fun post() {
-    DeveryTime_Android2Theme {
-        commentItem2(
-            post =
-                Post(
-                    title = "오늘 저녁은 치킨이다",
-                    time = "2026-08-04T12:30:00",
-                    like = 5,
-                    otherUserName = "홍길동",
-                    comment = "마라탕",
-                ),
-        )
-    }
-}
+// @Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+// @Composable
+// fun GreetingPrevie1w() {
+//    DeveryTime_Android2Theme {
+//        Box(modifier = Modifier.fillMaxSize()) {
+//            Image(
+//                painter = painterResource(id = R.drawable.post_view),
+//                contentDescription = "디자인 미리보기",
+//                modifier =
+//                    Modifier
+//                        .fillMaxSize()
+//                        .alpha(0.3f),
+//                contentScale = ContentScale.Fit,
+//            )
+//        }
+//        PostViewScreen(navController = NavHostController(LocalContext.current))
+//    }
+// }
