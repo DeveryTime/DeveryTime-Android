@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -26,21 +28,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -52,13 +53,19 @@ fun SignUp3Screen(
     var password by remember { mutableStateOf("") }
     var recheckNumber by remember { mutableStateOf("") }
     var isWrong by remember { mutableStateOf(false) }
-    Box {
+
+    // 포커스 매니저
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize(),
+    ) {
         Button(
             onClick = {
-                navController.navigate(Screen.Login.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
-                    launchSingleTop = true
-                }
+                navController.popBackStack()
             },
             modifier =
                 Modifier
@@ -66,7 +73,7 @@ fun SignUp3Screen(
                     .size(32.dp),
             contentPadding = PaddingValues(0.dp),
             shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
+            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.back_arrow),
@@ -89,20 +96,23 @@ fun SignUp3Screen(
             contentScale = ContentScale.Fit,
         )
 
-        Column(modifier = Modifier) {
-            Spacer(modifier = Modifier.weight(1f))
+        Column(
+            modifier =
+                Modifier
+                    .padding(top = 120.dp)
+                    .align(Alignment.TopCenter),
+        ) {
             Text(
                 text = "비밀번호를 알려주세요!",
                 fontSize = 23.5.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = pretendardVariable,
-                color = Color.Black,
                 modifier = Modifier.padding(start = 22.dp),
             )
 
             Column(
                 modifier =
-                    modifier
+                    Modifier
                         .padding(16.dp),
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -116,15 +126,29 @@ fun SignUp3Screen(
                 OutlinedTextField(
                     colors =
                         OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
                             focusedPlaceholderColor = Color.Transparent,
                             unfocusedPlaceholderColor = buttonGray,
                             errorBorderColor = Color.Red,
                         ),
                     placeholder = { Text(text = "비밀번호") },
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { newValue ->
+                        password =
+                            newValue
+                                .take(20) // 최대 20자 제한
+                    },
+                    singleLine = true,
+                    keyboardOptions =
+                        KeyboardOptions(
+                            imeAction = ImeAction.Next,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(
+                            onNext = {
+                                keyboardController?.hide()
+                                focusManager.moveFocus(FocusDirection.Down)
+                            },
+                        ),
                     modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
@@ -140,15 +164,29 @@ fun SignUp3Screen(
                 OutlinedTextField(
                     colors =
                         OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black,
                             focusedPlaceholderColor = Color.Transparent,
                             unfocusedPlaceholderColor = buttonGray,
                             errorBorderColor = Color.Red,
                         ),
                     placeholder = { Text(text = "비밀번호 확인") },
                     value = recheckNumber,
-                    onValueChange = { recheckNumber = it },
+                    onValueChange = { newValue ->
+                        recheckNumber =
+                            newValue
+                                .take(20) // 최대 20자 제한
+                    },
+                    singleLine = true,
+                    keyboardOptions =
+                        KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                keyboardController?.hide()
+                                focusManager.clearFocus()
+                            },
+                        ),
                     modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
@@ -164,13 +202,12 @@ fun SignUp3Screen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.weight(3.6f))
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
                 Text(
                     fontSize = 14.sp,
-                    text = "만약 계정이 있으신가요?",
+                    text = "계정이 있으신가요?",
                     color = Color(0xFFB1B1B1),
                     modifier =
                     Modifier,
@@ -182,8 +219,12 @@ fun SignUp3Screen(
                     textDecoration = TextDecoration.Underline,
                     modifier =
                         Modifier
+                            .padding(horizontal = 3.dp)
                             .clickable {
-                                navController.navigate(Screen.Login.route)
+                                navController.navigate(Screen.Login.route) {
+                                    popUpTo(Screen.SignUp1.route) { inclusive = true }
+                                    launchSingleTop = true
+                                }
                             },
                 )
             }

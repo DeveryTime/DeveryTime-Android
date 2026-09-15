@@ -23,7 +23,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun OnBoard1Screen(navController: NavHostController) {
-    //TODO: 로딩 후 이동
+    // TODO: 로딩 후 이동
     LaunchedEffect(Unit) {
         delay(1000)
         navController.navigate(Screen.OnBoard2.route) {
@@ -31,15 +31,17 @@ fun OnBoard1Screen(navController: NavHostController) {
         }
     }
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF5581FA))
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color(0xFF5581FA)),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             Image(
                 contentDescription = null,
@@ -64,7 +66,5 @@ fun OnBoard1Screen(navController: NavHostController) {
             )
             Spacer(modifier = Modifier.height(44.dp))
         }
-
     }
 }
-
