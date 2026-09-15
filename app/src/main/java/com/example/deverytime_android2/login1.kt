@@ -29,11 +29,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -48,12 +46,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.ui.theme.CommonButton
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
@@ -244,24 +240,5 @@ fun LoginScreen(navController: NavHostController) {
                 }
             },
         )
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun GreetingPreview12() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painterResource(id = R.drawable.login1),
-                contentDescription = "디자인 미리보기",
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .alpha(0.3f),
-                contentScale = ContentScale.Fit,
-            )
-        }
-        LoginScreen(navController = NavHostController(LocalContext.current))
     }
 }

@@ -141,7 +141,6 @@ fun SignUp4Screen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                         onClick = { /* 이미지 업로드 로직 */ },
                     ) {
-                        // 나는 바보 ㅋㅋㅋ
                         Image(
                             painter = painterResource(id = R.drawable.frame_83),
                             contentDescription = "디자인 미리보기",

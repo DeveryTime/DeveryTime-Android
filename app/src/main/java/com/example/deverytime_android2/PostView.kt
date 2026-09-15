@@ -483,22 +483,3 @@ fun PostViewScreen(
         }
     }
 }
-
-// @Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-// @Composable
-// fun GreetingPrevie1w() {
-//    DeveryTime_Android2Theme {
-//        Box(modifier = Modifier.fillMaxSize()) {
-//            Image(
-//                painter = painterResource(id = R.drawable.post_view),
-//                contentDescription = "디자인 미리보기",
-//                modifier =
-//                    Modifier
-//                        .fillMaxSize()
-//                        .alpha(0.3f),
-//                contentScale = ContentScale.Fit,
-//            )
-//        }
-//        PostViewScreen(navController = NavHostController(LocalContext.current))
-//    }
-// }
