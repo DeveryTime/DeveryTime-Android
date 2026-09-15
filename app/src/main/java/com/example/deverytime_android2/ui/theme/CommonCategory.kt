@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,28 +51,3 @@ fun CommonCategory(
         )
     }
 }
-
-// @Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-// @Composable
-// fun ScreenPreview() {
-//    DeveryTime_Android2Theme {
-//        val scrollState = rememberScrollState()
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .verticalScroll(scrollState)
-//        ) {
-//            // 디자인 이미지를 반투명하게 배경에 깔기
-//            Image(
-//                painter = painterResource(id = R.drawable.main1),
-//                contentDescription = "디자인 미리보기",
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .alpha(0.3f),
-//                contentScale = ContentScale.FillWidth
-//            )
-//            // 실제 UI 겹치기
-//            Main1Screen(rememberNavController())
-//        }
-//    }
-// }

@@ -37,18 +37,6 @@ fun myPage1Screen(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.padding(top = 80.dp).fillMaxSize()) {
-        // 디자인 상으로 있으나 개인의 판단으로 애매하다고 판단해 잠시 삭제
-//        Image(
-//            painter = painterResource(id = R.drawable.deverytime_logo),
-//            contentDescription = "로고",
-//            modifier =
-//                Modifier
-//                    .size(90.dp)
-//                    .align(Alignment.End)
-//                    .padding(top = 40.dp, end = 8.dp)
-//                    .clickable {
-//                    },
-//        )
         Row(modifier = Modifier.padding(top = 10.dp)) {
             // TODO: 사진을 백엔드에서 가져와야함
             Image(
