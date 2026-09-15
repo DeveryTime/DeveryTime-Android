@@ -45,7 +45,7 @@ fun Main3Screen(navigator: NavHostController) {
         modifier = Modifier.fillMaxSize()
     ) {
         Button(
-            onClick = { navigator.navigate(Screen.Main1.route) },
+            onClick = { navigator.popBackStack() },
             modifier = Modifier
                 .padding(start = 8.dp, top = 48.dp)
                 .size(32.dp),
