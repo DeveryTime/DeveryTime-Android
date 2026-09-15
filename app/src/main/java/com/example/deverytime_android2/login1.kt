@@ -236,25 +236,6 @@ fun LoginScreen(navController: NavHostController) {
                         },
             )
         }
-//        Button(
-//            onClick = {
-//                navController.navigate(Screen.MyPage1.route)
-//            },
-//            colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
-//            shape = RoundedCornerShape(23.dp),
-//            modifier =
-//                Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp)
-//                    .height(54.dp),
-//        ) {
-//            Text(
-//                fontFamily = pretendardVariable,
-//                fontWeight = FontWeight.Bold,
-//                fontSize = 16.sp,
-//                text = "로그인",
-//            )
-//        }
         CommonButton(
             text = stringResource(R.string.login),
             onClick = {
