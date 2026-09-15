@@ -69,7 +69,7 @@ fun Main2Screen(navigator: NavHostController) {
                 query = query,                          // 현재 검색어 상태 전달
                 onQueryChange = { query = it },         // 입력값 변경 시 상태 업데이트
                 onSearch = {                            // 검색 버튼 누르거나 IME 액션 실행 시 동작
-                    println("검색 실행: $query.value")
+                    println("검색 실행: $query")
                 },
             )
             Row(
