@@ -53,23 +53,28 @@ import com.example.deverytime_android2.ui.theme.buttonGray
 import com.example.deverytime_android2.ui.theme.mainBlue
 
 @OptIn(ExperimentalTextApi::class)
-val pretendardVariable =
-    FontFamily(
-        Font(
-            resId = R.font.pretendard,
-            variationSettings =
-                FontVariation.Settings(
-                    FontVariation.weight(FontWeight.Normal.weight),
-                ),
+val pretendardVariable = FontFamily(
+    Font(
+        resId = R.font.pretendard,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Normal.weight),
         ),
-    )
-val appTypography =
-    Typography(
-        bodyLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 16.sp),
-        bodyMedium = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 14.sp),
-        titleLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Bold, fontSize = 22.sp),
-        labelLarge = TextStyle(fontFamily = pretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp),
-    )
+    ),
+)
+val appTypography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 16.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 14.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Bold, fontSize = 22.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp
+    ),
+)
 
 @Composable
 fun LoginScreen(
@@ -81,10 +86,9 @@ fun LoginScreen(
 
     Button(
         onClick = { navController.popBackStack() },
-        modifier =
-            Modifier
-                .padding(start = 8.dp, top = 40.dp)
-                .size(32.dp),
+        modifier = Modifier
+            .padding(start = 8.dp, top = 40.dp)
+            .size(32.dp),
         contentPadding = PaddingValues(0.dp),
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
@@ -93,18 +97,16 @@ fun LoginScreen(
             painter = painterResource(id = R.drawable.back_arrow),
             contentDescription = stringResource(id = R.string.back_arrow),
             contentScale = ContentScale.Fit,
-            modifier =
-                Modifier
-                    .size(32.dp)
-                    .align(Alignment.CenterVertically),
+            modifier = Modifier
+                .size(32.dp)
+                .align(Alignment.CenterVertically),
         )
     }
 
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 18.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 18.dp),
         verticalArrangement = Arrangement.Top,
     ) {
         Spacer(modifier = Modifier.weight(1f))
@@ -126,18 +128,19 @@ fun LoginScreen(
                 color = buttonGray,
             )
             OutlinedTextField(
-                colors =
-                    OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = buttonGray,
-                        errorBorderColor = Color.Red,
-                    ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedPlaceholderColor = Color.Transparent,
+                    unfocusedPlaceholderColor = buttonGray,
+                    errorBorderColor = Color.Red,
+                ),
                 placeholder = { Text(text = "이메일") },
                 value = email,
                 onValueChange = { email = it },
-                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 3.dp)
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
             )
 
@@ -150,18 +153,19 @@ fun LoginScreen(
                 color = buttonGray,
             )
             OutlinedTextField(
-                colors =
-                    OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Black,
-                        focusedPlaceholderColor = Color.Transparent,
-                        unfocusedPlaceholderColor = buttonGray,
-                        errorBorderColor = Color.Red,
-                    ),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedPlaceholderColor = Color.Transparent,
+                    unfocusedPlaceholderColor = buttonGray,
+                    errorBorderColor = Color.Red,
+                ),
                 placeholder = { Text(text = "비밀번호") },
                 value = password,
                 onValueChange = { password = it },
-                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(top = 3.dp)
+                    .fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 visualTransformation = PasswordVisualTransformation(),
             )
@@ -169,9 +173,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.weight(3.8f))
     }
     Column(
-        modifier =
-            Modifier
-                .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -187,22 +189,24 @@ fun LoginScreen(
                 text = "회원가입",
                 color = mainBlue,
                 textDecoration = TextDecoration.Underline,
-                modifier =
-                    Modifier
-                        .clickable {
-                            navController.navigate(Screen.SignUp1.route)
-                        },
+                modifier = Modifier.clickable {
+                        navController.navigate(Screen.SignUp1.route)
+                    },
             )
         }
         Button(
-            onClick = {navController.navigate(Screen.Main1.route)},
+            onClick = {
+                navController.navigate(Screen.Main1.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+            },
             colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
             shape = RoundedCornerShape(23.dp),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
-                    .height(54.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
+                .height(54.dp),
         ) {
             Text(
                 fontFamily = pretendardVariable,
