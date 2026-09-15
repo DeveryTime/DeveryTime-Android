@@ -233,7 +233,7 @@ fun Main1Screen(navigator: NavHostController) {
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 itemsIndexed(
-                    items = dummyPosts,
+                    items = dummyPosts.sortedByDescending { it.like },
                     key = { _, post -> post.id }
                 ) { index, post ->
                     PostItem(
