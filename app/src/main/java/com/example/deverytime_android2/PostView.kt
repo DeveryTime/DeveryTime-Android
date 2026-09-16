@@ -54,26 +54,6 @@ import java.util.Locale
 val otherUserName = "홍길동"
 val view = 3
 
-private fun formatTime(time: String): String {
-    val inputFormat =
-        SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss",
-            Locale.KOREA,
-        )
-
-    val outputFormat =
-        SimpleDateFormat(
-            "yyyy년 MM월 dd일 HH:mm",
-            Locale.KOREA,
-        )
-
-    return runCatching {
-        val date = inputFormat.parse(time)
-        date?.let { outputFormat.format(it) } ?: time
-    }.getOrElse {
-        time
-    }
-}
 
 private fun yearMonthDay(time: String): String {
     val inputFormat =
@@ -235,7 +215,7 @@ fun PostViewScreen(
     post: Post,
     modifier: Modifier = Modifier,
 ) {
-    val changeTime = formatTime(post.time)
+    val changeTime = formatTime(post.time, "yyyy년 MM월 dd일 HH:mm")
     var expanded by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf("") }
     val comments =

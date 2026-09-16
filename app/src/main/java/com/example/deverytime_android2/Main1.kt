@@ -42,14 +42,17 @@ import com.example.deverytime_android2.ui.theme.buttonGray
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-fun formatTime(time: String): String {
+fun formatTime(
+    time: String,
+    pattern: String = "yy.MM.dd",
+): String {
     val inputFormat = SimpleDateFormat(
         "yyyy-MM-dd'T'HH:mm:ss",
         Locale.KOREA,
     )
 
     val outputFormat = SimpleDateFormat(
-        "yy.MM.dd",
+        pattern,
         Locale.KOREA,
     )
 
@@ -147,7 +150,10 @@ data class Post(
     val id: Int,
     val title: String,
     val time: String,
-    val like: Int
+    val like: Int,
+    val content: String = "",
+    val otherUserName: String = "",
+    val comment: String = "",
 )
 
 val dummyPosts = listOf(

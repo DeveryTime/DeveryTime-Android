@@ -2,6 +2,7 @@ package com.example.deverytime_android2
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,8 +15,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,14 +29,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.ui.theme.CommonCategory
 import com.example.deverytime_android2.ui.theme.CommonSearchBar
+import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
 import com.example.deverytime_android2.ui.theme.Style
 
 
@@ -44,20 +54,15 @@ fun Main2Screen(navigator: NavHostController) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Button(
+        IconButton(
             onClick = { navigator.popBackStack() },
             modifier = Modifier
                 .padding(start = 8.dp, top = 48.dp)
                 .size(32.dp),
-            contentPadding = PaddingValues(0.dp),
-            shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
         ) {
-            Image(
-                painter = painterResource(R.drawable.back_arrow),
-                contentDescription = stringResource(R.string.back_arrow),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(32.dp)
+            Icon(
+                imageVector = Icons.Filled.ArrowBackIosNew,
+                contentDescription = stringResource(R.string.back_arrow)
             )
         }
         Column(
@@ -120,6 +125,19 @@ fun Main2Screen(navigator: NavHostController) {
                         onClick = {})
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
+@Composable
+fun Main2ScreenPreview() {
+    DeveryTime_Android2Theme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // 디자인 이미지를 반투명하게 배경에 깔기
+
+            // 실제 UI 겹치기
+            Main2Screen(rememberNavController())
         }
     }
 }

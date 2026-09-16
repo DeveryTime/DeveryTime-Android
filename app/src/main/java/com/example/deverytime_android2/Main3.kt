@@ -14,8 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,20 +48,15 @@ fun Main3Screen(navigator: NavHostController) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Button(
+        IconButton(
             onClick = { navigator.popBackStack() },
             modifier = Modifier
                 .padding(start = 8.dp, top = 48.dp)
                 .size(32.dp),
-            contentPadding = PaddingValues(0.dp),
-            shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
         ) {
-            Image(
-                painter = painterResource(R.drawable.back_arrow),
-                contentDescription = stringResource(R.string.back_arrow),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(32.dp)
+            Icon(
+                imageVector = Icons.Filled.ArrowBackIosNew,
+                contentDescription = stringResource(R.string.back_arrow)
             )
         }
         Column(

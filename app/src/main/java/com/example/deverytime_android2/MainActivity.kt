@@ -51,7 +51,7 @@ sealed class Screen(
 
     data object PostView : Screen(route = "postView/{postId}")
 
-    data object Posting : Screen(route = "posting"
+    data object Posting : Screen(route = "posting")
     
     data object  Main1 : Screen(route = "Main1")
     
@@ -124,7 +124,7 @@ class MainActivity : ComponentActivity() {
                 composable(route = Screen.OnBoard4.route) { OnBoard4Screen(navController) }
                 composable(route = Screen.OnBoard5.route) { OnBoard5Screen(navController) }
                 composable(route = Screen.Posting.route) { PostingScreen(navController) }
-                composable(route = Screen.PostView.route) { PostViewScreen(navController) }
+                //composable(route = Screen.PostView.route) { PostViewScreen(navController) }
                 composable(route = Screen.Main1.route) { Main1Screen(navController) }
                 composable(route = Screen.Main2.route) { Main2Screen(navController) }
                 composable(route = Screen.Main3.route) { Main3Screen(navController) }
