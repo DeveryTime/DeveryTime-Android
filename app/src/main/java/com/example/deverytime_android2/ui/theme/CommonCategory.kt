@@ -18,21 +18,21 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun CommonCategory(
-    onclick: (String) -> Unit,
+    onClick: (String) -> Unit,
     text: String,
     selected: Boolean,
     modifier: Modifier = Modifier
 ){
-    val isDark = if (isSystemInDarkTheme()) White else Black
+    val DarkModeColor = if (isSystemInDarkTheme()) White else Black
     val buttonColor = if (selected) lightBlue else Color.Transparent
     val borderColor = if (selected) lightBlue else Color.Gray
-    val textColor = if (selected) White else isDark
+    val textColor = if (selected) White else DarkModeColor
 
     OutlinedButton(
         modifier = modifier
             .height(23.dp)
             .padding(horizontal = 4.dp),
-        onClick = { onclick(text) },
+        onClick = { onClick(text) },
         border = BorderStroke(1.dp, borderColor),
         contentPadding = PaddingValues(
             horizontal = 9.dp,
@@ -47,7 +47,6 @@ fun CommonCategory(
             text = text,
             fontFamily = Pretendard,
             fontSize = 12.sp,
-            color = textColor
         )
     }
 }
