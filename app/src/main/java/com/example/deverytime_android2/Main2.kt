@@ -92,7 +92,7 @@ fun Main2Screen(navigator: NavHostController) {
                 ) {
                     categories.forEach { category ->
                         CommonCategory(
-                            text = category, selected = selectedCategory == category, onclick = {
+                            text = category, selected = selectedCategory == category, onClick = {
                                 selectedCategory = it
                             })
                     }
@@ -125,19 +125,6 @@ fun Main2Screen(navigator: NavHostController) {
                         onClick = {})
                 }
             }
-        }
-    }
-}
-
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun Main2ScreenPreview() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-
-            // 실제 UI 겹치기
-            Main2Screen(rememberNavController())
         }
     }
 }

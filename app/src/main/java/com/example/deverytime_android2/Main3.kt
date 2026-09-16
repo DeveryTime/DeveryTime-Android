@@ -86,7 +86,7 @@ fun Main3Screen(navigator: NavHostController) {
                 ) {
                     categories.forEach { category ->
                         CommonCategory(
-                            text = category, selected = selectedCategory == category, onclick = {
+                            text = category, selected = selectedCategory == category, onClick = {
                                 selectedCategory = it
                             })
                     }

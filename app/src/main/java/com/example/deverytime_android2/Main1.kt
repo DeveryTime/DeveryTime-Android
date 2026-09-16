@@ -209,7 +209,7 @@ fun Main1Screen(navigator: NavHostController) {
                         CommonCategory(
                             text = category,
                             selected = selectedCategory == category,
-                            onclick = {
+                            onClick = {
                                 selectedCategory = it
                             }
                         )
