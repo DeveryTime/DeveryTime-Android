@@ -52,14 +52,16 @@ sealed class Screen(
     data object PostView : Screen(route = "postView/{postId}")
 
     data object Posting : Screen(route = "posting")
-    
-    data object  Main1 : Screen(route = "Main1")
-    
-    data object  Main2 : Screen(route = "Main2")
-    
-    data object  Main3 : Screen(route = "Main3")
-    
-    data object  Main4 : Screen(route = "Main4")
+
+    data object Main1 : Screen(route = "Main1")
+
+    data object Main2 : Screen(route = "Main2")
+
+    data object Main3 : Screen(route = "Main3")
+
+    data object Main4 : Screen(route = "Main4")
+
+    data object Search : Screen(route = "search")
 }
 
 class MainActivity : ComponentActivity() {
@@ -84,9 +86,16 @@ class MainActivity : ComponentActivity() {
         // 이게 어디 어디에 네비바 넣을지 설정하는 코드
         val showBottomBar =
             currentRoute == Screen.MyPage1.route ||
-                currentRoute == Screen.MyPage2.route
+                currentRoute == Screen.MyPage2.route ||
+                    currentRoute == Screen.Main1.route ||
+                        currentRoute == Screen.Main2.route ||
+                            currentRoute == Screen.Main3.route ||
+                                currentRoute == Screen.Main4.route ||
+                                    currentRoute == Screen.Search.route
 
-        Scaffold(
+
+
+                    Scaffold(
             modifier = modifier,
             bottomBar = {
                 if (showBottomBar) {
@@ -124,29 +133,30 @@ class MainActivity : ComponentActivity() {
                 composable(route = Screen.OnBoard4.route) { OnBoard4Screen(navController) }
                 composable(route = Screen.OnBoard5.route) { OnBoard5Screen(navController) }
                 composable(route = Screen.Posting.route) { PostingScreen(navController) }
-                //composable(route = Screen.PostView.route) { PostViewScreen(navController) }
                 composable(route = Screen.Main1.route) { Main1Screen(navController) }
                 composable(route = Screen.Main2.route) { Main2Screen(navController) }
                 composable(route = Screen.Main3.route) { Main3Screen(navController) }
                 composable(route = Screen.Main4.route) { Main4Screen(navController) }
                 composable(
                     route = Screen.PostView.route,
-                    arguments = listOf(
-                        navArgument("postId") {
-                            type = NavType.IntType
-                        },
-                    ),
-                    ) { backStackEntry ->
+                    arguments =
+                        listOf(
+                            navArgument("postId") {
+                                type = NavType.IntType
+                            },
+                        ),
+                ) { backStackEntry ->
                     val postId = backStackEntry.arguments?.getInt("postId")
                     val post = posts.find { it.id == postId }
 
                     if (post != null) {
                         PostViewScreen(
                             navController = navController,
-                            post = post
+                            post = post,
                         )
                     }
                 }
+                composable(route = Screen.Search.route) { SearchScreen(navController) }
             }
         }
     }

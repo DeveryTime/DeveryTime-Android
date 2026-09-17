@@ -58,9 +58,11 @@ fun BottomNavigationBar(
             NavigationBarItem(
                 modifier = Modifier.zIndex(1f).weight(1f),
                 // selected는 임시 코드이므로 바꿔야함
-                selected = currentRoute == Screen.Login.route,
+                selected =
+                    currentRoute == Screen.Main1.route ||
+                        currentRoute == Screen.Search.route,
                 onClick = {
-                    onNavigate(Screen.Login.route)
+                    onNavigate(Screen.Main1.route)
                 },
                 colors =
                     NavigationBarItemDefaults.colors(
@@ -119,8 +121,8 @@ fun BottomNavigationBar(
             modifier =
                 Modifier
                     .align(Alignment.TopCenter)
-                    .offset(y = (-36).dp)
-                    .size(120.dp)
+                    .offset(y = (-20).dp)
+                    .size(96.dp)
                     .zIndex(1f),
         ) {
             Box(
