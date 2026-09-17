@@ -1,9 +1,7 @@
 package com.example.deverytime_android2.ui.theme
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,12 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.rememberNavController
-import com.example.deverytime_android2.Main1Screen
-import com.example.deverytime_android2.Main2Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,16 +77,4 @@ fun CommonSearchBar(
                     )
                 })
         })
-}
-@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
-@Composable
-fun Main1ScreenPreview() {
-    DeveryTime_Android2Theme {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // 디자인 이미지를 반투명하게 배경에 깔기
-
-            // 실제 UI 겹치기
-            Main1Screen(rememberNavController())
-        }
-    }
 }
