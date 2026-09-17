@@ -17,8 +17,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.deverytime_android2.ui.theme.BottomNavigationBar
-import com.example.deverytime_android2.ui.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.page.theme.BottomNavigationBar
+import com.example.deverytime_android2.page.theme.DeveryTime_Android2Theme
 
 sealed class Screen(
     val route: String,

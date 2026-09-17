@@ -1,0 +1,240 @@
+package com.example.deverytime_android2
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.deverytime_android2.page.theme.CommonButton
+import com.example.deverytime_android2.page.theme.buttonGray
+import com.example.deverytime_android2.page.theme.mainBlue
+
+@OptIn(ExperimentalTextApi::class)
+val pretendardVariable = FontFamily(
+    Font(
+        resId = R.font.pretendard,
+        variationSettings = FontVariation.Settings(
+            FontVariation.weight(FontWeight.Normal.weight),
+        ),
+    ),
+)
+val appTypography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 16.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Normal, fontSize = 14.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Bold, fontSize = 22.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = pretendardVariable, fontWeight = FontWeight.Medium, fontSize = 14.sp
+    ),
+)
+
+@Composable
+fun LoginScreen(navController: NavHostController) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    // 포커스 매니저
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    Button(
+        onClick = { navController.popBackStack() },
+        modifier = Modifier
+            .padding(start = 8.dp, top = 40.dp)
+            .size(32.dp),
+        contentPadding = PaddingValues(0.dp),
+        shape = RoundedCornerShape(50),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.back_arrow),
+            contentDescription = stringResource(id = R.string.back_arrow),
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .size(32.dp)
+                .align(Alignment.CenterVertically),
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 18.dp),
+        verticalArrangement = Arrangement.Top,
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        Box(modifier = Modifier.padding(start = 4.dp)) {
+            Text(
+                text = "데브리타임을 사용하고\n일상, 전공, 멘토링 등 쉽게 소통해봐요.",
+                fontSize = 23.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = pretendardVariable,
+            )
+        }
+
+        Column(modifier = Modifier.padding(top = 35.dp)) {
+            // 이메일 입력창
+            Text(
+                fontSize = 12.sp,
+                text = "이메일",
+                color = buttonGray,
+            )
+            OutlinedTextField(
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.Transparent,
+                        unfocusedPlaceholderColor = buttonGray,
+                        errorBorderColor = Color.Red,
+                    ),
+                placeholder = { Text(text = "이메일") },
+                value = email,
+                onValueChange = { input ->
+                    email =
+                        input
+                            .substringBefore("@")
+                            .filter { it.isDigit() }
+                            .take(8)
+                },
+                singleLine = true,
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                    ),
+                keyboardActions =
+                    KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Next)
+                        },
+                    ),
+                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                suffix = {
+                    Text("@$SCHOOL_EMAIL_DOMAIN")
+                },
+            )
+
+            Spacer(modifier = Modifier.height(11.dp))
+
+            // 비밀번호 입력창
+            Text(
+                fontSize = 12.sp,
+                text = "비밀번호",
+                color = buttonGray,
+            )
+            OutlinedTextField(
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedPlaceholderColor = Color.Transparent,
+                        unfocusedPlaceholderColor = buttonGray,
+                        errorBorderColor = Color.Red,
+                    ),
+                placeholder = { Text(text = "비밀번호") },
+                value = password,
+                onValueChange = { input ->
+                    password =
+                        input
+                            .take(20)
+                },
+                singleLine = true,
+                maxLines = 1,
+                keyboardOptions =
+                    KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions =
+                    KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                        },
+                    ),
+                modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                visualTransformation = PasswordVisualTransformation(),
+            )
+        }
+        Spacer(modifier = Modifier.weight(3.8f))
+    }
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(modifier = Modifier.padding(bottom = 10.dp)) {
+            Text(
+                fontSize = 14.sp,
+                text = "계정이 없으신가요?",
+                color = Color(0xFFB1B1B1),
+                modifier = Modifier,
+            )
+            Text(
+                fontSize = 14.sp,
+                text = "회원가입",
+                color = mainBlue,
+                textDecoration = TextDecoration.Underline,
+                modifier =
+                    Modifier
+                        .padding(horizontal = 3.dp)
+                        .clickable {
+                            navController.navigate(Screen.SignUp1.route)
+                        },
+            )
+        }
+        CommonButton(
+            text = stringResource(R.string.login),
+            onClick = {
+                navController.navigate(Screen.MyPage1.route) {
+                    popUpTo(Screen.Login.route) { inclusive = true }
+                }
+            },
+        )
+    }
+}
