@@ -131,7 +131,7 @@ fun PostingScreen(
                     CommonCategory(
                         text = category,
                         selected = selectedCategory == category,
-                        onclick = {
+                        onClick = {
                             selectedCategory = it
                         },
                     )

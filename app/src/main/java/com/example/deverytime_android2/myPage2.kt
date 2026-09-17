@@ -37,16 +37,6 @@ import com.example.deverytime_android2.ui.theme.buttonGray
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-data class Post(
-    val id: Int,
-    val title: String,
-    val content: String,
-    val time: String,
-    val like: Int,
-    val otherUserName: String,
-    val comment: String,
-)
-
 val posts =
     List(24) { index ->
         Post(
@@ -65,26 +55,6 @@ val posts =
         )
     }
 
-private fun formatTime(time: String): String {
-    val inputFormat =
-        SimpleDateFormat(
-            "yyyy-MM-dd'T'HH:mm:ss",
-            Locale.KOREA,
-        )
-
-    val outputFormat =
-        SimpleDateFormat(
-            "yy.MM.dd",
-            Locale.KOREA,
-        )
-
-    return runCatching {
-        val date = inputFormat.parse(time)
-        date?.let { outputFormat.format(it) } ?: time
-    }.getOrElse {
-        time
-    }
-}
 
 @Composable
 public fun PostItem(
