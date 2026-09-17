@@ -23,10 +23,10 @@ fun CommonCategory(
     selected: Boolean,
     modifier: Modifier = Modifier
 ){
-    val DarkModeColor = if (isSystemInDarkTheme()) White else Black
+    val textColorMode = if (isSystemInDarkTheme()) White else Black
     val buttonColor = if (selected) lightBlue else Color.Transparent
     val borderColor = if (selected) lightBlue else Color.Gray
-    val textColor = if (selected) White else DarkModeColor
+    val textColor = if (selected) White else textColorMode
 
     OutlinedButton(
         modifier = modifier
