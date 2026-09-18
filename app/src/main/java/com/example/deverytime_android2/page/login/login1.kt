@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.page.theme.CommonButton
 import com.example.deverytime_android2.page.theme.buttonGray
@@ -78,9 +80,16 @@ val appTypography = Typography(
 )
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    navController: NavHostController,
+    loginViewModel: LoginViewModel = viewModel(),
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    var isWrong by remember { mutableStateOf(false) }
+
+    val loginUiState by loginViewModel.uiState.collectAsState()
 
     // 포커스 매니저
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -200,6 +209,14 @@ fun LoginScreen(navController: NavHostController) {
                 shape = RoundedCornerShape(12.dp),
                 visualTransformation = PasswordVisualTransformation(),
             )
+            if (isWrong) {
+                Text(
+                    text = "이메일 또는 비밀번호가 잘못되었습니다.",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 5.dp),
+                )
+            }
         }
         Spacer(modifier = Modifier.weight(3.8f))
     }
@@ -229,10 +246,18 @@ fun LoginScreen(navController: NavHostController) {
             )
         }
         CommonButton(
-            text = stringResource(R.string.login),
+            text =
+                if (loginUiState is LoginUiState.Loading) {
+                    "로그인 중..."
+                } else {
+                    stringResource(R.string.login)
+                },
             onClick = {
-                navController.navigate(Screen.MyPage1.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
+                if (loginUiState !is LoginUiState.Loading) {
+                    loginViewModel.login(
+                        email = "$email@$SCHOOL_EMAIL_DOMAIN",
+                        password = password,
+                    )
                 }
             },
         )

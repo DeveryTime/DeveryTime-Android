@@ -5,13 +5,20 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "서버주소"
+    private const val BASE_URL = "https://실제-서버주소/"
 
-    val postApi: PostApi by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(PostApi::class.java)
+    }
+
+    val loginApi: LoginApi by lazy {
+        retrofit.create(LoginApi::class.java)
+    }
+
+    val postApi: PostApi by lazy {
+        retrofit.create(PostApi::class.java)
     }
 }
