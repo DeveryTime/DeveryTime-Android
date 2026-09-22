@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -87,9 +88,18 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    var isWrong by remember { mutableStateOf(false) }
-
     val loginUiState by loginViewModel.uiState.collectAsState()
+    val loginError = loginUiState as? LoginUiState.Error
+
+    LaunchedEffect(loginUiState) {
+        if (loginUiState is LoginUiState.Success) {
+            navController.navigate(Screen.MyPage1.route) {
+                popUpTo(Screen.Login.route) {
+                    inclusive = true
+                }
+            }
+        }
+    }
 
     // 포커스 매니저
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -209,9 +219,9 @@ fun LoginScreen(
                 shape = RoundedCornerShape(12.dp),
                 visualTransformation = PasswordVisualTransformation(),
             )
-            if (isWrong) {
+            if (loginError != null) {
                 Text(
-                    text = "이메일 또는 비밀번호가 잘못되었습니다.",
+                    text = loginError.message,
                     color = Color.Red,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 5.dp),

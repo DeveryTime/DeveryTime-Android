@@ -18,6 +18,10 @@ object RetrofitClient {
         retrofit.create(LoginApi::class.java)
     }
 
+    val signUpApi: SignUpApi by lazy {
+        retrofit.create(SignUpApi::class.java)
+    }
+
     val postApi: PostApi by lazy {
         retrofit.create(PostApi::class.java)
     }
