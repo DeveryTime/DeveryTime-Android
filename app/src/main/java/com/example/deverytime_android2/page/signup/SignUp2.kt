@@ -57,6 +57,7 @@ val SCHOOL_EMAIL_DOMAIN = "dsm.hs.kr"
 @Composable
 fun SignUp2Screen(
     navController: NavHostController,
+    signUpViewModel: SignUpViewModel,
     modifier: Modifier = Modifier,
 ) {
     var email by remember { mutableStateOf("") } // 이메일
@@ -385,14 +386,16 @@ fun SignUp2Screen(
                 Button(
                     onClick = {
                         if (timeDone) {
+                            isWrong = true
+                        } else if (certifiedNum.isNotBlank()) {
+                            val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
+
+                            signUpViewModel.updateEmail(fullEmail)
+
                             isWrong = false
+                            navController.navigate(Screen.SignUp3.route)
                         } else {
-                            if (certifiedNum.isNotBlank()) {
-                                // TODO: 여기서 서버에 검증 요청해서 true가 오면 넘어가도록 *서버가 검증해야함*
-                                navController.navigate(Screen.SignUp3.route)
-                            } else {
-                                isWrong = true
-                            }
+                            isWrong = true
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = mainBlue),

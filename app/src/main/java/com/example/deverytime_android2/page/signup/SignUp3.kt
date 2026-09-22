@@ -48,6 +48,7 @@ import com.example.deverytime_android2.page.theme.mainBlue
 @Composable
 fun SignUp3Screen(
     navController: NavHostController,
+    signUpViewModel: SignUpViewModel,
     modifier: Modifier = Modifier,
 ) {
     var password by remember { mutableStateOf("") }
@@ -149,7 +150,9 @@ fun SignUp3Screen(
                                 focusManager.moveFocus(FocusDirection.Down)
                             },
                         ),
-                    modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(top = 3.dp)
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
                 )
@@ -187,7 +190,9 @@ fun SignUp3Screen(
                                 focusManager.clearFocus()
                             },
                         ),
-                    modifier = Modifier.padding(top = 3.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(top = 3.dp)
+                        .fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
                 )
@@ -204,13 +209,15 @@ fun SignUp3Screen(
             }
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
-            Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
+            Row(modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(bottom = 10.dp)) {
                 Text(
                     fontSize = 14.sp,
                     text = "계정이 있으신가요?",
                     color = Color(0xFFB1B1B1),
                     modifier =
-                    Modifier,
+                        Modifier,
                 )
                 Text(
                     fontSize = 14.sp,
@@ -232,14 +239,18 @@ fun SignUp3Screen(
             }
             Button(
                 onClick = {
-                    // TODO:최소 비밀번호 8 ~ 20자까지 글자수 제한 백엔드에 검증 요청
-                    if (password.isNotEmpty() && recheckNumber.isNotEmpty()) {
-                        if (recheckNumber == password) {
-                            // 비밀번호와 재확인 비밀번호가 일치면 통과
-                            navController.navigate(Screen.SignUp4.route)
-                        } else {
-                            isWrong = true
-                        }
+                    if (
+                        password.isNotBlank() &&
+                        recheckNumber.isNotBlank() &&
+                        password == recheckNumber
+                    ) {
+                        signUpViewModel.updatePassword(
+                            password = password,
+                            passwordConfirm = recheckNumber,
+                        )
+
+                        isWrong = false
+                        navController.navigate(Screen.SignUp4.route)
                     } else {
                         isWrong = true
                     }
