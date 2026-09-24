@@ -76,6 +76,11 @@ fun SignUp4Screen(
 
     val uiState by signUpViewModel.uiState.collectAsState()
 
+    val usernameCheckState by
+    signUpViewModel.usernameCheckState.collectAsState()
+
+    var isCheckRequired by remember { mutableStateOf(false) }
+
     LaunchedEffect(uiState) {
         when (val state = uiState) {
             is SignUpUiState.Success -> {
@@ -91,6 +96,24 @@ fun SignUp4Screen(
             }
 
             is SignUpUiState.Error -> {
+                isIdExisting =
+                    state.errorCode == "USERNAME_ALREADY_EXISTS"
+            }
+
+            else -> Unit
+        }
+    }
+
+    LaunchedEffect(usernameCheckState) {
+        when (val state = usernameCheckState) {
+            is UsernameCheckUiState.Available -> {
+                isClicked = true
+                isIdExisting = false
+                isCheckRequired = false
+            }
+
+            is UsernameCheckUiState.Error -> {
+                isClicked = false
                 isIdExisting =
                     state.errorCode == "USERNAME_ALREADY_EXISTS"
             }
@@ -204,9 +227,13 @@ fun SignUp4Screen(
                         value = id,
                         onValueChange = { newValue ->
                             id = newValue.take(10)
+
                             isClicked = false
                             isWrong = false
                             isIdExisting = false
+                            isCheckRequired = false
+
+                            signUpViewModel.resetUsernameCheckState()
                             signUpViewModel.resetUiState()
                         },
                         singleLine = true,
@@ -223,11 +250,15 @@ fun SignUp4Screen(
                             ),
                         modifier = Modifier.padding(top = 3.dp).weight(1f),
                         shape = RoundedCornerShape(12.dp),
+
                     )
                     Button(
                         onClick = {
-                            isClicked = true
+                            signUpViewModel.checkUsername(id)
                         },
+                        enabled =
+                            id.isNotBlank() &&
+                                    usernameCheckState !is UsernameCheckUiState.Loading,
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = buttonColor,
@@ -245,7 +276,17 @@ fun SignUp4Screen(
                             fontFamily = pretendardVariable,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            text = "중복확인",
+                            text =
+                                when (usernameCheckState) {
+                                    is UsernameCheckUiState.Loading ->
+                                        "확인 중"
+
+                                    is UsernameCheckUiState.Available ->
+                                        "확인 완료"
+
+                                    else ->
+                                        "중복확인"
+                                },
                             softWrap = false,
                             overflow = TextOverflow.Visible,
                             textAlign = TextAlign.Center,
@@ -263,6 +304,14 @@ fun SignUp4Screen(
                     if (isWrong) {
                         Text(
                             text = "아이디를 입력해 주세요.",
+                            color = buttonGray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 5.dp),
+                        )
+                    }
+                    if (isCheckRequired) {
+                        Text(
+                            text = "아이디 중복확인을 해주세요.",
                             color = buttonGray,
                             fontSize = 14.sp,
                             modifier = Modifier.padding(top = 5.dp),
@@ -312,13 +361,23 @@ fun SignUp4Screen(
             Box(modifier = Modifier, Alignment.BottomCenter) {
                 Button(
                     onClick = {
-                        if (id.isBlank()) {
-                            isWrong = true
-                        } else {
-                            isWrong = false
+                        when {
+                            id.isBlank() -> {
+                                isWrong = true
+                                isCheckRequired = false
+                            }
 
-                            signUpViewModel.updateUsername(id)
-                            signUpViewModel.signUp()
+                            usernameCheckState !is UsernameCheckUiState.Available -> {
+                                isWrong = false
+                                isCheckRequired = true
+                            }
+
+                            else -> {
+                                isWrong = false
+                                isCheckRequired = false
+                                signUpViewModel.updateUsername(id)
+                                signUpViewModel.signUp()
+                            }
                         }
                     },
                     enabled = uiState !is SignUpUiState.Loading,

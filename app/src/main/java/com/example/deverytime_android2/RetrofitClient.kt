@@ -1,13 +1,14 @@
 package com.example.deverytime_android2
 
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "https://실제-서버주소/"
+    private const val BASE_URL = "https://3.36.87.221/"
 
-    private val retrofit: Retrofit by lazy {
+    private val publicRetrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -15,14 +16,32 @@ object RetrofitClient {
     }
 
     val loginApi: LoginApi by lazy {
-        retrofit.create(LoginApi::class.java)
+        publicRetrofit.create(LoginApi::class.java)
     }
 
     val signUpApi: SignUpApi by lazy {
-        retrofit.create(SignUpApi::class.java)
+        publicRetrofit.create(SignUpApi::class.java)
+    }
+
+    private val authenticatedRetrofit: Retrofit by lazy {
+        val client =
+            OkHttpClient.Builder()
+                .addInterceptor(AuthInterceptor())
+                .authenticator(
+                    TokenAuthenticator {
+                        loginApi
+                    },
+                )
+                .build()
+
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
     }
 
     val postApi: PostApi by lazy {
-        retrofit.create(PostApi::class.java)
+        authenticatedRetrofit.create(PostApi::class.java)
     }
 }

@@ -16,4 +16,12 @@ class LoginRepository(
             ),
         )
     }
+
+    suspend fun reissueToken(
+        refreshToken: String,
+    ): Response<TokenReissueResponse> {
+        return loginApi.reissueToken(
+            TokenReissueRequest(refreshToken),
+        )
+    }
 }

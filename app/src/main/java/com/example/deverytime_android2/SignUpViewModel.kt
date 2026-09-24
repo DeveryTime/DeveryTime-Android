@@ -2,6 +2,7 @@ package com.example.deverytime_android2
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,20 +33,74 @@ sealed interface SignUpUiState {
     ) : SignUpUiState
 }
 
+sealed interface UsernameCheckUiState {
+    data object Idle : UsernameCheckUiState
+
+    data object Loading : UsernameCheckUiState
+
+    data class Available(
+        val message: String,
+    ) : UsernameCheckUiState
+
+    data class Error(
+        val errorCode: String?,
+        val message: String,
+    ) : UsernameCheckUiState
+}
+
+sealed interface EmailVerificationUiState {
+    data object Idle : EmailVerificationUiState
+    data object Loading : EmailVerificationUiState
+
+    data class CodeSent(
+        val message: String,
+    ) : EmailVerificationUiState
+
+    data class Verified(
+        val message: String,
+    ) : EmailVerificationUiState
+
+    data class Error(
+        val errorCode: String?,
+        val message: String,
+    ) : EmailVerificationUiState
+}
+
 class SignUpViewModel(
     private val repository: SignUpRepository = SignUpRepository(),
 ) : ViewModel() {
 
-    private val _formState = MutableStateFlow(SignUpFormState())
+    private val _emailVerificationState =
+        MutableStateFlow<EmailVerificationUiState>(
+            EmailVerificationUiState.Idle,
+        )
+
+    val emailVerificationState: StateFlow<EmailVerificationUiState> =
+        _emailVerificationState.asStateFlow()
+
+    private val gson = Gson()
+
+    private val _formState =
+        MutableStateFlow(SignUpFormState())
 
     val formState: StateFlow<SignUpFormState> =
         _formState.asStateFlow()
 
     private val _uiState =
-        MutableStateFlow<SignUpUiState>(SignUpUiState.Idle)
+        MutableStateFlow<SignUpUiState>(
+            SignUpUiState.Idle,
+        )
 
     val uiState: StateFlow<SignUpUiState> =
         _uiState.asStateFlow()
+
+    private val _usernameCheckState =
+        MutableStateFlow<UsernameCheckUiState>(
+            UsernameCheckUiState.Idle,
+        )
+
+    val usernameCheckState: StateFlow<UsernameCheckUiState> =
+        _usernameCheckState.asStateFlow()
 
     fun updateSchoolInfo(
         schoolNumber: String,
@@ -61,7 +116,9 @@ class SignUpViewModel(
 
     fun updateEmail(email: String) {
         _formState.update { currentState ->
-            currentState.copy(email = email)
+            currentState.copy(
+                email = email,
+            )
         }
     }
 
@@ -79,7 +136,83 @@ class SignUpViewModel(
 
     fun updateUsername(username: String) {
         _formState.update { currentState ->
-            currentState.copy(username = username)
+            currentState.copy(
+                username = username,
+            )
+        }
+    }
+
+    fun checkUsername(username: String) {
+        if (username.isBlank()) {
+            _usernameCheckState.value =
+                UsernameCheckUiState.Error(
+                    errorCode = "VALIDATION_ERROR",
+                    message = "아이디를 입력해 주세요.",
+                )
+            return
+        }
+
+        if (
+            _usernameCheckState.value
+                    is UsernameCheckUiState.Loading
+        ) {
+            return
+        }
+
+        viewModelScope.launch {
+            _usernameCheckState.value =
+                UsernameCheckUiState.Loading
+
+            try {
+                val response =
+                    repository.checkUsername(
+                        username = username,
+                    )
+
+                if (response.isSuccessful) {
+                    val body = response.body()
+
+                    if (body != null && body.success) {
+                        _usernameCheckState.value =
+                            UsernameCheckUiState.Available(
+                                message = body.message,
+                            )
+                    } else {
+                        _usernameCheckState.value =
+                            UsernameCheckUiState.Error(
+                                errorCode = null,
+                                message =
+                                    body?.message
+                                        ?: "아이디 확인 응답이 없습니다.",
+                            )
+                    }
+                } else {
+                    val errorBody =
+                        response
+                            .errorBody()
+                            ?.string()
+                            .orEmpty()
+
+                    val apiError =
+                        parseApiError(errorBody)
+
+                    _usernameCheckState.value =
+                        UsernameCheckUiState.Error(
+                            errorCode = apiError?.code,
+                            message =
+                                apiError?.message
+                                    ?: "아이디 중복확인에 실패했습니다. (${response.code()})",
+                        )
+                }
+            } catch (exception: Exception) {
+                _usernameCheckState.value =
+                    UsernameCheckUiState.Error(
+                        errorCode = null,
+                        message =
+                            exception.message
+                                ?: "네트워크 오류가 발생했습니다.",
+                    )
+            }
         }
     }
 
@@ -119,46 +252,181 @@ class SignUpViewModel(
             _uiState.value = SignUpUiState.Loading
 
             try {
-                val response = repository.signUp(request)
+                val response =
+                    repository.signUp(request)
 
                 if (response.isSuccessful) {
                     val body = response.body()
 
                     if (body != null && body.success) {
                         _uiState.value =
-                            SignUpUiState.Success(body.message)
+                            SignUpUiState.Success(
+                                message = body.message,
+                            )
                     } else {
                         _uiState.value =
                             SignUpUiState.Error(
                                 errorCode = null,
-                                message = body?.message
-                                    ?: "회원가입 응답 데이터가 없습니다.",
+                                message =
+                                    body?.message
+                                        ?: "회원가입 응답 데이터가 없습니다.",
                             )
                     }
                 } else {
                     val errorBody =
-                        response.errorBody()?.string().orEmpty()
+                        response
+                            .errorBody()
+                            ?.string()
+                            .orEmpty()
 
-                    val errorCode = findErrorCode(errorBody)
+                    val apiError =
+                        parseApiError(errorBody)
+
+                    val errorCode =
+                        apiError?.code
+                            ?: findErrorCode(errorBody)
 
                     _uiState.value =
                         SignUpUiState.Error(
                             errorCode = errorCode,
-                            message = errorMessage(
-                                errorCode = errorCode,
-                                httpCode = response.code(),
-                            ),
+                            message =
+                                apiError?.message
+                                    ?: errorMessage(
+                                        errorCode = errorCode,
+                                        httpCode = response.code(),
+                                    ),
                         )
                 }
             } catch (exception: Exception) {
                 _uiState.value =
                     SignUpUiState.Error(
                         errorCode = null,
-                        message = exception.message
-                            ?: "네트워크 오류가 발생했습니다.",
+                        message =
+                            exception.message
+                                ?: "네트워크 오류가 발생했습니다.",
                     )
             }
         }
+    }
+    fun sendEmailVerification(email: String) {
+        if (email.isBlank()) {
+            _emailVerificationState.value =
+                EmailVerificationUiState.Error(
+                    errorCode = "VALIDATION_ERROR",
+                    message = "이메일을 입력해 주세요.",
+                )
+            return
+        }
+
+        if (_emailVerificationState.value is EmailVerificationUiState.Loading) {
+            return
+        }
+
+        viewModelScope.launch {
+            _emailVerificationState.value =
+                EmailVerificationUiState.Loading
+
+            try {
+                val response =
+                    repository.sendEmailVerification(email)
+
+                val body = response.body()
+
+                if (response.isSuccessful && body?.success == true) {
+                    _emailVerificationState.value =
+                        EmailVerificationUiState.CodeSent(
+                            message = body.message,
+                        )
+                } else {
+                    val apiError =
+                        parseApiError(
+                            response.errorBody()?.string().orEmpty(),
+                        )
+
+                    _emailVerificationState.value =
+                        EmailVerificationUiState.Error(
+                            errorCode = apiError?.code,
+                            message =
+                                apiError?.message
+                                    ?: "인증 코드 발송에 실패했습니다.",
+                        )
+                }
+            } catch (exception: Exception) {
+                _emailVerificationState.value =
+                    EmailVerificationUiState.Error(
+                        errorCode = null,
+                        message =
+                            exception.message
+                                ?: "네트워크 오류가 발생했습니다.",
+                    )
+            }
+        }
+    }
+
+    fun verifyEmail(
+        email: String,
+        code: String,
+    ) {
+        if (email.isBlank() || code.isBlank()) {
+            _emailVerificationState.value =
+                EmailVerificationUiState.Error(
+                    errorCode = "VALIDATION_ERROR",
+                    message = "인증 코드를 입력해 주세요.",
+                )
+            return
+        }
+
+        if (_emailVerificationState.value is EmailVerificationUiState.Loading) {
+            return
+        }
+
+        viewModelScope.launch {
+            _emailVerificationState.value =
+                EmailVerificationUiState.Loading
+
+            try {
+                val response =
+                    repository.verifyEmail(
+                        email = email,
+                        code = code,
+                    )
+
+                val body = response.body()
+
+                if (response.isSuccessful && body?.success == true) {
+                    _emailVerificationState.value =
+                        EmailVerificationUiState.Verified(
+                            message = body.message,
+                        )
+                } else {
+                    val apiError =
+                        parseApiError(
+                            response.errorBody()?.string().orEmpty(),
+                        )
+
+                    _emailVerificationState.value =
+                        EmailVerificationUiState.Error(
+                            errorCode = apiError?.code,
+                            message =
+                                apiError?.message
+                                    ?: "인증 코드 확인에 실패했습니다.",
+                        )
+                }
+            } catch (exception: Exception) {
+                _emailVerificationState.value =
+                    EmailVerificationUiState.Error(
+                        errorCode = null,
+                        message =
+                            exception.message
+                                ?: "네트워크 오류가 발생했습니다.",
+                    )
+            }
+        }
+    }
+
+    fun resetEmailVerificationState() {
+        _emailVerificationState.value =
+            EmailVerificationUiState.Idle
     }
 
     private fun createRequest(): SignUpRequest {
@@ -174,7 +442,24 @@ class SignUpViewModel(
         )
     }
 
-    private fun findErrorCode(errorBody: String): String? {
+    private fun parseApiError(
+        errorBody: String,
+    ): ApiError? {
+        if (errorBody.isBlank()) {
+            return null
+        }
+
+        return runCatching {
+            gson.fromJson(
+                errorBody,
+                ApiErrorResponse::class.java,
+            )?.error
+        }.getOrNull()
+    }
+
+    private fun findErrorCode(
+        errorBody: String,
+    ): String? {
         val knownErrorCodes =
             listOf(
                 "VALIDATION_ERROR",
@@ -211,10 +496,19 @@ class SignUpViewModel(
     }
 
     fun resetUiState() {
-        _uiState.value = SignUpUiState.Idle
+        _uiState.value =
+            SignUpUiState.Idle
+    }
+
+    fun resetUsernameCheckState() {
+        _usernameCheckState.value =
+            UsernameCheckUiState.Idle
     }
 
     fun clearForm() {
-        _formState.value = SignUpFormState()
+        _formState.value =
+            SignUpFormState()
+
+        resetUsernameCheckState()
     }
 }

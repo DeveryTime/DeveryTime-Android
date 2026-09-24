@@ -9,4 +9,9 @@ interface LoginApi {
     suspend fun login(
         @Body request: LoginRequest,
     ): Response<LoginResponse>
+
+    @POST("api/auth/reissue")
+    suspend fun reissueToken(
+        @Body request: TokenReissueRequest,
+    ): Response<TokenReissueResponse>
 }

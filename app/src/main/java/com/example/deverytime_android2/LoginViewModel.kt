@@ -21,6 +21,20 @@ sealed interface LoginUiState {
     ) : LoginUiState
 }
 
+sealed interface TokenReissueUiState {
+    data object Idle : TokenReissueUiState
+    data object Loading : TokenReissueUiState
+
+    data class Success(
+        val tokens: TokenData,
+    ) : TokenReissueUiState
+
+    data class Error(
+        val code: String?,
+        val message: String,
+    ) : TokenReissueUiState
+}
+
 class LoginViewModel : ViewModel() {
 
     private val repository = LoginRepository()
@@ -56,6 +70,7 @@ class LoginViewModel : ViewModel() {
 
                     _uiState.value =
                         if (body != null) {
+                            TokenStorage.saveTokens(body.data)
                             LoginUiState.Success(body)
                         } else {
                             LoginUiState.Error("응답 데이터가 없습니다.")
@@ -71,6 +86,61 @@ class LoginViewModel : ViewModel() {
                     LoginUiState.Error(
                         exception.message
                             ?: "네트워크 오류가 발생했습니다.",
+                    )
+            }
+        }
+    }
+
+    private val _tokenReissueState =
+        MutableStateFlow<TokenReissueUiState>(TokenReissueUiState.Idle)
+
+    val tokenReissueState: StateFlow<TokenReissueUiState> =
+        _tokenReissueState.asStateFlow()
+
+    fun reissueToken(refreshToken: String) {
+        if (refreshToken.isBlank()) {
+            _tokenReissueState.value =
+                TokenReissueUiState.Error(
+                    code = "TOKEN_INVALID",
+                    message = "리프레시 토큰이 없습니다.",
+                )
+            return
+        }
+
+        viewModelScope.launch {
+            _tokenReissueState.value = TokenReissueUiState.Loading
+
+            try {
+                val response = repository.reissueToken(refreshToken)
+                val body = response.body()
+                val tokens = body?.data
+
+                _tokenReissueState.value =
+                    when {
+                        response.isSuccessful && body?.success == true && tokens != null -> {
+                            TokenStorage.saveTokens(tokens)
+                            TokenReissueUiState.Success(tokens)
+                        }
+
+                        response.code() == 401 -> {
+                            TokenStorage.clear()
+
+                            TokenReissueUiState.Error(
+                                code = "TOKEN_INVALID",
+                                message = "유효하지 않은 토큰입니다.",
+                            )
+                        }
+                        else ->
+                            TokenReissueUiState.Error(
+                                code = null,
+                                message = "토큰 재발급에 실패했습니다. (${response.code()})",
+                            )
+                    }
+            } catch (exception: Exception) {
+                _tokenReissueState.value =
+                    TokenReissueUiState.Error(
+                        code = null,
+                        message = exception.message ?: "네트워크 오류가 발생했습니다.",
                     )
             }
         }

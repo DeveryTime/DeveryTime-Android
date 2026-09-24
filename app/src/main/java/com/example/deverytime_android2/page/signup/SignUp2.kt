@@ -23,6 +23,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,9 +63,7 @@ fun SignUp2Screen(
 ) {
     var email by remember { mutableStateOf("") } // 이메일
     var certifiedNum by remember { mutableStateOf("") } // 사용자가 입력한 인증번호
-    var receiveRealCertifiedNum by remember { mutableStateOf("1234") } // 서버에서 발급해준 진짜 인증번호
     var onClickCertified by remember { mutableStateOf(false) } // 인증버튼이 눌렸는지 안 눌렸는지
-    var certifiedIsRealOrNot by remember { mutableStateOf(false) } // 인증번호가 맞는지 틀린지 (추후 백엔드 연동 예정)
     var isVisible by remember { mutableStateOf(true) } // 보이는지 안보이는지
     var isClicked by remember { mutableStateOf(false) } // 재전송 버튼 색상 변경 변수
     val scope = rememberCoroutineScope() // 5초 카운트 변수
@@ -73,6 +72,39 @@ fun SignUp2Screen(
     var isEmailWrong by remember { mutableStateOf(false) } // 이메일 형식이 틀렸을 때 true로 바뀌는 변수
     var timeDone by remember { mutableStateOf(false) } // 시간이 다 지났는지 확인하는 변수
     var timerRestartKey by remember { mutableStateOf(0) } // 코루틴 키값
+    val emailVerificationState by
+    signUpViewModel.emailVerificationState.collectAsState()
+
+    LaunchedEffect(emailVerificationState) {
+        when (emailVerificationState) {
+            is EmailVerificationUiState.CodeSent -> {
+                onClickCertified = true
+                isVisible = false
+                isEmailWrong = false
+                isWrong = false
+                timeDone = false
+                timerRestartKey++
+            }
+
+            is EmailVerificationUiState.Verified -> {
+                val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
+
+                signUpViewModel.updateEmail(fullEmail)
+                signUpViewModel.resetEmailVerificationState()
+                navController.navigate(Screen.SignUp3.route)
+            }
+
+            is EmailVerificationUiState.Error -> {
+                if (onClickCertified) {
+                    isWrong = true
+                } else {
+                    isEmailWrong = true
+                }
+            }
+
+            else -> Unit
+        }
+    }
 
     // 포커스 매니저
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -263,9 +295,13 @@ fun SignUp2Screen(
                             onClick = {
                                 isWrong = false
                                 timeDone = false
-                                timerRestartKey++ // 타이머 재시작을 위한 키값 변경
+                                timerRestartKey++
 
                                 if (isClicked) {
+                                    val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
+
+                                    signUpViewModel.sendEmailVerification(fullEmail)
+
                                     isClicked = false
 
                                     scope.launch {
@@ -354,9 +390,10 @@ fun SignUp2Screen(
                     Button(
                         onClick = {
                             if (email.isNotBlank()) {
-                                val fullemail = "$email@$SCHOOL_EMAIL_DOMAIN"
+                                val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
 
-                                // API 성공 후 ->
+                                signUpViewModel.sendEmailVerification(fullEmail)
+
                                 onClickCertified = true
                                 isVisible = false
                                 isEmailWrong = false
@@ -390,10 +427,11 @@ fun SignUp2Screen(
                         } else if (certifiedNum.isNotBlank()) {
                             val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
 
-                            signUpViewModel.updateEmail(fullEmail)
-
                             isWrong = false
-                            navController.navigate(Screen.SignUp3.route)
+                            signUpViewModel.verifyEmail(
+                                email = fullEmail,
+                                code = certifiedNum,
+                            )
                         } else {
                             isWrong = true
                         }

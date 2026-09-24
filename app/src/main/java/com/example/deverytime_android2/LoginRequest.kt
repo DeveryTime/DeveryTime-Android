@@ -16,3 +16,8 @@ data class TokenData(
     @SerializedName("refreshToken")
     val refreshToken: String
 )
+
+data class TokenReissueRequest(
+    @SerializedName("refreshToken")
+    val refreshToken: String,
+)

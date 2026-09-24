@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -68,6 +70,7 @@ sealed class Screen(
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        TokenStorage.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
             DeveryTime_Android2Theme {
@@ -80,12 +83,28 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Navigation(modifier: Modifier = Modifier) {
+
         val navController = rememberNavController()
         val signUpViewModel: SignUpViewModel = viewModel()
 
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
 
+        val sessionExpired by
+        TokenStorage.sessionExpired.collectAsState()
+
+        LaunchedEffect(sessionExpired) {
+            if (sessionExpired) {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+
+                TokenStorage.resetSessionExpired()
+            }
+        }
 
         // 이게 어디 어디에 네비바 넣을지 설정하는 코드
         val showBottomBar =
