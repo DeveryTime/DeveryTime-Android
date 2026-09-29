@@ -1,6 +1,20 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").inputStream().use {
+        load(it)
+    }
+}
+
+val serverBaseUrl = requireNotNull(
+    localProperties.getProperty("SERVER_BASE_URL")
+) {
+    "local.properties에 SERVER_BASE_URL을 설정하세요."
 }
 
 android {
@@ -13,6 +27,7 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "SERVER_BASE_URL", "\"$serverBaseUrl\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

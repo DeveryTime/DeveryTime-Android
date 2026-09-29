@@ -5,7 +5,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    private const val BASE_URL = "서버주소"
+    private val BASE_URL = BuildConfig.SERVER_BASE_URL
 
     val postApi: PostApi by lazy {
         Retrofit.Builder()
