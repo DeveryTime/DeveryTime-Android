@@ -1,5 +1,9 @@
 package com.example.deverytime_android2
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,11 +32,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -45,6 +51,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.mainBlue
 
@@ -56,7 +63,24 @@ fun SignUp4Screen(
 ) {
     // 백엔드에 있는 계정인지 true false 요청하고 true면 isIdExisting를 true로 변경
     // 추후 변경 예정
+    val context = LocalContext.current
 
+    var profileImageUri by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    val profileImagePicker =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia(),
+        ) { uri ->
+            if (uri != null) {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+                profileImageUri = uri.toString()
+            }
+        }
     var id by remember { mutableStateOf("") }
     var isClicked by remember { mutableStateOf(false) }
     var isIdExisting by remember { mutableStateOf(false) }
@@ -98,6 +122,11 @@ fun SignUp4Screen(
             is SignUpUiState.Error -> {
                 isIdExisting =
                     state.errorCode == "USERNAME_ALREADY_EXISTS"
+
+                if (isIdExisting) {
+                    isClicked = false
+                    signUpViewModel.resetUsernameCheckState()
+                }
             }
 
             else -> Unit
@@ -176,13 +205,10 @@ fun SignUp4Screen(
                 )
                 Spacer(modifier = Modifier.height(55.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    Image(
-                        painter = painterResource(id = R.drawable.vector),
+                    AsyncImage(
+                        model = profileImageUri ?: R.drawable.vector,
                         contentDescription = "사용자 프로필",
-                        modifier =
-                            Modifier
-                                .width(200.dp)
-                                .align(Alignment.BottomCenter),
+                        modifier = Modifier.width(200.dp).align(Alignment.BottomCenter),
                         contentScale = ContentScale.Fit,
                     )
                     Button(
@@ -190,7 +216,13 @@ fun SignUp4Screen(
                             Modifier
                                 .align(Alignment.BottomCenter),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        onClick = { /* 이미지 업로드 로직 */ },
+                        onClick = {
+                            profileImagePicker.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                ),
+                            )
+                        },
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.frame_83),
@@ -206,7 +238,7 @@ fun SignUp4Screen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp)
+                        .padding(horizontal = 12.dp)
                         .align(Alignment.CenterHorizontally),
             ) {
                 // 아이디 입력창

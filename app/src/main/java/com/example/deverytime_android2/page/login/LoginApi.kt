@@ -1,9 +1,5 @@
-package com.example.deverytime_android2.page.login
+package com.example.deverytime_android2
 
-import com.example.deverytime_android2.LoginRequest
-import com.example.deverytime_android2.LoginResponse
-import com.example.deverytime_android2.TokenReissueRequest
-import com.example.deverytime_android2.TokenReissueResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST

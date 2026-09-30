@@ -2,6 +2,7 @@ package com.example.deverytime_android2
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.deverytime_android2.SignUpUiState.Error
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -232,7 +233,7 @@ class SignUpViewModel(
             request.passwordConfirm.isBlank()
         ) {
             _uiState.value =
-                SignUpUiState.Error(
+                Error(
                     errorCode = "VALIDATION_ERROR",
                     message = "입력하지 않은 정보가 있습니다.",
                 )
@@ -241,7 +242,7 @@ class SignUpViewModel(
 
         if (request.password != request.passwordConfirm) {
             _uiState.value =
-                SignUpUiState.Error(
+                Error(
                     errorCode = "VALIDATION_ERROR",
                     message = "비밀번호가 일치하지 않습니다.",
                 )
@@ -265,7 +266,7 @@ class SignUpViewModel(
                             )
                     } else {
                         _uiState.value =
-                            SignUpUiState.Error(
+                            Error(
                                 errorCode = null,
                                 message =
                                     body?.message
@@ -287,10 +288,11 @@ class SignUpViewModel(
                             ?: findErrorCode(errorBody)
 
                     _uiState.value =
-                        SignUpUiState.Error(
+                        Error(
                             errorCode = errorCode,
                             message =
-                                apiError?.message
+                                detailsMessage(apiError)
+                                    ?: apiError?.message
                                     ?: errorMessage(
                                         errorCode = errorCode,
                                         httpCode = response.code(),
@@ -299,7 +301,7 @@ class SignUpViewModel(
                 }
             } catch (exception: Exception) {
                 _uiState.value =
-                    SignUpUiState.Error(
+                    Error(
                         errorCode = null,
                         message =
                             exception.message
@@ -408,8 +410,9 @@ class SignUpViewModel(
                         EmailVerificationUiState.Error(
                             errorCode = apiError?.code,
                             message =
-                                apiError?.message
-                                    ?: "인증 코드 확인에 실패했습니다.",
+                                detailsMessage(apiError)
+                                    ?: apiError?.message
+                                    ?: "인증 코드 발송에 실패했습니다.",
                         )
                 }
             } catch (exception: Exception) {
@@ -440,6 +443,14 @@ class SignUpViewModel(
             password = currentState.password,
             passwordConfirm = currentState.passwordConfirm,
         )
+    }
+
+    private fun detailsMessage(apiError: ApiError?): String? {
+        val details = apiError?.details ?: return null
+        return details
+            .mapNotNull { it.message }
+            .takeIf { it.isNotEmpty() }
+            ?.joinToString("\n")
     }
 
     private fun parseApiError(

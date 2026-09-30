@@ -245,7 +245,7 @@ fun SignUpScreen(
             // 다음 버튼
             Button(
                 onClick = {
-                    if (studentNumber.isNotBlank() && name.isNotBlank()) {
+                    if (studentNumber.isNotBlank() && name.isNotBlank() && studentNumber.length == 4) {
                         signUpViewModel.updateSchoolInfo(
                             schoolNumber = studentNumber,
                             name = name,
