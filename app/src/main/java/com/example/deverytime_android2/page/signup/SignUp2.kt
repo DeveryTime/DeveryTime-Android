@@ -225,7 +225,7 @@ fun SignUp2Screen(
             )
             if (isEmailWrong) {
                 Text(
-                    text = "잘못된 이메일 형식입니다.",
+                    text = errorMessage ?: "잘못된 이메일 형식입니다.",
                     fontSize = 12.sp,
                     color = buttonGray,
                     modifier = Modifier.padding(top = 5.dp),
