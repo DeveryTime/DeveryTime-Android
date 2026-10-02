@@ -49,6 +49,7 @@ import com.example.deverytime_android2.page.theme.mainBlue
 @Composable
 fun SignUpScreen(
     navController: NavHostController,
+    signUpViewModel: SignUpViewModel,
     modifier: Modifier = Modifier,
 ) {
     var studentNumber by remember { mutableStateOf("") } // 학번
@@ -245,10 +246,13 @@ fun SignUpScreen(
             Button(
                 onClick = {
                     if (studentNumber.isNotBlank() && name.isNotBlank()) {
-                        // 학번과 이름이 모두 입력되었을 때의 동작
-                        // 백엔드 개발 이후 학번 이름을 앱에서 뭉쳐서 백엔드에 전달
-                        navController.navigate(Screen.SignUp2.route)
+                        signUpViewModel.updateSchoolInfo(
+                            schoolNumber = studentNumber,
+                            name = name,
+                        )
+
                         isWrong = false
+                        navController.navigate(Screen.SignUp2.route)
                     } else {
                         isWrong = true
                     }

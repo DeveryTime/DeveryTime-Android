@@ -44,6 +44,10 @@ import com.example.deverytime_android2.page.theme.Style
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.grayLineColor
 import com.example.deverytime_android2.page.theme.nonprofile
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+
 
 
 //해당 부분은 GPT 5.6 SOL을 사용하여 구성한 부분입니다.
@@ -129,6 +133,11 @@ fun SearchScreen(
     navigator: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    val searchViewModel: SearchViewModel = viewModel()
+
+    val searchResult by searchViewModel.searchResult.collectAsState()
+    val isLoading by searchViewModel.isLoading.collectAsState()
+    val errorMessage by searchViewModel.errorMessage.collectAsState()
     // 검색 버튼을 누른 이전 화면(Main1~4)의 SavedStateHandle에서 검색어를 읽습니다.
     // Preview처럼 이전 화면이 없는 경우에는 빈 문자열을 사용합니다.
     val initialQuery =
@@ -142,11 +151,27 @@ fun SearchScreen(
     // rememberSaveable을 사용하므로 화면 재구성뿐 아니라 구성 변경이 발생해도 입력값이 유지됩니다.
     var query by rememberSaveable { mutableStateOf(initialQuery) }
 
+    LaunchedEffect(initialQuery) {
+        if (initialQuery.isNotBlank()) {
+            searchViewModel.search(initialQuery)
+        }
+    }
+
     // 검색 아이콘 또는 키보드의 검색 버튼을 눌렀을 때 키보드를 닫는 데 사용합니다.
     val focusManager = LocalFocusManager.current
 
     // 앞뒤 공백을 제거한 문자열을 실제 검색 조건으로 사용합니다.
     val normalizedQuery = query.trim()
+
+    val apiPosts =
+        searchResult?.data?.content.orEmpty().map { post ->
+            SearchPost(
+                id = post.id,
+                title = post.title,
+                content = post.categoryName,
+                time = post.createdAt
+            )
+        }
 
     // 사용자 이름 또는 자기소개에 검색어가 포함되는지 확인합니다.
     // 검색어가 비어 있으면 디자인 확인을 위해 기본 임시 데이터를 노출합니다.
@@ -165,17 +190,7 @@ fun SearchScreen(
 
     // 게시글 제목 또는 본문에 검색어가 포함되는지 확인합니다.
     // 검색어가 비어 있으면 임시 게시글 전체를 후보로 사용하고, 화면에는 최대 두 개만 표시합니다.
-    val filteredPosts =
-        remember(normalizedQuery) {
-            if (normalizedQuery.isBlank()) {
-                mockSearchPosts
-            } else {
-                mockSearchPosts.filter { post ->
-                    post.title.contains(normalizedQuery, ignoreCase = true) ||
-                        post.content.contains(normalizedQuery, ignoreCase = true)
-                }
-            }
-        }.take(2)
+
 
     // Box를 사용해 최신 게시글 영역 위에 검색 결과 패널을 겹쳐 배치합니다.
     Box(
@@ -192,9 +207,15 @@ fun SearchScreen(
         SearchResultPanel(
             query = query,
             onQueryChange = { query = it },
-            onSearch = { focusManager.clearFocus() },
+            onSearch = {
+                focusManager.clearFocus()
+
+                if (normalizedQuery.isNotBlank()) {
+                    searchViewModel.search(normalizedQuery)
+                }
+            },
             users = filteredUsers,
-            posts = filteredPosts,
+            posts = apiPosts,
 
             // 검색 결과의 게시글을 누르면 기존 게시글 상세 라우트로 이동합니다.
             onPostClick = { postId ->
