@@ -2,6 +2,7 @@ package com.example.deverytime_android2
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.deverytime_android2.SignUpUiState.Error
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,10 +58,12 @@ sealed interface EmailVerificationUiState {
     ) : EmailVerificationUiState
 
     data class Verified(
+        val email: String,
         val message: String,
     ) : EmailVerificationUiState
 
     data class Error(
+        val requestId: Long,
         val errorCode: String?,
         val message: String,
     ) : EmailVerificationUiState
@@ -77,6 +80,8 @@ class SignUpViewModel(
 
     val emailVerificationState: StateFlow<EmailVerificationUiState> =
         _emailVerificationState.asStateFlow()
+
+    private var emailVerificationRequestId = 0L
 
     private val gson = Gson()
 
@@ -232,7 +237,7 @@ class SignUpViewModel(
             request.passwordConfirm.isBlank()
         ) {
             _uiState.value =
-                SignUpUiState.Error(
+                Error(
                     errorCode = "VALIDATION_ERROR",
                     message = "입력하지 않은 정보가 있습니다.",
                 )
@@ -241,7 +246,7 @@ class SignUpViewModel(
 
         if (request.password != request.passwordConfirm) {
             _uiState.value =
-                SignUpUiState.Error(
+                Error(
                     errorCode = "VALIDATION_ERROR",
                     message = "비밀번호가 일치하지 않습니다.",
                 )
@@ -265,7 +270,7 @@ class SignUpViewModel(
                             )
                     } else {
                         _uiState.value =
-                            SignUpUiState.Error(
+                            Error(
                                 errorCode = null,
                                 message =
                                     body?.message
@@ -287,10 +292,11 @@ class SignUpViewModel(
                             ?: findErrorCode(errorBody)
 
                     _uiState.value =
-                        SignUpUiState.Error(
+                        Error(
                             errorCode = errorCode,
                             message =
-                                apiError?.message
+                                detailsMessage(apiError)
+                                    ?: apiError?.message
                                     ?: errorMessage(
                                         errorCode = errorCode,
                                         httpCode = response.code(),
@@ -299,7 +305,7 @@ class SignUpViewModel(
                 }
             } catch (exception: Exception) {
                 _uiState.value =
-                    SignUpUiState.Error(
+                    Error(
                         errorCode = null,
                         message =
                             exception.message
@@ -309,9 +315,12 @@ class SignUpViewModel(
         }
     }
     fun sendEmailVerification(email: String) {
+        val requestId = ++emailVerificationRequestId
+
         if (email.isBlank()) {
             _emailVerificationState.value =
                 EmailVerificationUiState.Error(
+                    requestId = requestId,
                     errorCode = "VALIDATION_ERROR",
                     message = "이메일을 입력해 주세요.",
                 )
@@ -345,15 +354,18 @@ class SignUpViewModel(
 
                     _emailVerificationState.value =
                         EmailVerificationUiState.Error(
+                            requestId = requestId,
                             errorCode = apiError?.code,
                             message =
                                 apiError?.message
+                                    ?: body?.message
                                     ?: "인증 코드 발송에 실패했습니다.",
                         )
                 }
             } catch (exception: Exception) {
                 _emailVerificationState.value =
                     EmailVerificationUiState.Error(
+                        requestId = requestId,
                         errorCode = null,
                         message =
                             exception.message
@@ -367,9 +379,12 @@ class SignUpViewModel(
         email: String,
         code: String,
     ) {
+        val requestId = ++emailVerificationRequestId
+
         if (email.isBlank() || code.isBlank()) {
             _emailVerificationState.value =
                 EmailVerificationUiState.Error(
+                    requestId = requestId,
                     errorCode = "VALIDATION_ERROR",
                     message = "인증 코드를 입력해 주세요.",
                 )
@@ -396,6 +411,7 @@ class SignUpViewModel(
                 if (response.isSuccessful && body?.success == true) {
                     _emailVerificationState.value =
                         EmailVerificationUiState.Verified(
+                            email = email,
                             message = body.message,
                         )
                 } else {
@@ -406,15 +422,19 @@ class SignUpViewModel(
 
                     _emailVerificationState.value =
                         EmailVerificationUiState.Error(
+                            requestId = requestId,
                             errorCode = apiError?.code,
                             message =
-                                apiError?.message
-                                    ?: "인증 코드 확인에 실패했습니다.",
+                                detailsMessage(apiError)
+                                    ?: apiError?.message
+                                    ?: body?.message
+                                    ?: "인증 코드 발송에 실패했습니다.",
                         )
                 }
             } catch (exception: Exception) {
                 _emailVerificationState.value =
                     EmailVerificationUiState.Error(
+                        requestId = requestId,
                         errorCode = null,
                         message =
                             exception.message
@@ -440,6 +460,14 @@ class SignUpViewModel(
             password = currentState.password,
             passwordConfirm = currentState.passwordConfirm,
         )
+    }
+
+    private fun detailsMessage(apiError: ApiError?): String? {
+        val details = apiError?.details ?: return null
+        return details
+            .mapNotNull { it.message }
+            .takeIf { it.isNotEmpty() }
+            ?.joinToString("\n")
     }
 
     private fun parseApiError(

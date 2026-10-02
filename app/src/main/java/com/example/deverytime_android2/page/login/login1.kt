@@ -93,10 +93,11 @@ fun LoginScreen(
 
     LaunchedEffect(loginUiState) {
         if (loginUiState is LoginUiState.Success) {
-            navController.navigate(Screen.MyPage1.route) {
+            navController.navigate(Screen.Main1.route) {
                 popUpTo(Screen.Login.route) {
                     inclusive = true
                 }
+                launchSingleTop = true
             }
         }
     }
@@ -159,9 +160,8 @@ fun LoginScreen(
                 onValueChange = { input ->
                     email =
                         input
+                            .take(64)
                             .substringBefore("@")
-                            .filter { it.isDigit() }
-                            .take(8)
                 },
                 singleLine = true,
                 keyboardOptions =
@@ -203,6 +203,7 @@ fun LoginScreen(
                     password =
                         input
                             .take(20)
+                            .filter { it.code in 33..126 }
                 },
                 singleLine = true,
                 maxLines = 1,

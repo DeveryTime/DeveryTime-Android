@@ -26,9 +26,15 @@ data class ApiErrorResponse(
     val error: ApiError?,
 )
 
+data class ApiErrorDetail(
+    val field: String?,
+    val message: String?,
+)
+
 data class ApiError(
     val code: String?,
     val message: String?,
+    val details: List<ApiErrorDetail>? = null,
 )
 
 data class EmailVerificationRequest(

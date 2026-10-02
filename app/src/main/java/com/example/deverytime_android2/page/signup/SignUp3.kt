@@ -55,6 +55,8 @@ fun SignUp3Screen(
     var recheckNumber by remember { mutableStateOf("") }
     var isWrong by remember { mutableStateOf(false) }
 
+    val tooShort = password.isNotEmpty() && password.length < 8
+
     // 포커스 매니저
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
@@ -137,6 +139,7 @@ fun SignUp3Screen(
                         password =
                             newValue
                                 .take(20) // 최대 20자 제한
+                                .filter { it.code in 33..126 }
                     },
                     singleLine = true,
                     keyboardOptions =
@@ -177,7 +180,8 @@ fun SignUp3Screen(
                         recheckNumber =
                             newValue
                                 .take(20) // 최대 20자 제한
-                    },
+                                .filter { it.code in 33..126 }
+                                    },
                     singleLine = true,
                     keyboardOptions =
                         KeyboardOptions(
@@ -196,16 +200,24 @@ fun SignUp3Screen(
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
                 )
-                if (isWrong) {
-                    Text(
-                        text = "비밀번호가 일치하지 않습니다.",
-                        color = buttonGray,
-                        fontSize = 12.sp,
-                        modifier =
-                            Modifier
-                                .padding(top = 5.dp),
+                Text(
+                    text =
+                        if ( isWrong ){
+                            "비밀번호가 일치하지 않습니다."
+                        }
+                        else if ( tooShort ){
+                            "비밀번호는 8자 이상이어야 합니다."
+                        }
+                        else {
+                            ""
+                        }
+                    ,
+                    color = buttonGray,
+                    fontSize = 12.sp,
+                    modifier =
+                        Modifier
+                            .padding(top = 5.dp),
                     )
-                }
             }
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {

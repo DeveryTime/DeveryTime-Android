@@ -61,6 +61,7 @@ fun SignUp2Screen(
     signUpViewModel: SignUpViewModel,
     modifier: Modifier = Modifier,
 ) {
+    var errorMessage by remember { mutableStateOf<String?>(null) } // 서버 에러 메시지
     var email by remember { mutableStateOf("") } // 이메일
     var certifiedNum by remember { mutableStateOf("") } // 사용자가 입력한 인증번호
     var onClickCertified by remember { mutableStateOf(false) } // 인증버튼이 눌렸는지 안 눌렸는지
@@ -76,8 +77,9 @@ fun SignUp2Screen(
     signUpViewModel.emailVerificationState.collectAsState()
 
     LaunchedEffect(emailVerificationState) {
-        when (emailVerificationState) {
+        when (val state = emailVerificationState) {
             is EmailVerificationUiState.CodeSent -> {
+                errorMessage = null
                 onClickCertified = true
                 isVisible = false
                 isEmailWrong = false
@@ -87,18 +89,25 @@ fun SignUp2Screen(
             }
 
             is EmailVerificationUiState.Verified -> {
-                val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
-
-                signUpViewModel.updateEmail(fullEmail)
+                signUpViewModel.updateEmail(state.email)
                 signUpViewModel.resetEmailVerificationState()
                 navController.navigate(Screen.SignUp3.route)
             }
 
             is EmailVerificationUiState.Error -> {
-                if (onClickCertified) {
-                    isWrong = true
+                if (state.errorCode == "EMAIL_ALREADY_VERIFIED") {
+                    val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
+
+                    signUpViewModel.updateEmail(fullEmail)
+                    signUpViewModel.resetEmailVerificationState()
+                    navController.navigate(Screen.SignUp3.route)
                 } else {
-                    isEmailWrong = true
+                    errorMessage = state.message
+                    if (onClickCertified) {
+                        isWrong = true
+                    } else {
+                        isEmailWrong = true
+                    }
                 }
             }
 
@@ -179,15 +188,16 @@ fun SignUp2Screen(
                 onValueChange = { input ->
                     email =
                         input
+                            .take(64) // 로컬 파트 최대 가능 길이 제한
                             .substringBefore("@")
-                            .filter { it.isDigit() }
-                            .take(8) // ex: 20261114 총 8자
+                            .filter { it.code in 33..126 }
                     isEmailWrong = false
                     timeDone = false
                     isVisible = true
                     onClickCertified = false
                     elapsedSecond = 0
                     certifiedNum = ""
+                    errorMessage = null
                 },
                 suffix = {
                     Text("@$SCHOOL_EMAIL_DOMAIN")
@@ -202,7 +212,6 @@ fun SignUp2Screen(
                 keyboardOptions =
                     KeyboardOptions(
                         imeAction = ImeAction.Next,
-                        keyboardType = KeyboardType.Number,
                     ),
                 keyboardActions =
                     KeyboardActions(
@@ -214,7 +223,7 @@ fun SignUp2Screen(
             )
             if (isEmailWrong) {
                 Text(
-                    text = "잘못된 이메일 형식입니다.",
+                    text = errorMessage ?: "잘못된 이메일 형식입니다.",
                     fontSize = 12.sp,
                     color = buttonGray,
                     modifier = Modifier.padding(top = 5.dp),
@@ -253,6 +262,7 @@ fun SignUp2Screen(
                             onValueChange = { newValue ->
                                 certifiedNum =
                                     newValue
+                                        .filter { it.isDigit() }
                                         .take(6) // 최대 6자 제한
                             },
                             modifier =
@@ -288,11 +298,12 @@ fun SignUp2Screen(
                             }
                         }
                         LaunchedEffect(Unit) {
-                            delay(5000L) // 5초 대기
+                            delay(60000L) // 5초 대기
                             isClicked = true
                         }
                         Button(
                             onClick = {
+                                errorMessage = null
                                 isWrong = false
                                 timeDone = false
                                 timerRestartKey++
@@ -305,7 +316,7 @@ fun SignUp2Screen(
                                     isClicked = false
 
                                     scope.launch {
-                                        delay(5000L)
+                                        delay(60000L)
                                         isClicked = true
                                     }
                                 }
@@ -344,7 +355,7 @@ fun SignUp2Screen(
                     if (isWrong && !timeDone) {
                         Text(
                             fontSize = 12.sp,
-                            text = "인증번호가 달라요.",
+                            text = errorMessage ?: "인증번호가 달라요.",
                             color = buttonGray,
                             modifier = Modifier.padding(top = 5.dp),
                         )
@@ -434,6 +445,7 @@ fun SignUp2Screen(
                             )
                         } else {
                             isWrong = true
+                            errorMessage = null
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
