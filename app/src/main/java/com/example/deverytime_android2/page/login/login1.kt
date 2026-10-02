@@ -97,6 +97,7 @@ fun LoginScreen(
                 popUpTo(Screen.Login.route) {
                     inclusive = true
                 }
+                launchSingleTop = true
             }
         }
     }

@@ -2,6 +2,7 @@ package com.example.deverytime_android2
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,6 +39,7 @@ sealed interface TokenReissueUiState {
 class LoginViewModel : ViewModel() {
 
     private val repository = LoginRepository()
+    private val gson = Gson()
 
     private val _uiState =
         MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -69,16 +71,24 @@ class LoginViewModel : ViewModel() {
                     val body = response.body()
 
                     _uiState.value =
-                        if (body != null) {
+                        if (body?.success == "true" && body.data != null) {
                             TokenStorage.saveTokens(body.data)
                             LoginUiState.Success(body)
                         } else {
-                            LoginUiState.Error("응답 데이터가 없습니다.")
+                            LoginUiState.Error(body?.message ?: "응답 데이터가 없습니다.")
                         }
                 } else {
+                    val errorMessage =
+                        runCatching {
+                            gson.fromJson(
+                                response.errorBody()?.string(),
+                                ApiErrorResponse::class.java,
+                            )?.error?.message
+                        }.getOrNull()
+
                     _uiState.value =
                         LoginUiState.Error(
-                            "로그인 실패: ${response.code()}",
+                            errorMessage ?: "로그인 실패: ${response.code()}",
                         )
                 }
             } catch (exception: Exception) {

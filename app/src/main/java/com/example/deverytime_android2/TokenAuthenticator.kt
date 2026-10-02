@@ -1,5 +1,6 @@
 package com.example.deverytime_android2
 
+import com.google.gson.Gson
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Request
@@ -9,6 +10,8 @@ import okhttp3.Route
 class TokenAuthenticator(
     private val loginApiProvider: () -> LoginApi,
 ) : Authenticator {
+
+    private val gson = Gson()
 
     override fun authenticate(
         route: Route?,
@@ -47,11 +50,6 @@ class TokenAuthenticator(
                     }
                 }.getOrNull() ?: return null
 
-            if (reissueResponse.code() == 401) {
-                TokenStorage.clear()
-                return null
-            }
-
             val body = reissueResponse.body()
             val tokens = body?.data
 
@@ -60,6 +58,18 @@ class TokenAuthenticator(
                 body?.success != true ||
                 tokens == null
             ) {
+                val errorCode =
+                    runCatching {
+                        gson.fromJson(
+                            reissueResponse.errorBody()?.string(),
+                            TokenReissueErrorResponse::class.java,
+                        )?.error?.code
+                    }.getOrNull()
+
+                if (errorCode.isTokenAuthenticationError()) {
+                    TokenStorage.clear()
+                }
+
                 return null
             }
 
@@ -69,6 +79,13 @@ class TokenAuthenticator(
                 tokens.accessToken,
             )
         }
+    }
+
+    private fun String?.isTokenAuthenticationError(): Boolean {
+        val code = this?.uppercase() ?: return false
+
+        return "TOKEN" in code &&
+            listOf("INVALID", "EXPIRED", "REVOKED").any(code::contains)
     }
 
     private fun Request.withToken(

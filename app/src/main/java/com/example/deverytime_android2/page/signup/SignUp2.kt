@@ -89,9 +89,7 @@ fun SignUp2Screen(
             }
 
             is EmailVerificationUiState.Verified -> {
-                val fullEmail = "$email@$SCHOOL_EMAIL_DOMAIN"
-
-                signUpViewModel.updateEmail(fullEmail)
+                signUpViewModel.updateEmail(state.email)
                 signUpViewModel.resetEmailVerificationState()
                 navController.navigate(Screen.SignUp3.route)
             }

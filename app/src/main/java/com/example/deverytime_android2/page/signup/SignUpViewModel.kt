@@ -58,10 +58,12 @@ sealed interface EmailVerificationUiState {
     ) : EmailVerificationUiState
 
     data class Verified(
+        val email: String,
         val message: String,
     ) : EmailVerificationUiState
 
     data class Error(
+        val requestId: Long,
         val errorCode: String?,
         val message: String,
     ) : EmailVerificationUiState
@@ -78,6 +80,8 @@ class SignUpViewModel(
 
     val emailVerificationState: StateFlow<EmailVerificationUiState> =
         _emailVerificationState.asStateFlow()
+
+    private var emailVerificationRequestId = 0L
 
     private val gson = Gson()
 
@@ -311,9 +315,12 @@ class SignUpViewModel(
         }
     }
     fun sendEmailVerification(email: String) {
+        val requestId = ++emailVerificationRequestId
+
         if (email.isBlank()) {
             _emailVerificationState.value =
                 EmailVerificationUiState.Error(
+                    requestId = requestId,
                     errorCode = "VALIDATION_ERROR",
                     message = "이메일을 입력해 주세요.",
                 )
@@ -347,15 +354,18 @@ class SignUpViewModel(
 
                     _emailVerificationState.value =
                         EmailVerificationUiState.Error(
+                            requestId = requestId,
                             errorCode = apiError?.code,
                             message =
                                 apiError?.message
+                                    ?: body?.message
                                     ?: "인증 코드 발송에 실패했습니다.",
                         )
                 }
             } catch (exception: Exception) {
                 _emailVerificationState.value =
                     EmailVerificationUiState.Error(
+                        requestId = requestId,
                         errorCode = null,
                         message =
                             exception.message
@@ -369,9 +379,12 @@ class SignUpViewModel(
         email: String,
         code: String,
     ) {
+        val requestId = ++emailVerificationRequestId
+
         if (email.isBlank() || code.isBlank()) {
             _emailVerificationState.value =
                 EmailVerificationUiState.Error(
+                    requestId = requestId,
                     errorCode = "VALIDATION_ERROR",
                     message = "인증 코드를 입력해 주세요.",
                 )
@@ -398,6 +411,7 @@ class SignUpViewModel(
                 if (response.isSuccessful && body?.success == true) {
                     _emailVerificationState.value =
                         EmailVerificationUiState.Verified(
+                            email = email,
                             message = body.message,
                         )
                 } else {
@@ -408,16 +422,19 @@ class SignUpViewModel(
 
                     _emailVerificationState.value =
                         EmailVerificationUiState.Error(
+                            requestId = requestId,
                             errorCode = apiError?.code,
                             message =
                                 detailsMessage(apiError)
                                     ?: apiError?.message
+                                    ?: body?.message
                                     ?: "인증 코드 발송에 실패했습니다.",
                         )
                 }
             } catch (exception: Exception) {
                 _emailVerificationState.value =
                     EmailVerificationUiState.Error(
+                        requestId = requestId,
                         errorCode = null,
                         message =
                             exception.message
