@@ -55,7 +55,7 @@ fun SignUp3Screen(
     var recheckNumber by remember { mutableStateOf("") }
     var isWrong by remember { mutableStateOf(false) }
 
-    var tooShort by remember { mutableStateOf(false) }
+    val tooShort = password.isNotEmpty() && password.length < 8
 
     // 포커스 매니저
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -139,9 +139,7 @@ fun SignUp3Screen(
                         password =
                             newValue
                                 .take(20) // 최대 20자 제한
-                        if (password.length < 8) {
-                            tooShort = !tooShort
-                        }
+                                .filter { it.code in 33..126 }
                     },
                     singleLine = true,
                     keyboardOptions =
@@ -182,7 +180,8 @@ fun SignUp3Screen(
                         recheckNumber =
                             newValue
                                 .take(20) // 최대 20자 제한
-                    },
+                                .filter { it.code in 33..126 }
+                                    },
                     singleLine = true,
                     keyboardOptions =
                         KeyboardOptions(
@@ -206,7 +205,7 @@ fun SignUp3Screen(
                         if ( isWrong ){
                             "비밀번호가 일치하지 않습니다."
                         }
-                        else if ( !tooShort ){
+                        else if ( tooShort ){
                             "비밀번호는 8자 이상이어야 합니다."
                         }
                         else {

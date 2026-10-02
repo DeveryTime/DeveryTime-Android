@@ -190,9 +190,9 @@ fun SignUp2Screen(
                 onValueChange = { input ->
                     email =
                         input
-                            .substringBefore("@")
-                            .filter { it in 'a'..'z' || it in 'A'..'Z' }
                             .take(64) // 로컬 파트 최대 가능 길이 제한
+                            .substringBefore("@")
+                            .filter { it.code in 33..126 }
                     isEmailWrong = false
                     timeDone = false
                     isVisible = true
@@ -264,6 +264,7 @@ fun SignUp2Screen(
                             onValueChange = { newValue ->
                                 certifiedNum =
                                     newValue
+                                        .filter { it.isDigit() }
                                         .take(6) // 최대 6자 제한
                             },
                             modifier =
@@ -299,7 +300,7 @@ fun SignUp2Screen(
                             }
                         }
                         LaunchedEffect(Unit) {
-                            delay(5000L) // 5초 대기
+                            delay(60000L) // 5초 대기
                             isClicked = true
                         }
                         Button(
@@ -317,7 +318,7 @@ fun SignUp2Screen(
                                     isClicked = false
 
                                     scope.launch {
-                                        delay(5000L)
+                                        delay(60000L)
                                         isClicked = true
                                     }
                                 }

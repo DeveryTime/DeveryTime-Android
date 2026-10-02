@@ -208,8 +208,7 @@ fun SignUp4Screen(
                     AsyncImage(
                         model = profileImageUri ?: R.drawable.vector,
                         contentDescription = "사용자 프로필",
-                        modifier = Modifier.width(200.dp).align(Alignment.BottomCenter),
-                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.width(200.dp).height(200.dp).align(Alignment.BottomCenter),
                     )
                     Button(
                         modifier =
@@ -238,7 +237,7 @@ fun SignUp4Screen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp)
+                        .padding(horizontal = 10.dp)
                         .align(Alignment.CenterHorizontally),
             ) {
                 // 아이디 입력창
