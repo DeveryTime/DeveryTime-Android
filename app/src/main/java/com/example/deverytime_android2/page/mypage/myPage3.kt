@@ -45,17 +45,74 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.mainBlue
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.deverytime_android2.page.mypage.MyPageViewModel
+import com.example.deverytime_android2.page.mypage.MyProfileUiState
+import com.example.deverytime_android2.page.mypage.ProfileUpdateUiState
+import com.google.gson.Gson
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import com.example.deverytime_android2.page.mypage.MyPageUsernameCheckUiState
 
 @Composable
 fun myPage3Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    var profileImageUri by rememberSaveable {
+
+    val myPageViewModel: MyPageViewModel = viewModel()
+
+    val profileState by
+    myPageViewModel.profileState.collectAsState()
+
+    val updateState by
+    myPageViewModel.updateState.collectAsState()
+
+    val usernameCheckState by
+    myPageViewModel.usernameCheckState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        myPageViewModel.loadMyProfile()
+    }
+
+    val profile =
+        (profileState as? MyProfileUiState.Success)?.profile
+
+    val context = LocalContext.current
+
+    var errorMessage by rememberSaveable {
         mutableStateOf<String?>(null)
     }
 
-    val context = LocalContext.current
+    LaunchedEffect(updateState) {
+        when (val state = updateState) {
+            is ProfileUpdateUiState.Success -> {
+                myPageViewModel.resetUpdateState()
+                navController.popBackStack()
+            }
+
+            is ProfileUpdateUiState.Error -> {
+                errorMessage = state.message
+                Toast.makeText(
+                    context,
+                    state.message,
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+
+            else -> Unit
+        }
+    }
+
+    var profileImageUri by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
 
     val profileImagePicker =
         rememberLauncherForActivityResult(
@@ -70,18 +127,58 @@ fun myPage3Screen(
             }
         }
 
-    var changedId by remember { mutableStateOf(userName) }
-    var isClicked by remember { mutableStateOf(false) }
-    var onVerify by remember { mutableStateOf(true) } // TODO: 백엔드 연동 이후 사용
-    val canSave = changedId.isNotBlank()
-    val buttonColor =
-        when {
-            isClicked -> mainBlue
+    var changedId by rememberSaveable {
+        mutableStateOf("")
+    }
 
-            // 글자가 있으면 파란색
-            else -> buttonGray
-            // 글자가 없으면 회색
+    LaunchedEffect(profile?.username) {
+        profile?.let {
+            changedId = it.username
         }
+    }
+
+    val canCheckUsername =
+        changedId.isNotBlank() &&
+                changedId != profile?.username &&
+                usernameCheckState !is MyPageUsernameCheckUiState.Loading &&
+                usernameCheckState !is MyPageUsernameCheckUiState.Available
+
+
+    val usernameChanged =
+        profile != null &&
+                changedId != profile.username
+
+    val usernameChecked =
+        !usernameChanged ||
+                usernameCheckState is MyPageUsernameCheckUiState.Available
+
+    val canSave =
+        profile != null &&
+                changedId.isNotBlank() &&
+                (
+                        usernameChanged ||
+                                profileImageUri != null
+                        ) &&
+                usernameChecked
+    val buttonColor =
+        if (canCheckUsername) {
+            mainBlue
+        } else {
+            buttonGray
+        }
+    LaunchedEffect(usernameCheckState) {
+        when (val state = usernameCheckState) {
+            is MyPageUsernameCheckUiState.Available -> {
+                errorMessage = state.message
+            }
+
+            is MyPageUsernameCheckUiState.Error -> {
+                errorMessage = state.message
+            }
+
+            else -> Unit
+        }
+    }
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Button(
@@ -108,8 +205,11 @@ fun myPage3Screen(
             }
             Row(modifier = Modifier.padding(top = 20.dp, start = 6.dp)) {
                 AsyncImage(
-                    model = profileImageUri ?: R.drawable.vector_5,
-                    contentDescription = "마이페이지프로필",
+                    model =
+                        profileImageUri
+                            ?: profile?.profileImageUrl
+                            ?: R.drawable.vector_5,
+                    contentDescription = "마이페이지 프로필",
                     contentScale = ContentScale.Crop,
                     modifier =
                         Modifier
@@ -125,7 +225,10 @@ fun myPage3Screen(
                             },
                 )
                 Text(
-                    text = "$name | $schoolNumber",
+                    text =
+                        profile?.let {
+                            "${it.name} | ${it.schoolNumber}"
+                        }.orEmpty(),
                     fontFamily = pretendardVariable,
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
@@ -149,7 +252,7 @@ fun myPage3Screen(
                             unfocusedPlaceholderColor = buttonGray,
                             errorBorderColor = Color.Red,
                         ),
-                    value = userEmail,
+                    value = profile?.email.orEmpty(),
                     onValueChange = {},
                     readOnly = true,
                     modifier =
@@ -176,11 +279,9 @@ fun myPage3Screen(
                                 errorBorderColor = Color.Red,
                             ),
                         value = changedId,
-                        onValueChange = {
-                            changedId = it
-                            if (changedId.isNotBlank() && changedId != userName) {
-                                isClicked = true
-                            }
+                        onValueChange = { newValue ->
+                            changedId = newValue
+                            myPageViewModel.resetUsernameCheckState()
                         },
                         modifier =
                             Modifier
@@ -192,29 +293,33 @@ fun myPage3Screen(
                     )
                     Button(
                         onClick = {
-                            // TODO: 백엔드와 연동하여 중복 확인 이후 onVerity를 true로 만들어 변경사항 저장 버튼이 작동 가능하게 한다.
-
-                            isClicked = false
+                            myPageViewModel.checkUsername(changedId)
                         },
-                        enabled = isClicked,
+                        enabled = canCheckUsername,
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = buttonColor,
+                                disabledContainerColor = buttonGray,
                             ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier =
-                            Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(start = 10.dp, top = 6.dp)
-                                .weight(0.38f)
-                                .height(56.dp),
-                        contentPadding = PaddingValues(0.dp),
-                    ) {
+                            shape = RoundedCornerShape(12.dp),
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .padding(start = 10.dp, top = 6.dp)
+                                    .weight(0.33f)
+                                    .height(48.dp),
+                            contentPadding = PaddingValues(0.dp),
+                        ) {
                         Text(
                             fontFamily = pretendardVariable,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            text = "중복확인",
+                            text =
+                                when (usernameCheckState) {
+                                    is MyPageUsernameCheckUiState.Loading -> "확인 중"
+                                    is MyPageUsernameCheckUiState.Available -> "사용 가능"
+                                    else -> "중복확인"
+                                },
                             maxLines = 1,
                             softWrap = false,
                             overflow = TextOverflow.Visible,
@@ -226,13 +331,33 @@ fun myPage3Screen(
         }
         Button(
             onClick = {
-                // TODO: 변경사항 저장 백엔드 연동 필요 *추가 수정 필요*
                 if (canSave) {
-                    userName = changedId
-                    navController.popBackStack()
+                    val updateRequest =
+                        UpdateProfileRequest(
+                            username = changedId,
+                            deleteProfileImage = false,
+                        )
+
+                    val requestBody =
+                        Gson()
+                            .toJson(updateRequest)
+                            .toRequestBody(
+                                "application/json".toMediaTypeOrNull(),
+                            )
+
+                    myPageViewModel.updateMyProfile(
+                        request = requestBody,
+                        profileImage =
+                            createProfileImagePart(
+                                context = context,
+                                uriString = profileImageUri,
+                            ),
+                    )
                 }
             },
-            enabled = canSave,
+            enabled =
+                canSave &&
+                        updateState !is ProfileUpdateUiState.Loading,
             colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
             shape = RoundedCornerShape(23.dp),
             modifier =
@@ -250,4 +375,36 @@ fun myPage3Screen(
             )
         }
     }
+}
+private fun createProfileImagePart(
+    context: Context,
+    uriString: String?,
+): MultipartBody.Part? {
+    if (uriString == null) {
+        return null
+    }
+
+    val uri = Uri.parse(uriString)
+    val contentResolver = context.contentResolver
+
+    val imageBytes =
+        contentResolver
+            .openInputStream(uri)
+            ?.use { inputStream ->
+                inputStream.readBytes()
+            }
+            ?: return null
+
+    val imageBody =
+        imageBytes.toRequestBody(
+            contentResolver
+                .getType(uri)
+                ?.toMediaTypeOrNull(),
+        )
+
+    return MultipartBody.Part.createFormData(
+        name = "profileImage",
+        filename = "profile.jpg",
+        body = imageBody,
+    )
 }

@@ -44,4 +44,11 @@ object RetrofitClient {
     val postApi: PostApi by lazy {
         authenticatedRetrofit.create(PostApi::class.java)
     }
+    val myPageApi: MyPageApi by lazy {
+        authenticatedRetrofit.create(MyPageApi::class.java)
+    }
+
+    val authenticatedLoginApi: LoginApi by lazy {
+        authenticatedRetrofit.create(LoginApi::class.java)
+    }
 }

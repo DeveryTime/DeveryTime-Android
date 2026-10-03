@@ -21,3 +21,8 @@ data class TokenReissueRequest(
     @SerializedName("refreshToken")
     val refreshToken: String,
 )
+
+data class LogoutRequest(
+    @SerializedName("refreshToken")
+    val refreshToken: String,
+)

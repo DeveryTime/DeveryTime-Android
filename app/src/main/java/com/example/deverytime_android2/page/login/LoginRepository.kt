@@ -4,6 +4,7 @@ import retrofit2.Response
 
 class LoginRepository(
     private val loginApi: LoginApi = RetrofitClient.loginApi,
+    private val authenticatedLoginApi: LoginApi = RetrofitClient.authenticatedLoginApi,
 ) {
     suspend fun login(
         email: String,
@@ -22,6 +23,14 @@ class LoginRepository(
     ): Response<TokenReissueResponse> {
         return loginApi.reissueToken(
             TokenReissueRequest(refreshToken),
+        )
+    }
+
+    suspend fun logout(
+        refreshToken: String,
+    ): Response<LogoutResponse> {
+        return authenticatedLoginApi.logout(
+            LogoutRequest(refreshToken),
         )
     }
 }

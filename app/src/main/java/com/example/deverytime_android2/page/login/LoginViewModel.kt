@@ -36,6 +36,16 @@ sealed interface TokenReissueUiState {
     ) : TokenReissueUiState
 }
 
+sealed interface LogoutUiState {
+    data object Idle : LogoutUiState
+    data object Loading : LogoutUiState
+    data object Success : LogoutUiState
+
+    data class Error(
+        val message: String,
+    ) : LogoutUiState
+}
+
 class LoginViewModel : ViewModel() {
 
     private val repository = LoginRepository()
@@ -107,6 +117,12 @@ class LoginViewModel : ViewModel() {
     val tokenReissueState: StateFlow<TokenReissueUiState> =
         _tokenReissueState.asStateFlow()
 
+    private val _logoutState =
+        MutableStateFlow<LogoutUiState>(LogoutUiState.Idle)
+
+    val logoutState: StateFlow<LogoutUiState> =
+        _logoutState.asStateFlow()
+
     fun reissueToken(refreshToken: String) {
         if (refreshToken.isBlank()) {
             _tokenReissueState.value =
@@ -158,5 +174,61 @@ class LoginViewModel : ViewModel() {
 
     fun resetState() {
         _uiState.value = LoginUiState.Idle
+    }
+
+    fun logout() {
+        if (_logoutState.value is LogoutUiState.Loading) {
+            return
+        }
+
+        val refreshToken = TokenStorage.getRefreshToken()
+
+        if (refreshToken.isNullOrBlank()) {
+            TokenStorage.clear()
+            _logoutState.value = LogoutUiState.Success
+            return
+        }
+
+        viewModelScope.launch {
+            _logoutState.value = LogoutUiState.Loading
+
+            try {
+                val response = repository.logout(refreshToken)
+                val body = response.body()
+
+                if (
+                    response.code() == 204 ||
+                    response.isSuccessful && body?.success == true
+                ) {
+                    TokenStorage.clear()
+                    _logoutState.value = LogoutUiState.Success
+                } else {
+                    val errorMessage =
+                        runCatching {
+                            gson.fromJson(
+                                response.errorBody()?.string(),
+                                ApiErrorResponse::class.java,
+                            )?.error?.message
+                        }.getOrNull()
+
+                    _logoutState.value =
+                        LogoutUiState.Error(
+                            errorMessage
+                                ?: body?.message
+                                ?: "로그아웃에 실패했습니다. (${response.code()})",
+                        )
+                }
+            } catch (exception: Exception) {
+                _logoutState.value =
+                    LogoutUiState.Error(
+                        exception.message
+                            ?: "네트워크 오류가 발생했습니다.",
+                    )
+            }
+        }
+    }
+
+    fun resetLogoutState() {
+        _logoutState.value = LogoutUiState.Idle
     }
 }
