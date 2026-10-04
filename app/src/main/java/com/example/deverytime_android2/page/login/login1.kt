@@ -203,8 +203,7 @@ fun LoginScreen(
                     password =
                         input
                             .take(20)
-                    //아래 코드를 잠시 지워야지 20261114 계정으로 로그인이 됨
-//                            .filter { it.code in 33..126 }
+                            .filter { it.code in 33..126 }
                 },
                 singleLine = true,
                 maxLines = 1,
