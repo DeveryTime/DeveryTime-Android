@@ -23,6 +23,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +50,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.page.theme.CommonButton
 import com.example.deverytime_android2.page.theme.buttonGray
@@ -78,9 +81,26 @@ val appTypography = Typography(
 )
 
 @Composable
-fun LoginScreen(navController: NavHostController) {
+fun LoginScreen(
+    navController: NavHostController,
+    loginViewModel: LoginViewModel = viewModel(),
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val loginUiState by loginViewModel.uiState.collectAsState()
+    val loginError = loginUiState as? LoginUiState.Error
+
+    LaunchedEffect(loginUiState) {
+        if (loginUiState is LoginUiState.Success) {
+            navController.navigate(Screen.Main1.route) {
+                popUpTo(Screen.Login.route) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+    }
 
     // 포커스 매니저
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -140,9 +160,8 @@ fun LoginScreen(navController: NavHostController) {
                 onValueChange = { input ->
                     email =
                         input
+                            .take(64)
                             .substringBefore("@")
-                            .filter { it.isDigit() }
-                            .take(8)
                 },
                 singleLine = true,
                 keyboardOptions =
@@ -184,6 +203,7 @@ fun LoginScreen(navController: NavHostController) {
                     password =
                         input
                             .take(20)
+                            .filter { it.code in 33..126 }
                 },
                 singleLine = true,
                 maxLines = 1,
@@ -200,6 +220,14 @@ fun LoginScreen(navController: NavHostController) {
                 shape = RoundedCornerShape(12.dp),
                 visualTransformation = PasswordVisualTransformation(),
             )
+            if (loginError != null) {
+                Text(
+                    text = loginError.message,
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 5.dp),
+                )
+            }
         }
         Spacer(modifier = Modifier.weight(3.8f))
     }
@@ -229,10 +257,18 @@ fun LoginScreen(navController: NavHostController) {
             )
         }
         CommonButton(
-            text = stringResource(R.string.login),
+            text =
+                if (loginUiState is LoginUiState.Loading) {
+                    "로그인 중..."
+                } else {
+                    stringResource(R.string.login)
+                },
             onClick = {
-                navController.navigate(Screen.MyPage1.route) {
-                    popUpTo(Screen.Login.route) { inclusive = true }
+                if (loginUiState !is LoginUiState.Loading) {
+                    loginViewModel.login(
+                        email = "$email@$SCHOOL_EMAIL_DOMAIN",
+                        password = password,
+                    )
                 }
             },
         )

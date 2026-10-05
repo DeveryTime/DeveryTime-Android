@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
@@ -17,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.deverytime_android2.page.theme.BottomNavigationBar
 import com.example.deverytime_android2.page.theme.DeveryTime_Android2Theme
 
@@ -67,6 +70,7 @@ sealed class Screen(
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        TokenStorage.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
             DeveryTime_Android2Theme {
@@ -79,9 +83,28 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun Navigation(modifier: Modifier = Modifier) {
+
         val navController = rememberNavController()
+        val signUpViewModel: SignUpViewModel = viewModel()
+
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
+
+        val sessionExpired by
+        TokenStorage.sessionExpired.collectAsState()
+
+        LaunchedEffect(sessionExpired) {
+            if (sessionExpired) {
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+
+                TokenStorage.resetSessionExpired()
+            }
+        }
 
         // 이게 어디 어디에 네비바 넣을지 설정하는 코드
         val showBottomBar =
@@ -120,10 +143,33 @@ class MainActivity : ComponentActivity() {
                         .consumeWindowInsets(innerPadding),
             ) {
                 composable(route = Screen.Login.route) { LoginScreen(navController) }
-                composable(route = Screen.SignUp1.route) { SignUpScreen(navController) }
-                composable(route = Screen.SignUp2.route) { SignUp2Screen(navController) }
-                composable(route = Screen.SignUp3.route) { SignUp3Screen(navController) }
-                composable(route = Screen.SignUp4.route) { SignUp4Screen(navController) }
+                composable(route = Screen.SignUp1.route) {
+                    SignUpScreen(
+                        navController = navController,
+                        signUpViewModel = signUpViewModel,
+                    )
+                }
+
+                composable(route = Screen.SignUp2.route) {
+                    SignUp2Screen(
+                        navController = navController,
+                        signUpViewModel = signUpViewModel,
+                    )
+                }
+
+                composable(route = Screen.SignUp3.route) {
+                    SignUp3Screen(
+                        navController = navController,
+                        signUpViewModel = signUpViewModel,
+                    )
+                }
+
+                composable(route = Screen.SignUp4.route) {
+                    SignUp4Screen(
+                        navController = navController,
+                        signUpViewModel = signUpViewModel,
+                    )
+                }
                 composable(route = Screen.MyPage1.route) { myPage1Screen(navController) }
                 composable(route = Screen.MyPage2.route) { myPage2Screen(navController) }
                 composable(route = Screen.MyPage3.route) { myPage3Screen(navController) }

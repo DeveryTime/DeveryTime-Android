@@ -1,5 +1,9 @@
 package com.example.deverytime_android2
 
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,14 +27,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -43,17 +51,36 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.mainBlue
 
 @Composable
 fun SignUp4Screen(
     navController: NavHostController,
+    signUpViewModel: SignUpViewModel,
     modifier: Modifier = Modifier,
 ) {
     // 백엔드에 있는 계정인지 true false 요청하고 true면 isIdExisting를 true로 변경
     // 추후 변경 예정
+    val context = LocalContext.current
 
+    var profileImageUri by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    val profileImagePicker =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia(),
+        ) { uri ->
+            if (uri != null) {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
+                )
+                profileImageUri = uri.toString()
+            }
+        }
     var id by remember { mutableStateOf("") }
     var isClicked by remember { mutableStateOf(false) }
     var isIdExisting by remember { mutableStateOf(false) }
@@ -70,6 +97,59 @@ fun SignUp4Screen(
         }
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
+
+    val uiState by signUpViewModel.uiState.collectAsState()
+
+    val usernameCheckState by
+    signUpViewModel.usernameCheckState.collectAsState()
+
+    var isCheckRequired by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        when (val state = uiState) {
+            is SignUpUiState.Success -> {
+                signUpViewModel.clearForm()
+                signUpViewModel.resetUiState()
+
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.SignUp1.route) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
+
+            is SignUpUiState.Error -> {
+                isIdExisting =
+                    state.errorCode == "USERNAME_ALREADY_EXISTS"
+
+                if (isIdExisting) {
+                    isClicked = false
+                    signUpViewModel.resetUsernameCheckState()
+                }
+            }
+
+            else -> Unit
+        }
+    }
+
+    LaunchedEffect(usernameCheckState) {
+        when (val state = usernameCheckState) {
+            is UsernameCheckUiState.Available -> {
+                isClicked = true
+                isIdExisting = false
+                isCheckRequired = false
+            }
+
+            is UsernameCheckUiState.Error -> {
+                isClicked = false
+                isIdExisting =
+                    state.errorCode == "USERNAME_ALREADY_EXISTS"
+            }
+
+            else -> Unit
+        }
+    }
     Box(
         modifier =
             modifier
@@ -125,21 +205,23 @@ fun SignUp4Screen(
                 )
                 Spacer(modifier = Modifier.height(55.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    Image(
-                        painter = painterResource(id = R.drawable.vector),
+                    AsyncImage(
+                        model = profileImageUri ?: R.drawable.vector,
                         contentDescription = "사용자 프로필",
-                        modifier =
-                            Modifier
-                                .width(200.dp)
-                                .align(Alignment.BottomCenter),
-                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.width(200.dp).height(200.dp).align(Alignment.BottomCenter),
                     )
                     Button(
                         modifier =
                             Modifier
                                 .align(Alignment.BottomCenter),
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                        onClick = { /* 이미지 업로드 로직 */ },
+                        onClick = {
+                            profileImagePicker.launch(
+                                PickVisualMediaRequest(
+                                    ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                ),
+                            )
+                        },
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.frame_83),
@@ -155,7 +237,7 @@ fun SignUp4Screen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp)
+                        .padding(horizontal = 10.dp)
                         .align(Alignment.CenterHorizontally),
             ) {
                 // 아이디 입력창
@@ -175,10 +257,15 @@ fun SignUp4Screen(
                         placeholder = { Text(text = "우아한 강아지") },
                         value = id,
                         onValueChange = { newValue ->
-                            id =
-                                newValue
-                                    .take(10)
+                            id = newValue.take(10)
+
                             isClicked = false
+                            isWrong = false
+                            isIdExisting = false
+                            isCheckRequired = false
+
+                            signUpViewModel.resetUsernameCheckState()
+                            signUpViewModel.resetUiState()
                         },
                         singleLine = true,
                         keyboardOptions =
@@ -194,11 +281,15 @@ fun SignUp4Screen(
                             ),
                         modifier = Modifier.padding(top = 3.dp).weight(1f),
                         shape = RoundedCornerShape(12.dp),
+
                     )
                     Button(
                         onClick = {
-                            isClicked = true
+                            signUpViewModel.checkUsername(id)
                         },
+                        enabled =
+                            id.isNotBlank() &&
+                                    usernameCheckState !is UsernameCheckUiState.Loading,
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = buttonColor,
@@ -216,7 +307,17 @@ fun SignUp4Screen(
                             fontFamily = pretendardVariable,
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            text = "중복확인",
+                            text =
+                                when (usernameCheckState) {
+                                    is UsernameCheckUiState.Loading ->
+                                        "확인 중"
+
+                                    is UsernameCheckUiState.Available ->
+                                        "확인 완료"
+
+                                    else ->
+                                        "중복확인"
+                                },
                             softWrap = false,
                             overflow = TextOverflow.Visible,
                             textAlign = TextAlign.Center,
@@ -225,13 +326,43 @@ fun SignUp4Screen(
                 }
                 if (isIdExisting) {
                     Text(
-                        fontSize = 14.sp,
-                        text = "이미 있는 이름이에요.",
+                        text = "이미 사용 중인 아이디입니다.",
                         color = buttonGray,
-                        modifier = Modifier.padding(top = 5.dp, start = 0.dp),
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 5.dp),
                     )
                 }
-            }
+                    if (isWrong) {
+                        Text(
+                            text = "아이디를 입력해 주세요.",
+                            color = buttonGray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 5.dp),
+                        )
+                    }
+                    if (isCheckRequired) {
+                        Text(
+                            text = "아이디 중복확인을 해주세요.",
+                            color = buttonGray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 5.dp),
+                        )
+                    }
+
+                    val signUpError = uiState as? SignUpUiState.Error
+
+                    if (
+                        signUpError != null &&
+                        signUpError.errorCode != "USERNAME_ALREADY_EXISTS"
+                    ) {
+                        Text(
+                            text = signUpError.message,
+                            color = buttonGray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(top = 5.dp),
+                        )
+                    }
+                }
         }
         Column(modifier = Modifier.align(Alignment.BottomCenter)) {
             Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 10.dp)) {
@@ -261,12 +392,26 @@ fun SignUp4Screen(
             Box(modifier = Modifier, Alignment.BottomCenter) {
                 Button(
                     onClick = {
-                        // TODO: 여기서 아이디 확인 중복확인 이후 로그인으로 이동 *추가 수정 필요*
-                        navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.SignUp1.route) { inclusive = true }
-                            launchSingleTop = true
+                        when {
+                            id.isBlank() -> {
+                                isWrong = true
+                                isCheckRequired = false
+                            }
+
+                            usernameCheckState !is UsernameCheckUiState.Available -> {
+                                isWrong = false
+                                isCheckRequired = true
+                            }
+
+                            else -> {
+                                isWrong = false
+                                isCheckRequired = false
+                                signUpViewModel.updateUsername(id)
+                                signUpViewModel.signUp()
+                            }
                         }
                     },
+                    enabled = uiState !is SignUpUiState.Loading,
                     colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                     shape = RoundedCornerShape(23.dp),
                     modifier =
@@ -280,7 +425,12 @@ fun SignUp4Screen(
                         fontFamily = pretendardVariable,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        text = "다음",
+                        text =
+                            if (uiState is SignUpUiState.Loading) {
+                                "가입 중..."
+                            } else {
+                                "다음"
+                            },
                     )
                 }
             }
