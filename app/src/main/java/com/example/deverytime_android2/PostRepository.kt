@@ -7,6 +7,21 @@ class PostRepository(
     private val postApi: PostApi = RetrofitClient.postApi
 ) {
 
+    // 게시글 삭제 요청
+    suspend fun deletePost(id: Long): Response<Unit> {
+        return postApi.deletePost(id)
+    }
+
+    // 게시글 수정 요청
+    suspend fun updatePost(id: Long, request: UpdatePostRequest): Response<UpdatePostResponse> {
+        return postApi.updatePost(id, request)
+    }
+
+    // 게시글 상세 조회
+    suspend fun getPost(id: Long): Response<PostDetailResponse> {
+        return postApi.getPost(id)
+    }
+
     // 정렬·카테고리별 목록 조회
     suspend fun getPosts(
         page: Int = 0,

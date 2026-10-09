@@ -30,6 +30,15 @@ class CreatePostTest {
         val expectedRequest = request
         val created = CreatePostResponse(15, "제목", "PUBLISHED", "2026-08-04T12:30:00")
         val api = object : PostApi {
+            override suspend fun deletePost(id: Long): Response<Unit> =
+                error("Post deletion is not part of this test")
+
+            override suspend fun updatePost(id: Long, request: UpdatePostRequest): Response<UpdatePostResponse> =
+                error("Post update is not part of this test")
+
+            override suspend fun getPost(id: Long): Response<PostDetailResponse> =
+                error("Post detail is not part of this test")
+
             override suspend fun getPosts(page: Int, size: Int, sort: String, categoryId: Long?): Response<PostListResponse> =
                 error("Post list is not part of this test")
 
