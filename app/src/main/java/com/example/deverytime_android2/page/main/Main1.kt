@@ -17,6 +17,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,8 +67,9 @@ fun formatTime(
 
 @Composable
 fun PostItem(
-    title: String, time: String, like: Int, showTopBorder: Boolean = false, onClick: () -> Unit = {}
+    title: String, time: String, like: Int?, showTopBorder: Boolean = false, onClick: () -> Unit = {}
 ) {
+    // 날짜 표시 형식 변환
     val changeTime = formatTime(time)
     Box(
         modifier = Modifier
@@ -130,7 +134,8 @@ fun PostItem(
                         .size(18.dp),
                 )
                 Text(
-                    text = like.toString(),
+                    // 좋아요 수 미제공 시 대시 표시
+                    text = like?.toString() ?: "—",
                     fontSize = 12.sp,
                     fontFamily = pretendardVariable,
                     color = buttonGray,
@@ -175,6 +180,32 @@ fun Main1Screen(navigator: NavHostController) {
     var selectedCategory by remember {
         mutableStateOf("전공")
     }
+    // 인기순·최신순·조회순 상태 분리
+    val popularModel: PostListViewModel = viewModel(key = "post-list-likes")
+    val popularState by popularModel.state.collectAsState()
+    val latestModel: PostListViewModel = viewModel(key = "post-list-latest")
+    val latestState by latestModel.state.collectAsState()
+    val viewsModel: PostListViewModel = viewModel(key = "post-list-views")
+    val viewsState by viewsModel.state.collectAsState()
+    // 카테고리 변경 시 홈 목록 재조회
+    LaunchedEffect(selectedCategory) {
+        val category = temporaryPostingCategories.first { it.name == selectedCategory }
+        val categoryId = category.id.toLong()
+        popularModel.select("likes", categoryId)
+        latestModel.select("latest", categoryId)
+        viewsModel.select("views", categoryId)
+    }
+    // 수정 완료 후 목록 재조회
+    val entry = remember(navigator) { requireNotNull(navigator.currentBackStackEntry) }
+    val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
+    LaunchedEffect(postUpdated) {
+        if (postUpdated) {
+            popularModel.refresh()
+            latestModel.refresh()
+            viewsModel.refresh()
+            entry.savedStateHandle[POST_UPDATED_KEY] = false
+        }
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp)
     ) {
@@ -187,7 +218,7 @@ fun Main1Screen(navigator: NavHostController) {
                     modifier = Modifier.padding(top = 48.dp),
                     query = query,                          // 현재 검색어 상태 전달
                     onQueryChange = { query = it },         // 입력값 변경 시 상태 업데이트
-                    onSearch = {                            // 검색 버튼 누르거나 IME 액션 실행 시 동작
+                    onSearch = {                            // 검색 실행
                         navigator.currentBackStackEntry?.savedStateHandle?.set(SEARCH_QUERY_KEY, query)
                         navigator.navigate(Screen.Search.route)
                     },
@@ -197,9 +228,7 @@ fun Main1Screen(navigator: NavHostController) {
                         .fillMaxWidth()
                         .padding(top = 12.dp),
                 ) {
-                    val categories = listOf(
-                        "전공", "일상", "교과", "급식", "프로젝트"
-                    )
+                    val categories = temporaryPostingCategories.map { it.name }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -230,15 +259,16 @@ fun Main1Screen(navigator: NavHostController) {
             Spacer(modifier = Modifier.height(12.dp))
         }
         itemsIndexed(
-            items = dummyPosts.sortedByDescending { it.like }.take(4),
+            items = popularState.posts.take(4),
         ) { index, post ->
             PostItem(
                 title = post.title,
-                time = post.time,
-                like = post.like,
+                time = post.createdAt,
+                like = null,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = { navigator.navigate("postView/${post.id}") })
         }
+        item { PostListStatus(popularState, popularModel::retry) }
 
         item {
             Spacer(modifier = Modifier.height(15.dp))
@@ -252,15 +282,16 @@ fun Main1Screen(navigator: NavHostController) {
             Spacer(modifier = Modifier.height(12.dp))
         }
         itemsIndexed(
-            items = dummyPosts.take(4),
+            items = latestState.posts.take(4),
         ) { index, post ->
             PostItem(
                 title = post.title,
-                time = post.time,
-                like = post.like,
+                time = post.createdAt,
+                like = null,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = { navigator.navigate("postView/${post.id}") })
         }
+        item { PostListStatus(latestState, latestModel::retry) }
 
         item {
             Spacer(modifier = Modifier.height(15.dp))
@@ -274,14 +305,15 @@ fun Main1Screen(navigator: NavHostController) {
             Spacer(modifier = Modifier.height(12.dp))
         }
         itemsIndexed(
-            items = dummyPosts.take(4),
+            items = viewsState.posts.take(4),
         ) { index, post ->
             PostItem(
                 title = post.title,
-                time = post.time,
-                like = post.like,
+                time = post.createdAt,
+                like = null,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = { navigator.navigate("postView/${post.id}") })
         }
+        item { PostListStatus(viewsState, viewsModel::retry) }
     }
 }

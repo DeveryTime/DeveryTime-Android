@@ -27,8 +27,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +56,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.deverytime_android2.page.theme.CommonCategory
 import com.example.deverytime_android2.page.theme.grayLineColor
 import com.example.deverytime_android2.page.theme.mainBlue
@@ -66,14 +71,54 @@ import com.mohamedrejeb.richeditor.ui.material.OutlinedRichTextEditor
 fun PostingScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    postingViewModel: PostingViewModel = viewModel(),
+    editingPost: PostDetailResponse? = null,
+    currentUserId: Long? = null,
 ) {
-    var title by remember {
-        mutableStateOf("")
+    val isEditing = editingPost != null
+    var title by remember(editingPost?.id) {
+        mutableStateOf(editingPost?.title ?: "")
     }
     val contentState = rememberRichTextState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
-    var selectedCategory by remember { mutableStateOf("") }
+    // 선택한 카테고리 ID 저장
+    var selectedCategoryId by remember(editingPost?.id) {
+        mutableStateOf(editingPost?.category?.id?.toInt())
+    }
+    val uiState by postingViewModel.uiState.collectAsState()
+    val categoriesState by postingViewModel.categories.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val isSubmitting = uiState is PostingUiState.Loading || uiState is PostingUiState.Success ||
+        uiState is PostingUiState.Updated
+
+    // 수정할 기존 본문 채우기
+    LaunchedEffect(editingPost?.id) {
+        if (editingPost != null) contentState.setText(editingPost.content)
+    }
+
+    // 작성 성공 시 이동·실패 시 안내
+    LaunchedEffect(uiState) {
+        when (val state = uiState) {
+            is PostingUiState.Updated -> {
+                // 상세 화면에 수정 완료 전달
+                navController.previousBackStackEntry?.savedStateHandle?.set(POST_UPDATED_KEY, true)
+                navController.popBackStack()
+            }
+            is PostingUiState.Success -> {
+                navController.navigate(Screen.MyPage1.route) {
+                    popUpTo(Screen.MyPage1.route) { inclusive = true }
+                    launchSingleTop = true
+                }
+                postingViewModel.resetState()
+            }
+            is PostingUiState.Error -> {
+                snackbarHostState.showSnackbar(state.message)
+                postingViewModel.resetState()
+            }
+            else -> Unit
+        }
+    }
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = modifier.fillMaxSize()) {
             Row(
@@ -101,22 +146,13 @@ fun PostingScreen(
                     )
                 }
                 Text(
-                    text = "글쓰기",
+                    text = if (isEditing) "글 수정" else "글쓰기",
                     modifier =
                         Modifier
                             .align(Alignment.CenterVertically)
                             .padding(start = 3.dp),
                 )
             }
-            val categories =
-                listOf(
-                    "전공",
-                    "일상",
-                    "교과",
-                    "급식",
-                    "프로젝트",
-                )
-
             Row(
                 modifier =
                     Modifier
@@ -125,12 +161,20 @@ fun PostingScreen(
                         .padding(bottom = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
+                // 카테고리 버튼 표시
+                val categoryState = categoriesState
+                val categories = if (categoryState is PostCategoriesUiState.Success) {
+                    categoryState.categories
+                } else {
+                    emptyList()
+                }
                 categories.forEach { category ->
                     CommonCategory(
-                        text = category,
-                        selected = selectedCategory == category,
+                        text = category.name,
+                        selected = selectedCategoryId == category.id,
                         onClick = {
-                            selectedCategory = it
+                            // 수정 API에서 카테고리 변경 미지원
+                            if (!isSubmitting && !isEditing) selectedCategoryId = category.id
                         },
                     )
                 }
@@ -170,26 +214,38 @@ fun PostingScreen(
             Box(modifier = modifier.fillMaxSize()) {
                 Button(
                     onClick = {
-                        // TODO: 검증 후 백엔드로 전송(저장)
-                        navController.navigate(Screen.MyPage1.route) {
-                            popUpTo(Screen.MyPage1.route) { inclusive = true }
-                            launchSingleTop = true
+                        // 입력값 전달·등록 요청
+                        if (editingPost != null) {
+                            postingViewModel.updatePost(
+                                postId = editingPost.id,
+                                userId = currentUserId,
+                                title = title,
+                                content = contentState.annotatedString.text,
+                            )
+                        } else {
+                            postingViewModel.createPost(
+                                categoryId = selectedCategoryId,
+                                title = title,
+                                content = contentState.annotatedString.text,
+                            )
                         }
                     },
+                    enabled = !isSubmitting && categoriesState is PostCategoriesUiState.Success &&
+                        (editingPost == null || currentUserId == editingPost.writer.userId),
                     colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                     shape = RoundedCornerShape(23.dp),
                     modifier =
                         Modifier
                             .fillMaxWidth()
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 33.dp, start = 18.dp, end = 18.dp) // 33
+                            .padding(bottom = 33.dp, start = 18.dp, end = 18.dp)
                             .height(54.dp),
                 ) {
                     Text(
                         fontFamily = pretendardVariable,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        text = "다음",
+                        text = if (isEditing) "수정 완료" else "다음",
                     )
                 }
             }
@@ -355,5 +411,9 @@ fun PostingScreen(
                 }
             }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).imePadding(),
+        )
     }
 }

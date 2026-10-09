@@ -44,9 +44,6 @@ import com.example.deverytime_android2.page.theme.Style
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.grayLineColor
 import com.example.deverytime_android2.page.theme.nonprofile
-import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.runtime.collectAsState
 
 
 
@@ -90,7 +87,7 @@ private val mockSearchUsers =
     )
 
 // TODO: 게시글 검색 API 연동 후 서버 응답으로 교체합니다.
-// 앞의 두 항목은 디자인 시안 재현용이고, dummyPosts는 다른 검색어도 시험할 수 있도록 합쳤습니다.
+// 검색 화면 표시용 예시 데이터
 private val mockSearchPosts =
     listOf(
         SearchPost(
@@ -105,39 +102,18 @@ private val mockSearchPosts =
             content = "기초부터 공부하는 방법입니다.",
             time = "2026-08-29T12:00:00",
         ),
-    ) +
-        dummyPosts.map { post ->
-            SearchPost(
-                id = post.id,
-                title = post.title,
-                content = post.content,
-                time = post.time,
-            )
-        }
+    )
 
 // Main1~4 화면에서 입력한 검색어를 SavedStateHandle을 통해 전달할 때 사용하는 공통 키입니다.
 // 문자열을 여러 파일에 직접 작성하지 않고 이 상수를 사용해야 오타로 인한 전달 실패를 막을 수 있습니다.
 const val SEARCH_QUERY_KEY = "searchQuery"
 
-/**
- * 검색 결과 화면의 진입점입니다.
- *
- * 화면은 크게 두 겹으로 구성됩니다.
- * 1. 아래쪽의 최신 게시글 영역
- * 2. 그 위에 떠 있는 검색 결과 패널
- *
- * [navigator]는 이전 화면의 검색어를 가져오고 게시글 상세 화면으로 이동할 때 사용합니다.
- */
+// 검색 화면 UI·이전 화면의 검색어 표시
 @Composable
 fun SearchScreen(
     navigator: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val searchViewModel: SearchViewModel = viewModel()
-
-    val searchResult by searchViewModel.searchResult.collectAsState()
-    val isLoading by searchViewModel.isLoading.collectAsState()
-    val errorMessage by searchViewModel.errorMessage.collectAsState()
     // 검색 버튼을 누른 이전 화면(Main1~4)의 SavedStateHandle에서 검색어를 읽습니다.
     // Preview처럼 이전 화면이 없는 경우에는 빈 문자열을 사용합니다.
     val initialQuery =
@@ -151,46 +127,8 @@ fun SearchScreen(
     // rememberSaveable을 사용하므로 화면 재구성뿐 아니라 구성 변경이 발생해도 입력값이 유지됩니다.
     var query by rememberSaveable { mutableStateOf(initialQuery) }
 
-    LaunchedEffect(initialQuery) {
-        if (initialQuery.isNotBlank()) {
-            searchViewModel.search(initialQuery)
-        }
-    }
-
     // 검색 아이콘 또는 키보드의 검색 버튼을 눌렀을 때 키보드를 닫는 데 사용합니다.
     val focusManager = LocalFocusManager.current
-
-    // 앞뒤 공백을 제거한 문자열을 실제 검색 조건으로 사용합니다.
-    val normalizedQuery = query.trim()
-
-    val apiPosts =
-        searchResult?.data?.content.orEmpty().map { post ->
-            SearchPost(
-                id = post.id,
-                title = post.title,
-                content = post.categoryName,
-                time = post.createdAt
-            )
-        }
-
-    // 사용자 이름 또는 자기소개에 검색어가 포함되는지 확인합니다.
-    // 검색어가 비어 있으면 디자인 확인을 위해 기본 임시 데이터를 노출합니다.
-    // 디자인상 사용자 결과는 한 명만 표시되므로 마지막에 take(1)을 적용했습니다.
-    val filteredUsers =
-        remember(normalizedQuery) {
-            if (normalizedQuery.isBlank()) {
-                mockSearchUsers
-            } else {
-                mockSearchUsers.filter { user ->
-                    user.name.contains(normalizedQuery, ignoreCase = true) ||
-                        user.introduction.contains(normalizedQuery, ignoreCase = true)
-                }
-            }
-        }.take(1)
-
-    // 게시글 제목 또는 본문에 검색어가 포함되는지 확인합니다.
-    // 검색어가 비어 있으면 임시 게시글 전체를 후보로 사용하고, 화면에는 최대 두 개만 표시합니다.
-
 
     // Box를 사용해 최신 게시글 영역 위에 검색 결과 패널을 겹쳐 배치합니다.
     Box(
@@ -209,18 +147,11 @@ fun SearchScreen(
             onQueryChange = { query = it },
             onSearch = {
                 focusManager.clearFocus()
-
-                if (normalizedQuery.isNotBlank()) {
-                    searchViewModel.search(normalizedQuery)
-                }
             },
-            users = filteredUsers,
-            posts = apiPosts,
-
-            // 검색 결과의 게시글을 누르면 기존 게시글 상세 라우트로 이동합니다.
-            onPostClick = { postId ->
-                navigator.navigate("postView/$postId")
-            },
+            // UI 확인용 데이터 (검색 API 미연결)
+            users = mockSearchUsers,
+            posts = mockSearchPosts,
+            onPostClick = {},
             modifier =
                 Modifier
                     .align(Alignment.TopCenter)
@@ -232,12 +163,7 @@ fun SearchScreen(
     }
 }
 
-/**
- * 검색창, 사용자 결과, 게시글 결과를 하나의 카드로 묶는 컴포넌트입니다.
- *
- * 검색 로직은 상위 [SearchScreen]이 담당하고 이 컴포넌트는 전달받은 결과를 표시합니다.
- * 이렇게 분리하면 API 연결 후에도 데이터 요청 부분과 UI 부분을 독립적으로 변경할 수 있습니다.
- */
+// 검색창·사용자·게시글 결과 카드
 @Composable
 private fun SearchResultPanel(
     query: String,
