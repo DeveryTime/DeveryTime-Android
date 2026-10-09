@@ -72,23 +72,39 @@ fun PostingScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     postingViewModel: PostingViewModel = viewModel(),
+    editingPost: PostDetailResponse? = null,
+    currentUserId: Long? = null,
 ) {
-    var title by remember {
-        mutableStateOf("")
+    val isEditing = editingPost != null
+    var title by remember(editingPost?.id) {
+        mutableStateOf(editingPost?.title ?: "")
     }
     val contentState = rememberRichTextState()
     val isKeyboardVisible = WindowInsets.isImeVisible
 
     // 선택한 카테고리 ID 저장
-    var selectedCategoryId by remember { mutableStateOf<Int?>(null) }
+    var selectedCategoryId by remember(editingPost?.id) {
+        mutableStateOf(editingPost?.category?.id?.toInt())
+    }
     val uiState by postingViewModel.uiState.collectAsState()
     val categoriesState by postingViewModel.categories.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val isSubmitting = uiState is PostingUiState.Loading || uiState is PostingUiState.Success
+    val isSubmitting = uiState is PostingUiState.Loading || uiState is PostingUiState.Success ||
+        uiState is PostingUiState.Updated
+
+    // 수정할 기존 본문 채우기
+    LaunchedEffect(editingPost?.id) {
+        if (editingPost != null) contentState.setText(editingPost.content)
+    }
 
     // 작성 성공 시 이동·실패 시 안내
     LaunchedEffect(uiState) {
         when (val state = uiState) {
+            is PostingUiState.Updated -> {
+                // 상세 화면에 수정 완료 전달
+                navController.previousBackStackEntry?.savedStateHandle?.set(POST_UPDATED_KEY, true)
+                navController.popBackStack()
+            }
             is PostingUiState.Success -> {
                 navController.navigate(Screen.MyPage1.route) {
                     popUpTo(Screen.MyPage1.route) { inclusive = true }
@@ -130,7 +146,7 @@ fun PostingScreen(
                     )
                 }
                 Text(
-                    text = "글쓰기",
+                    text = if (isEditing) "글 수정" else "글쓰기",
                     modifier =
                         Modifier
                             .align(Alignment.CenterVertically)
@@ -157,7 +173,8 @@ fun PostingScreen(
                         text = category.name,
                         selected = selectedCategoryId == category.id,
                         onClick = {
-                            if (!isSubmitting) selectedCategoryId = category.id
+                            // 수정 API에서 카테고리 변경 미지원
+                            if (!isSubmitting && !isEditing) selectedCategoryId = category.id
                         },
                     )
                 }
@@ -198,13 +215,23 @@ fun PostingScreen(
                 Button(
                     onClick = {
                         // 입력값 전달·등록 요청
-                        postingViewModel.createPost(
-                            categoryId = selectedCategoryId,
-                            title = title,
-                            content = contentState.annotatedString.text,
-                        )
+                        if (editingPost != null) {
+                            postingViewModel.updatePost(
+                                postId = editingPost.id,
+                                userId = currentUserId,
+                                title = title,
+                                content = contentState.annotatedString.text,
+                            )
+                        } else {
+                            postingViewModel.createPost(
+                                categoryId = selectedCategoryId,
+                                title = title,
+                                content = contentState.annotatedString.text,
+                            )
+                        }
                     },
-                    enabled = !isSubmitting && categoriesState is PostCategoriesUiState.Success,
+                    enabled = !isSubmitting && categoriesState is PostCategoriesUiState.Success &&
+                        (editingPost == null || currentUserId == editingPost.writer.userId),
                     colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                     shape = RoundedCornerShape(23.dp),
                     modifier =
@@ -218,7 +245,7 @@ fun PostingScreen(
                         fontFamily = pretendardVariable,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        text = "다음",
+                        text = if (isEditing) "수정 완료" else "다음",
                     )
                 }
             }

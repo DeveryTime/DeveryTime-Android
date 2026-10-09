@@ -195,6 +195,17 @@ fun Main1Screen(navigator: NavHostController) {
         latestModel.select("latest", categoryId)
         viewsModel.select("views", categoryId)
     }
+    // 수정 완료 후 목록 재조회
+    val entry = remember(navigator) { requireNotNull(navigator.currentBackStackEntry) }
+    val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
+    LaunchedEffect(postUpdated) {
+        if (postUpdated) {
+            popularModel.refresh()
+            latestModel.refresh()
+            viewsModel.refresh()
+            entry.savedStateHandle[POST_UPDATED_KEY] = false
+        }
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 16.dp)
     ) {
@@ -255,7 +266,7 @@ fun Main1Screen(navigator: NavHostController) {
                 time = post.createdAt,
                 like = null,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = { navigator.navigate("postView/${post.id}") })
         }
         item { PostListStatus(popularState, popularModel::retry) }
 
@@ -278,7 +289,7 @@ fun Main1Screen(navigator: NavHostController) {
                 time = post.createdAt,
                 like = null,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = { navigator.navigate("postView/${post.id}") })
         }
         item { PostListStatus(latestState, latestModel::retry) }
 
@@ -301,7 +312,7 @@ fun Main1Screen(navigator: NavHostController) {
                 time = post.createdAt,
                 like = null,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = { navigator.navigate("postView/${post.id}") })
         }
         item { PostListStatus(viewsState, viewsModel::retry) }
     }

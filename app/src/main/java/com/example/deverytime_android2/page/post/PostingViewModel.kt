@@ -16,6 +16,7 @@ sealed interface PostingUiState {
     data object Idle : PostingUiState
     data object Loading : PostingUiState
     data class Success(val post: CreatePostResponse) : PostingUiState
+    data class Updated(val post: UpdatePostResponse) : PostingUiState
     data class Error(val message: String) : PostingUiState
 }
 
@@ -41,7 +42,9 @@ class PostingViewModel : ViewModel() {
     fun createPost(categoryId: Int?, title: String, content: String) {
         val currentState = _uiState.value
         // 중복 등록 방지
-        if (currentState is PostingUiState.Loading || currentState is PostingUiState.Success) return
+        if (currentState is PostingUiState.Loading || currentState is PostingUiState.Success ||
+            currentState is PostingUiState.Updated
+        ) return
 
         if (categoryId == null) {
             _uiState.value = PostingUiState.Error("카테고리를 선택해 주세요.")
@@ -74,6 +77,46 @@ class PostingViewModel : ViewModel() {
                 _uiState.value = PostingUiState.Error("네트워크 연결을 확인하고 다시 시도해 주세요.")
             } catch (exception: Exception) {
                 _uiState.value = PostingUiState.Error("게시글 작성에 실패했습니다. 다시 시도해 주세요.")
+            }
+        }
+    }
+
+    // 로그인한 사용자 ID로 제목·본문 수정
+    fun updatePost(postId: Long, userId: Long?, title: String, content: String) {
+        val currentState = _uiState.value
+        if (currentState is PostingUiState.Loading || currentState is PostingUiState.Success ||
+            currentState is PostingUiState.Updated
+        ) return
+
+        if (userId == null) {
+            _uiState.value = PostingUiState.Error("로그인한 사용자 정보를 확인할 수 없습니다.")
+            return
+        }
+        if (title.isBlank() || content.isBlank()) {
+            _uiState.value = PostingUiState.Error("제목과 내용을 입력해 주세요.")
+            return
+        }
+
+        _uiState.value = PostingUiState.Loading
+        viewModelScope.launch {
+            try {
+                val request = UpdatePostRequest(userId = userId, title = title, content = content)
+                val response = repository.updatePost(postId, request)
+                val body = response.body()
+                if (!response.isSuccessful) {
+                    val message = updatePostErrorMessage(response.code(), response.errorBody()?.string())
+                    _uiState.value = PostingUiState.Error(message)
+                } else if (body == null) {
+                    _uiState.value = PostingUiState.Error("게시글 수정 응답을 확인할 수 없습니다.")
+                } else {
+                    _uiState.value = PostingUiState.Updated(body)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: IOException) {
+                _uiState.value = PostingUiState.Error("네트워크 연결을 확인하고 다시 시도해 주세요.")
+            } catch (exception: Exception) {
+                _uiState.value = PostingUiState.Error("게시글 수정에 실패했습니다. 다시 시도해 주세요.")
             }
         }
     }
@@ -133,4 +176,25 @@ internal fun postErrorMessage(httpStatus: Int, errorBody: String?): String {
             else -> "게시글 작성에 실패했습니다. 다시 시도해 주세요."
         }
     }
+}
+
+// 수정 오류 문구 선택 (서버 메시지 우선)
+internal fun updatePostErrorMessage(httpStatus: Int, errorBody: String?): String {
+    val error = readServerError(errorBody)
+    val serverMessage = error?.message
+    if (!serverMessage.isNullOrBlank()) return serverMessage
+
+    val defaultMessage = when (error?.code) {
+        "VALIDATION_ERROR" -> "입력값이 올바르지 않습니다."
+        "FORBIDDEN" -> "해당 작업을 수행할 권한이 없습니다."
+        "POST_NOT_FOUND" -> "존재하지 않는 게시글입니다."
+        else -> when (httpStatus) {
+            400 -> "입력값이 올바르지 않습니다."
+            401 -> "로그인이 필요합니다. 다시 로그인해 주세요."
+            403 -> "해당 작업을 수행할 권한이 없습니다."
+            404 -> "존재하지 않는 게시글입니다."
+            else -> "게시글 수정에 실패했습니다. (HTTP $httpStatus)"
+        }
+    }
+    return defaultMessage
 }

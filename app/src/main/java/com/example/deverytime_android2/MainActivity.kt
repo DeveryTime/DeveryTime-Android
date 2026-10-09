@@ -54,6 +54,8 @@ sealed class Screen(
 
     data object PostView : Screen(route = "postView/{postId}")
 
+    data object PostEdit : Screen(route = "postEdit/{postId}")
+
     data object Posting : Screen(route = "posting")
 
     data object Main1 : Screen(route = "Main1")
@@ -183,24 +185,26 @@ class MainActivity : ComponentActivity() {
                 composable(route = Screen.Main2.route) { Main2Screen(navController) }
                 composable(route = Screen.Main3.route) { Main3Screen(navController) }
                 composable(route = Screen.Main4.route) { Main4Screen(navController) }
+                // 기존 작성 화면으로 게시글 수정
+                composable(
+                    route = Screen.PostEdit.route,
+                    arguments = listOf(navArgument("postId") { type = NavType.LongType }),
+                ) { entry ->
+                    val postId = requireNotNull(entry.arguments?.getLong("postId"))
+                    PostDetailScreen(navController = navController, postId = postId, isEditing = true)
+                }
                 composable(
                     route = Screen.PostView.route,
                     arguments =
                         listOf(
                             navArgument("postId") {
-                                type = NavType.IntType
+                                type = NavType.LongType
                             },
                         ),
                 ) { backStackEntry ->
-                    val postId = backStackEntry.arguments?.getInt("postId")
-                    val post = posts.find { it.id == postId }
-
-                    if (post != null) {
-                        PostViewScreen(
-                            navController = navController,
-                            post = post,
-                        )
-                    }
+                    // 목록에서 전달한 ID로 상세 조회
+                    val postId = requireNotNull(backStackEntry.arguments?.getLong("postId"))
+                    PostDetailScreen(navController = navController, postId = postId)
                 }
                 composable(route = Screen.Search.route) { SearchScreen(navController) }
             }

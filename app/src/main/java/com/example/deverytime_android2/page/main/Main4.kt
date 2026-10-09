@@ -54,6 +54,15 @@ fun Main4Screen(navigator: NavHostController) {
     }
     // 스크롤 하단 자동 로딩
     ObservePostListEnd(listState, state, model)
+    // 수정 완료 후 목록 재조회
+    val entry = remember(navigator) { requireNotNull(navigator.currentBackStackEntry) }
+    val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
+    LaunchedEffect(postUpdated) {
+        if (postUpdated) {
+            model.refresh()
+            entry.savedStateHandle[POST_UPDATED_KEY] = false
+        }
+    }
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -125,7 +134,7 @@ fun Main4Screen(navigator: NavHostController) {
                         time = post.createdAt,
                         like = null,
                         showTopBorder = (index == 0),
-                        onClick = {})
+                        onClick = { navigator.navigate("postView/${post.id}") })
                 }
                 item { PostListStatus(state, model::retry) }
             }
