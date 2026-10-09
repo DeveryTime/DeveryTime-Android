@@ -35,13 +35,18 @@ sealed interface ProfileUpdateUiState {
 
 sealed interface MyPageUsernameCheckUiState {
     data object Idle : MyPageUsernameCheckUiState
-    data object Loading : MyPageUsernameCheckUiState
+
+    data class Loading(
+        val checkedUsername: String,
+    ) : MyPageUsernameCheckUiState
 
     data class Available(
+        val checkedUsername: String,
         val message: String,
     ) : MyPageUsernameCheckUiState
 
     data class Error(
+        val checkedUsername: String,
         val message: String,
     ) : MyPageUsernameCheckUiState
 }
@@ -65,6 +70,8 @@ class MyPageViewModel(
 
     val usernameCheckState: StateFlow<MyPageUsernameCheckUiState> =
         _usernameCheckState.asStateFlow()
+
+    private var usernameCheckRequestId = 0L
 
     private val _postsState =
         MutableStateFlow<MyPostsUiState>(MyPostsUiState.Idle)
@@ -166,20 +173,30 @@ class MyPageViewModel(
         username: String,
     ) {
         if (username.isBlank()) {
+            usernameCheckRequestId++
             _usernameCheckState.value =
                 MyPageUsernameCheckUiState.Error(
+                    checkedUsername = username,
                     message = "아이디를 입력해 주세요.",
                 )
             return
         }
 
-        if (_usernameCheckState.value is MyPageUsernameCheckUiState.Loading) {
+        val currentState = _usernameCheckState.value
+        if (
+            currentState is MyPageUsernameCheckUiState.Loading &&
+            currentState.checkedUsername == username
+        ) {
             return
         }
 
+        val requestId = ++usernameCheckRequestId
+
         viewModelScope.launch {
             _usernameCheckState.value =
-                MyPageUsernameCheckUiState.Loading
+                MyPageUsernameCheckUiState.Loading(
+                    checkedUsername = username,
+                )
 
             try {
                 val response =
@@ -187,16 +204,22 @@ class MyPageViewModel(
 
                 val body = response.body()
 
+                if (requestId != usernameCheckRequestId) {
+                    return@launch
+                }
+
                 _usernameCheckState.value =
                     if (
                         response.isSuccessful &&
                         body?.success == true
                     ) {
                         MyPageUsernameCheckUiState.Available(
+                            checkedUsername = username,
                             message = body.message,
                         )
                     } else {
                         MyPageUsernameCheckUiState.Error(
+                            checkedUsername = username,
                             message =
                                 parseErrorMessage(
                                     response.errorBody()?.string(),
@@ -206,8 +229,13 @@ class MyPageViewModel(
                         )
                     }
             } catch (exception: Exception) {
+                if (requestId != usernameCheckRequestId) {
+                    return@launch
+                }
+
                 _usernameCheckState.value =
                     MyPageUsernameCheckUiState.Error(
+                        checkedUsername = username,
                         message =
                             exception.message
                                 ?: "네트워크 오류가 발생했습니다.",
@@ -217,6 +245,7 @@ class MyPageViewModel(
     }
 
     fun resetUsernameCheckState() {
+        usernameCheckRequestId++
         _usernameCheckState.value =
             MyPageUsernameCheckUiState.Idle
     }

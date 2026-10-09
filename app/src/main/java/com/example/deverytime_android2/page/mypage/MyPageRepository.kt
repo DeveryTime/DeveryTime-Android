@@ -49,22 +49,18 @@ class MyPageRepository(
         return api.updateMyProfile(
             request = requestBody,
             profileImage =
-                createProfileImagePart(
-                    uriString = profileImageUri,
-                ),
+                profileImageUri?.let { uriString ->
+                    createProfileImagePart(uriString)
+                },
         )
     }
 
     private suspend fun createProfileImagePart(
-        uriString: String?,
-    ): MultipartBody.Part? {
-        if (uriString == null) {
-            return null
-        }
-
+        uriString: String,
+    ): MultipartBody.Part {
         val imageContent =
             profileImageReader.read(uriString)
-                ?: return null
+                ?: throw ProfileImageReadException()
 
         val imageBody =
             imageContent.bytes.toRequestBody(

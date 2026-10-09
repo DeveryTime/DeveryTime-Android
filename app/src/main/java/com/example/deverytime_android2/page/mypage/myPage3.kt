@@ -134,11 +134,21 @@ fun MyPage3Screen(
         }
     }
 
+    val usernameCheckLoading =
+        (usernameCheckState as? MyPageUsernameCheckUiState.Loading)
+            ?.checkedUsername == changedId
+
+    val usernameAvailable =
+        isUsernameAvailableFor(
+            state = usernameCheckState,
+            currentUsername = changedId,
+        )
+
     val canCheckUsername =
         changedId.isNotBlank() &&
                 changedId != profile?.username &&
-                usernameCheckState !is MyPageUsernameCheckUiState.Loading &&
-                usernameCheckState !is MyPageUsernameCheckUiState.Available
+                !usernameCheckLoading &&
+                !usernameAvailable
 
 
     val usernameChanged =
@@ -147,7 +157,7 @@ fun MyPage3Screen(
 
     val usernameChecked =
         !usernameChanged ||
-                usernameCheckState is MyPageUsernameCheckUiState.Available
+                usernameAvailable
 
     val canSave =
         profile != null &&
@@ -165,7 +175,10 @@ fun MyPage3Screen(
         }
     LaunchedEffect(usernameCheckState) {
         val message =
-            usernameCheckErrorMessage(usernameCheckState)
+            usernameCheckErrorMessage(
+                state = usernameCheckState,
+                currentUsername = changedId,
+            )
                 ?: return@LaunchedEffect
 
         Toast.makeText(
@@ -310,9 +323,9 @@ fun MyPage3Screen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             text =
-                                when (usernameCheckState) {
-                                    is MyPageUsernameCheckUiState.Loading -> "확인 중"
-                                    is MyPageUsernameCheckUiState.Available -> "사용 가능"
+                                when {
+                                    usernameCheckLoading -> "확인 중"
+                                    usernameAvailable -> "사용 가능"
                                     else -> "중복확인"
                                 },
                             maxLines = 1,
@@ -358,5 +371,25 @@ fun MyPage3Screen(
 
 internal fun usernameCheckErrorMessage(
     state: MyPageUsernameCheckUiState,
-): String? =
-    (state as? MyPageUsernameCheckUiState.Error)?.message
+    currentUsername: String,
+): String? {
+    val errorState =
+        state as? MyPageUsernameCheckUiState.Error
+            ?: return null
+
+    return errorState.message
+        .takeIf {
+            errorState.checkedUsername == currentUsername
+        }
+}
+
+internal fun isUsernameAvailableFor(
+    state: MyPageUsernameCheckUiState,
+    currentUsername: String,
+): Boolean {
+    val availableState =
+        state as? MyPageUsernameCheckUiState.Available
+            ?: return false
+
+    return availableState.checkedUsername == currentUsername
+}
