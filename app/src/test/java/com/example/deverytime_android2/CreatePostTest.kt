@@ -47,9 +47,6 @@ class CreatePostTest {
                 return Response.success(201, created)
             }
 
-            override suspend fun searchPosts(request: SearchRequest): SearchResponse =
-                error("Search is not part of this test")
-
             override suspend fun getCategories(): Response<List<PostCategory>> =
                 Response.success(listOf(PostCategory(3, "교과")))
         }

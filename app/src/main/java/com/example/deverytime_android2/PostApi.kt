@@ -4,7 +4,6 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
-import retrofit2.http.HTTP
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.PUT
@@ -46,13 +45,4 @@ interface PostApi {
         @Body request: CreatePostRequest
     ): Response<CreatePostResponse>
 
-    // 기존 검색 API (GET 본문에 검색 조건 전달)
-    @HTTP(
-        method = "GET",
-        path = "/api/posts/search",
-        hasBody = true
-    )
-    suspend fun searchPosts(
-        @Body request: SearchRequest
-    ): SearchResponse
 }

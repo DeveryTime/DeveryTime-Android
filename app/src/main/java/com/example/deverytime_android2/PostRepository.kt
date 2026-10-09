@@ -42,10 +42,4 @@ class PostRepository(
         return postApi.createPost(request)
     }
 
-    // 검색 요청
-    suspend fun searchPosts(
-        request: SearchRequest
-    ): SearchResponse {
-        return postApi.searchPosts(request)
-    }
 }
