@@ -24,12 +24,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.page.mypage.MyPageViewModel
+import com.example.deverytime_android2.page.mypage.MyPageViewModelFactory
 import com.example.deverytime_android2.page.mypage.MyPostsUiState
 import com.example.deverytime_android2.page.theme.buttonGray
 
@@ -61,11 +64,20 @@ val posts =
     }
 
 @Composable
-fun myPage2Screen(
+fun MyPage2Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val myPageViewModel: MyPageViewModel = viewModel()
+    val context = LocalContext.current
+    val myPageViewModel: MyPageViewModel =
+        viewModel(
+            factory =
+                remember(context) {
+                    MyPageViewModelFactory(
+                        context.applicationContext.contentResolver,
+                    )
+                },
+        )
 
     val postsState by
     myPageViewModel.postsState.collectAsState()

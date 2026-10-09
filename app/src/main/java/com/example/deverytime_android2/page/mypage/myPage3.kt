@@ -56,7 +56,7 @@ import com.example.deverytime_android2.page.mypage.ProfileUpdateUiState
 import com.example.deverytime_android2.page.mypage.MyPageUsernameCheckUiState
 
 @Composable
-fun myPage3Screen(
+fun MyPage3Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {

@@ -33,23 +33,33 @@ import com.example.deverytime_android2.page.theme.buttonGray
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.deverytime_android2.page.mypage.MyPageViewModel
+import com.example.deverytime_android2.page.mypage.MyPageViewModelFactory
 import com.example.deverytime_android2.page.mypage.MyPostsUiState
 import com.example.deverytime_android2.page.mypage.MyProfileUiState
 
 @Composable
-fun myPage1Screen(
+fun MyPage1Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
-    val myPageViewModel: MyPageViewModel = viewModel()
-    val loginViewModel: LoginViewModel = viewModel()
     val context = LocalContext.current
+    val myPageViewModel: MyPageViewModel =
+        viewModel(
+            factory =
+                remember(context) {
+                    MyPageViewModelFactory(
+                        context.applicationContext.contentResolver,
+                    )
+                },
+        )
+    val loginViewModel: LoginViewModel = viewModel()
 
     val profileState by
     myPageViewModel.profileState.collectAsState()

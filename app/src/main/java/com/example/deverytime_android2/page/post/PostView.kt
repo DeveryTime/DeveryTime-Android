@@ -77,7 +77,7 @@ private fun yearMonthDay(time: String): String {
 }
 
 @Composable
-public fun commentItem2(
+public fun CommentItem2(
     post: Post,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
@@ -398,7 +398,7 @@ fun PostViewScreen(
                 itemsIndexed(
                     comments,
                 ) { index, commentText ->
-                    commentItem2(
+                    CommentItem2(
                         post = post.copy(comment = commentText),
                         showTopBorder = index == 0,
                     )

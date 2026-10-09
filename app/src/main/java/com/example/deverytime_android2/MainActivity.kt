@@ -21,7 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.deverytime_android2.page.theme.BottomNavigationBar
-import com.example.deverytime_android2.page.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.page.theme.DeveryTimeAndroid2Theme
 
 sealed class Screen(
     val route: String,
@@ -73,7 +73,7 @@ class MainActivity : ComponentActivity() {
         TokenStorage.initialize(applicationContext)
         enableEdgeToEdge()
         setContent {
-            DeveryTime_Android2Theme {
+            DeveryTimeAndroid2Theme {
                 Navigation(
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -175,9 +175,9 @@ class MainActivity : ComponentActivity() {
                         signUpViewModel = signUpViewModel,
                     )
                 }
-                composable(route = Screen.MyPage1.route) { myPage1Screen(navController) }
-                composable(route = Screen.MyPage2.route) { myPage2Screen(navController) }
-                composable(route = Screen.MyPage3.route) { myPage3Screen(navController) }
+                composable(route = Screen.MyPage1.route) { MyPage1Screen(navController) }
+                composable(route = Screen.MyPage2.route) { MyPage2Screen(navController) }
+                composable(route = Screen.MyPage3.route) { MyPage3Screen(navController) }
                 composable(route = Screen.OnBoard1.route) { OnBoard1Screen(navController) }
                 composable(route = Screen.OnBoard2.route) { OnBoard2Screen(navController) }
                 composable(route = Screen.OnBoard3.route) { OnBoard3Screen(navController) }
