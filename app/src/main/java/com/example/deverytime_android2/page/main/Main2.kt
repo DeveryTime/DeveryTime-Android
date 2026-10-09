@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -18,6 +19,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +42,18 @@ fun Main2Screen(navigator: NavHostController) {
     var selectedCategory by remember {
         mutableStateOf("전공")
     }
+    // 목록·로딩 상태 연결
+    val model: PostListViewModel = viewModel()
+    val state by model.state.collectAsState()
+    val listState = rememberLazyListState()
+    // 카테고리 변경 시 첫 페이지 조회·스크롤 초기화
+    LaunchedEffect(selectedCategory) {
+        val category = temporaryPostingCategories.first { it.name == selectedCategory }
+        model.select("likes", category.id.toLong())
+        listState.scrollToItem(0)
+    }
+    // 스크롤 하단 자동 로딩
+    ObservePostListEnd(listState, state, model)
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -60,7 +76,7 @@ fun Main2Screen(navigator: NavHostController) {
                 modifier = Modifier.padding(top = 20.dp),
                 query = query,                          // 현재 검색어 상태 전달
                 onQueryChange = { query = it },         // 입력값 변경 시 상태 업데이트
-                onSearch = {                            // 검색 버튼 누르거나 IME 액션 실행 시 동작
+                onSearch = {                            // 검색 실행
                     navigator.currentBackStackEntry?.savedStateHandle?.set(SEARCH_QUERY_KEY, query)
                     navigator.navigate(Screen.Search.route)
                 },
@@ -70,9 +86,7 @@ fun Main2Screen(navigator: NavHostController) {
                     .fillMaxWidth()
                     .padding(top = 12.dp),
             ) {
-                val categories = listOf(
-                    "전공", "일상", "교과", "급식", "프로젝트"
-                )
+                val categories = temporaryPostingCategories.map { it.name }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -97,6 +111,7 @@ fun Main2Screen(navigator: NavHostController) {
                 style = Style.SubTitle,
             )
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 12.dp)
@@ -104,14 +119,15 @@ fun Main2Screen(navigator: NavHostController) {
                 contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 itemsIndexed(
-                    items = dummyPosts, key = { _, post -> post.id }) { index, post ->
+                    items = state.posts, key = { _, post -> post.id }) { index, post ->
                     PostItem(
                         title = post.title,
-                        time = post.time,
-                        like = post.like,
+                        time = post.createdAt,
+                        like = null,
                         showTopBorder = (index == 0),
                         onClick = {})
                 }
+                item { PostListStatus(state, model::retry) }
             }
         }
     }
