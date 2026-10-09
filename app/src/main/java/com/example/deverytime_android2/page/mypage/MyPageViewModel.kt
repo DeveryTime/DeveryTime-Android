@@ -11,8 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 
 sealed interface MyProfileUiState {
     data object Idle : MyProfileUiState
@@ -49,7 +47,7 @@ sealed interface MyPageUsernameCheckUiState {
 }
 
 class MyPageViewModel(
-    private val repository: MyPageRepository = MyPageRepository(),
+    private val repository: MyPageRepository,
 ) : ViewModel() {
 
     private val gson = Gson()
@@ -122,7 +120,7 @@ class MyPageViewModel(
     fun loadMyPosts(
         page: Int = 0,
         size: Int = 20,
-        sort: String = "",
+        sort: String? = null,
         categoryId: Long? = null,
     ) {
         if (_postsState.value is MyPostsUiState.Loading) {
@@ -223,8 +221,9 @@ class MyPageViewModel(
             MyPageUsernameCheckUiState.Idle
     }
     fun updateMyProfile(
-        request: RequestBody,
-        profileImage: MultipartBody.Part?,
+        username: String,
+        deleteProfileImage: Boolean,
+        profileImageUri: String?,
     ) {
         if (_updateState.value is ProfileUpdateUiState.Loading) {
             return
@@ -236,8 +235,9 @@ class MyPageViewModel(
             try {
                 val response =
                     repository.updateMyProfile(
-                        request = request,
-                        profileImage = profileImage,
+                        username = username,
+                        deleteProfileImage = deleteProfileImage,
+                        profileImageUri = profileImageUri,
                     )
 
                 val body = response.body()

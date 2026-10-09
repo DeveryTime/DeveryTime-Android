@@ -258,7 +258,8 @@ fun Main1Screen(navigator: NavHostController) {
                 time = post.time,
                 like = post.like,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = {}
+            )
         }
 
         item {

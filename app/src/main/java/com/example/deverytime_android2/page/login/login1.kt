@@ -1,5 +1,6 @@
 package com.example.deverytime_android2
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -28,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +37,7 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +55,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.deverytime_android2.page.mypage.MyPageViewModel
+import com.example.deverytime_android2.page.mypage.MyPageViewModelFactory
+import com.example.deverytime_android2.page.mypage.ProfileUpdateUiState
 import com.example.deverytime_android2.page.theme.CommonButton
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.mainBlue
@@ -83,22 +89,70 @@ val appTypography = Typography(
 @Composable
 fun LoginScreen(
     navController: NavHostController,
+    signUpViewModel: SignUpViewModel,
     loginViewModel: LoginViewModel = viewModel(),
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var pendingUploadStarted by rememberSaveable { mutableStateOf(false) }
 
     val loginUiState by loginViewModel.uiState.collectAsState()
+    val pendingProfileImageUpload by
+        signUpViewModel.pendingProfileImageUpload.collectAsState()
     val loginError = loginUiState as? LoginUiState.Error
+    val context = LocalContext.current
+    val myPageViewModel: MyPageViewModel =
+        viewModel(
+            factory =
+                remember(context) {
+                    MyPageViewModelFactory(
+                        context.applicationContext.contentResolver,
+                    )
+                },
+        )
+    val profileUpdateUiState by myPageViewModel.updateState.collectAsState()
 
-    LaunchedEffect(loginUiState) {
+    LaunchedEffect(loginUiState, pendingProfileImageUpload) {
         if (loginUiState is LoginUiState.Success) {
-            navController.navigate(Screen.Main1.route) {
-                popUpTo(Screen.Login.route) {
-                    inclusive = true
-                }
-                launchSingleTop = true
+            val pendingUpload = pendingProfileImageUpload
+
+            if (pendingUpload == null) {
+                navController.navigateToMainAfterLogin()
+            } else if (!pendingUploadStarted) {
+                pendingUploadStarted = true
+                myPageViewModel.updateMyProfile(
+                    username = pendingUpload.username,
+                    deleteProfileImage = false,
+                    profileImageUri = pendingUpload.uriString,
+                )
             }
+        }
+    }
+
+    LaunchedEffect(profileUpdateUiState, pendingUploadStarted) {
+        if (!pendingUploadStarted) {
+            return@LaunchedEffect
+        }
+
+        when (val state = profileUpdateUiState) {
+            is ProfileUpdateUiState.Success -> {
+                signUpViewModel.clearPendingProfileImageUpload()
+                myPageViewModel.resetUpdateState()
+                navController.navigateToMainAfterLogin()
+            }
+
+            is ProfileUpdateUiState.Error -> {
+                Toast.makeText(
+                    context,
+                    "프로필 이미지 업로드 실패: ${state.message}",
+                    Toast.LENGTH_LONG,
+                ).show()
+                signUpViewModel.clearPendingProfileImageUpload()
+                myPageViewModel.resetUpdateState()
+                navController.navigateToMainAfterLogin()
+            }
+
+            else -> Unit
         }
     }
 
@@ -272,5 +326,14 @@ fun LoginScreen(
                 }
             },
         )
+    }
+}
+
+private fun NavHostController.navigateToMainAfterLogin() {
+    navigate(Screen.Main1.route) {
+        popUpTo(Screen.Login.route) {
+            inclusive = true
+        }
+        launchSingleTop = true
     }
 }

@@ -17,7 +17,7 @@ interface MyPageApi {
     suspend fun getMyPosts(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
-        @Query("sort") sort: String = "",
+        @Query("sort") sort: String? = null,
         @Query("categoryId") categoryId: Long? = null,
     ): Response<MyPostsResponse>
 

@@ -19,6 +19,11 @@ data class SignUpFormState(
     val passwordConfirm: String = "",
 )
 
+data class PendingProfileImageUpload(
+    val username: String,
+    val uriString: String,
+)
+
 sealed interface SignUpUiState {
     data object Idle : SignUpUiState
 
@@ -91,6 +96,18 @@ class SignUpViewModel(
     val formState: StateFlow<SignUpFormState> =
         _formState.asStateFlow()
 
+    private val _profileImageUri =
+        MutableStateFlow<String?>(null)
+
+    val profileImageUri: StateFlow<String?> =
+        _profileImageUri.asStateFlow()
+
+    private val _pendingProfileImageUpload =
+        MutableStateFlow<PendingProfileImageUpload?>(null)
+
+    val pendingProfileImageUpload: StateFlow<PendingProfileImageUpload?> =
+        _pendingProfileImageUpload.asStateFlow()
+
     private val _uiState =
         MutableStateFlow<SignUpUiState>(
             SignUpUiState.Idle,
@@ -145,6 +162,30 @@ class SignUpViewModel(
                 username = username,
             )
         }
+    }
+
+    fun updateProfileImageUri(uriString: String?) {
+        _profileImageUri.value = uriString
+    }
+
+    fun preparePendingProfileImageUpload() {
+        val username = _formState.value.username
+        val uriString = _profileImageUri.value
+
+        if (username.isBlank() || uriString.isNullOrBlank()) {
+            _pendingProfileImageUpload.value = null
+            return
+        }
+
+        _pendingProfileImageUpload.value =
+            PendingProfileImageUpload(
+                username = username,
+                uriString = uriString,
+            )
+    }
+
+    fun clearPendingProfileImageUpload() {
+        _pendingProfileImageUpload.value = null
     }
 
     fun checkUsername(username: String) {
@@ -536,6 +577,7 @@ class SignUpViewModel(
     fun clearForm() {
         _formState.value =
             SignUpFormState()
+        _profileImageUri.value = null
 
         resetUsernameCheckState()
     }

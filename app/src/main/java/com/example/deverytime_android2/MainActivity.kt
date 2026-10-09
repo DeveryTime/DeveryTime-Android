@@ -142,7 +142,12 @@ class MainActivity : ComponentActivity() {
                         .padding(innerPadding)
                         .consumeWindowInsets(innerPadding),
             ) {
-                composable(route = Screen.Login.route) { LoginScreen(navController) }
+                composable(route = Screen.Login.route) {
+                    LoginScreen(
+                        navController = navController,
+                        signUpViewModel = signUpViewModel,
+                    )
+                }
                 composable(route = Screen.SignUp1.route) {
                     SignUpScreen(
                         navController = navController,

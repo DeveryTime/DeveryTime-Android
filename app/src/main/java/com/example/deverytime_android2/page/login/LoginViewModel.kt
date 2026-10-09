@@ -2,7 +2,6 @@ package com.example.deverytime_android2
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -46,11 +45,9 @@ sealed interface LogoutUiState {
     ) : LogoutUiState
 }
 
-class LoginViewModel : ViewModel() {
-
-    private val repository = LoginRepository()
-    private val gson = Gson()
-
+class LoginViewModel(
+    private val repository: LoginRepository = LoginRepository(),
+) : ViewModel() {
     private val _uiState =
         MutableStateFlow<LoginUiState>(LoginUiState.Idle)
 
@@ -70,43 +67,23 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.value = LoginUiState.Loading
 
-            try {
-                val response =
+            when (
+                val result =
                     repository.login(
                         email = email,
                         password = password,
                     )
-
-                if (response.isSuccessful) {
-                    val body = response.body()
-
+            ) {
+                is LoginResult.Success -> {
+                    TokenStorage.saveTokens(result.tokens)
                     _uiState.value =
-                        if (body?.success == "true" && body.data != null) {
-                            TokenStorage.saveTokens(body.data)
-                            LoginUiState.Success(body)
-                        } else {
-                            LoginUiState.Error(body?.message ?: "응답 데이터가 없습니다.")
-                        }
-                } else {
-                    val errorMessage =
-                        runCatching {
-                            gson.fromJson(
-                                response.errorBody()?.string(),
-                                ApiErrorResponse::class.java,
-                            )?.error?.message
-                        }.getOrNull()
-
-                    _uiState.value =
-                        LoginUiState.Error(
-                            errorMessage ?: "로그인 실패: ${response.code()}",
-                        )
+                        LoginUiState.Success(result.response)
                 }
-            } catch (exception: Exception) {
-                _uiState.value =
-                    LoginUiState.Error(
-                        exception.message
-                            ?: "네트워크 오류가 발생했습니다.",
-                    )
+
+                is LoginResult.Error -> {
+                    _uiState.value =
+                        LoginUiState.Error(result.message)
+                }
             }
         }
     }
@@ -136,38 +113,24 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _tokenReissueState.value = TokenReissueUiState.Loading
 
-            try {
-                val response = repository.reissueToken(refreshToken)
-                val body = response.body()
-                val tokens = body?.data
+            when (val result = repository.reissueToken(refreshToken)) {
+                is TokenReissueResult.Success -> {
+                    TokenStorage.saveTokens(result.tokens)
+                    _tokenReissueState.value =
+                        TokenReissueUiState.Success(result.tokens)
+                }
 
-                _tokenReissueState.value =
-                    when {
-                        response.isSuccessful && body?.success == true && tokens != null -> {
-                            TokenStorage.saveTokens(tokens)
-                            TokenReissueUiState.Success(tokens)
-                        }
-
-                        response.code() == 401 -> {
-                            TokenStorage.clear()
-
-                            TokenReissueUiState.Error(
-                                code = "TOKEN_INVALID",
-                                message = "유효하지 않은 토큰입니다.",
-                            )
-                        }
-                        else ->
-                            TokenReissueUiState.Error(
-                                code = null,
-                                message = "토큰 재발급에 실패했습니다. (${response.code()})",
-                            )
+                is TokenReissueResult.Error -> {
+                    if (result.code == "TOKEN_INVALID") {
+                        TokenStorage.clear()
                     }
-            } catch (exception: Exception) {
-                _tokenReissueState.value =
-                    TokenReissueUiState.Error(
-                        code = null,
-                        message = exception.message ?: "네트워크 오류가 발생했습니다.",
-                    )
+
+                    _tokenReissueState.value =
+                        TokenReissueUiState.Error(
+                            code = result.code,
+                            message = result.message,
+                        )
+                }
             }
         }
     }
@@ -192,38 +155,16 @@ class LoginViewModel : ViewModel() {
         viewModelScope.launch {
             _logoutState.value = LogoutUiState.Loading
 
-            try {
-                val response = repository.logout(refreshToken)
-                val body = response.body()
-
-                if (
-                    response.code() == 204 ||
-                    response.isSuccessful && body?.success == true
-                ) {
+            when (val result = repository.logout(refreshToken)) {
+                LogoutResult.Success -> {
                     TokenStorage.clear()
                     _logoutState.value = LogoutUiState.Success
-                } else {
-                    val errorMessage =
-                        runCatching {
-                            gson.fromJson(
-                                response.errorBody()?.string(),
-                                ApiErrorResponse::class.java,
-                            )?.error?.message
-                        }.getOrNull()
-
-                    _logoutState.value =
-                        LogoutUiState.Error(
-                            errorMessage
-                                ?: body?.message
-                                ?: "로그아웃에 실패했습니다. (${response.code()})",
-                        )
                 }
-            } catch (exception: Exception) {
-                _logoutState.value =
-                    LogoutUiState.Error(
-                        exception.message
-                            ?: "네트워크 오류가 발생했습니다.",
-                    )
+
+                is LogoutResult.Error -> {
+                    _logoutState.value =
+                        LogoutUiState.Error(result.message)
+                }
             }
         }
     }

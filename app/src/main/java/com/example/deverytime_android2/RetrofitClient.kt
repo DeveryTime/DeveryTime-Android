@@ -43,6 +43,10 @@ object RetrofitClient {
         publicRetrofit.create(SignUpApi::class.java)
     }
 
+    val usernameApi: UsernameApi by lazy {
+        publicRetrofit.create(UsernameApi::class.java)
+    }
+
     private val authenticatedRetrofit: Retrofit by lazy {
         val client =
             OkHttpClient.Builder()

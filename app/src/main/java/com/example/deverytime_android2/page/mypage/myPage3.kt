@@ -45,19 +45,14 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.mainBlue
-import android.content.Context
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.deverytime_android2.page.mypage.MyPageViewModel
+import com.example.deverytime_android2.page.mypage.MyPageViewModelFactory
 import com.example.deverytime_android2.page.mypage.MyProfileUiState
 import com.example.deverytime_android2.page.mypage.ProfileUpdateUiState
-import com.google.gson.Gson
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import com.example.deverytime_android2.page.mypage.MyPageUsernameCheckUiState
 
 @Composable
@@ -65,8 +60,17 @@ fun myPage3Screen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
 
-    val myPageViewModel: MyPageViewModel = viewModel()
+    val myPageViewModel: MyPageViewModel =
+        viewModel(
+            factory =
+                remember(context) {
+                    MyPageViewModelFactory(
+                        context.applicationContext.contentResolver,
+                    )
+                },
+        )
 
     val profileState by
     myPageViewModel.profileState.collectAsState()
@@ -84,12 +88,6 @@ fun myPage3Screen(
     val profile =
         (profileState as? MyProfileUiState.Success)?.profile
 
-    val context = LocalContext.current
-
-    var errorMessage by rememberSaveable {
-        mutableStateOf<String?>(null)
-    }
-
     LaunchedEffect(updateState) {
         when (val state = updateState) {
             is ProfileUpdateUiState.Success -> {
@@ -98,7 +96,6 @@ fun myPage3Screen(
             }
 
             is ProfileUpdateUiState.Error -> {
-                errorMessage = state.message
                 Toast.makeText(
                     context,
                     state.message,
@@ -167,17 +164,15 @@ fun myPage3Screen(
             buttonGray
         }
     LaunchedEffect(usernameCheckState) {
-        when (val state = usernameCheckState) {
-            is MyPageUsernameCheckUiState.Available -> {
-                errorMessage = state.message
-            }
+        val message =
+            usernameCheckErrorMessage(usernameCheckState)
+                ?: return@LaunchedEffect
 
-            is MyPageUsernameCheckUiState.Error -> {
-                errorMessage = state.message
-            }
-
-            else -> Unit
-        }
+        Toast.makeText(
+            context,
+            message,
+            Toast.LENGTH_SHORT,
+        ).show()
     }
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -332,26 +327,10 @@ fun myPage3Screen(
         Button(
             onClick = {
                 if (canSave) {
-                    val updateRequest =
-                        UpdateProfileRequest(
-                            username = changedId,
-                            deleteProfileImage = false,
-                        )
-
-                    val requestBody =
-                        Gson()
-                            .toJson(updateRequest)
-                            .toRequestBody(
-                                "application/json".toMediaTypeOrNull(),
-                            )
-
                     myPageViewModel.updateMyProfile(
-                        request = requestBody,
-                        profileImage =
-                            createProfileImagePart(
-                                context = context,
-                                uriString = profileImageUri,
-                            ),
+                        username = changedId,
+                        deleteProfileImage = false,
+                        profileImageUri = profileImageUri,
                     )
                 }
             },
@@ -376,35 +355,8 @@ fun myPage3Screen(
         }
     }
 }
-private fun createProfileImagePart(
-    context: Context,
-    uriString: String?,
-): MultipartBody.Part? {
-    if (uriString == null) {
-        return null
-    }
 
-    val uri = Uri.parse(uriString)
-    val contentResolver = context.contentResolver
-
-    val imageBytes =
-        contentResolver
-            .openInputStream(uri)
-            ?.use { inputStream ->
-                inputStream.readBytes()
-            }
-            ?: return null
-
-    val imageBody =
-        imageBytes.toRequestBody(
-            contentResolver
-                .getType(uri)
-                ?.toMediaTypeOrNull(),
-        )
-
-    return MultipartBody.Part.createFormData(
-        name = "profileImage",
-        filename = "profile.jpg",
-        body = imageBody,
-    )
-}
+internal fun usernameCheckErrorMessage(
+    state: MyPageUsernameCheckUiState,
+): String? =
+    (state as? MyPageUsernameCheckUiState.Error)?.message
