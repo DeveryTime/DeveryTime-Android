@@ -64,7 +64,12 @@ fun formatTime(
 
 @Composable
 fun PostItem(
-    title: String, time: String, like: Int, showTopBorder: Boolean = false, onClick: () -> Unit = {}
+    title: String,
+    time: String,
+    like: Int? = null,
+    showTopBorder: Boolean = false,
+    onClick: () -> Unit = {},
+    trailingText: String? = null,
 ) {
     val changeTime = formatTime(time)
     Box(
@@ -116,25 +121,41 @@ fun PostItem(
                     color = buttonGray,
                 )
             }
-            Row(
-                modifier = Modifier.padding(end = 21.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_thumbs_up),
-                    contentDescription = stringResource(id = R.string.thumbs_up),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .padding(end = 5.dp)
-                        .size(18.dp),
-                )
-                Text(
-                    text = like.toString(),
-                    fontSize = 12.sp,
-                    fontFamily = pretendardVariable,
-                    color = buttonGray,
-                )
+            when {
+                like != null -> {
+                    Row(
+                        modifier = Modifier.padding(end = 21.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_thumbs_up),
+                            contentDescription = stringResource(id = R.string.thumbs_up),
+                            contentScale = ContentScale.Fit,
+                            modifier =
+                                Modifier
+                                    .padding(end = 5.dp)
+                                    .size(18.dp),
+                        )
+
+                        Text(
+                            text = like.toString(),
+                            fontSize = 12.sp,
+                            fontFamily = pretendardVariable,
+                            color = buttonGray,
+                        )
+                    }
+                }
+
+                trailingText != null -> {
+                    Text(
+                        text = trailingText,
+                        fontSize = 12.sp,
+                        fontFamily = pretendardVariable,
+                        color = buttonGray,
+                        modifier = Modifier.padding(end = 21.dp),
+                    )
+                }
             }
         }
     }
@@ -237,7 +258,8 @@ fun Main1Screen(navigator: NavHostController) {
                 time = post.time,
                 like = post.like,
                 showTopBorder = (index == 0),
-                onClick = {})
+                onClick = {}
+            )
         }
 
         item {

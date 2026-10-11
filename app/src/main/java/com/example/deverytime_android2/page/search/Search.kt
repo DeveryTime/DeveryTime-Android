@@ -39,7 +39,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.deverytime_android2.page.theme.BottomNavigationBar
 import com.example.deverytime_android2.page.theme.CommonSearchBar
-import com.example.deverytime_android2.page.theme.DeveryTime_Android2Theme
+import com.example.deverytime_android2.page.theme.DeveryTimeAndroid2Theme
 import com.example.deverytime_android2.page.theme.Style
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.grayLineColor
@@ -461,7 +461,7 @@ private fun LatestPostSection(modifier: Modifier = Modifier) {
 )
 @Composable
 private fun SearchScreenPreview() {
-    DeveryTime_Android2Theme {
+    DeveryTimeAndroid2Theme {
         val navController = rememberNavController()
 
         Scaffold(

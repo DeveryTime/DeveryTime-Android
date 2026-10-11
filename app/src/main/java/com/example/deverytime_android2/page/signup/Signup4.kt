@@ -32,7 +32,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,9 +64,7 @@ fun SignUp4Screen(
     // 추후 변경 예정
     val context = LocalContext.current
 
-    var profileImageUri by rememberSaveable {
-        mutableStateOf<String?>(null)
-    }
+    val profileImageUri by signUpViewModel.profileImageUri.collectAsState()
 
     val profileImagePicker =
         rememberLauncherForActivityResult(
@@ -78,7 +75,7 @@ fun SignUp4Screen(
                     uri,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION,
                 )
-                profileImageUri = uri.toString()
+                signUpViewModel.updateProfileImageUri(uri.toString())
             }
         }
     var id by remember { mutableStateOf("") }
@@ -108,6 +105,7 @@ fun SignUp4Screen(
     LaunchedEffect(uiState) {
         when (val state = uiState) {
             is SignUpUiState.Success -> {
+                signUpViewModel.preparePendingProfileImageUpload()
                 signUpViewModel.clearForm()
                 signUpViewModel.resetUiState()
 

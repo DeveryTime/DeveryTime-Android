@@ -1,6 +1,7 @@
 package com.example.deverytime_android2
 
 import androidx.compose.foundation.Image
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,19 +21,28 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.deverytime_android2.page.mypage.MyPageViewModel
+import com.example.deverytime_android2.page.mypage.MyPageViewModelFactory
+import com.example.deverytime_android2.page.mypage.MyPostsUiState
 import com.example.deverytime_android2.page.theme.buttonGray
 
 val posts =
@@ -53,95 +63,35 @@ val posts =
         )
     }
 
-
 @Composable
-public fun PostItem(
+fun MyPage2Screen(
     navController: NavHostController,
-    post: Post,
-    showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val changeTime = formatTime(post.time)
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .clickable {
-                    navController.navigate("postView/${post.id}")
+    val context = LocalContext.current
+    val myPageViewModel: MyPageViewModel =
+        viewModel(
+            factory =
+                remember(context) {
+                    MyPageViewModelFactory(
+                        context.applicationContext.contentResolver,
+                    )
                 },
-    ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(49.dp)
-                    .drawBehind {
-                        val strokeWidth = 1.dp.toPx()
+        )
 
-                        if (showTopBorder) {
-                            drawLine(
-                                color = buttonGray,
-                                start = Offset(0f, strokeWidth / 2),
-                                end = Offset(size.width, strokeWidth / 2),
-                                strokeWidth = strokeWidth,
-                            )
-                        }
+    val postsState by
+    myPageViewModel.postsState.collectAsState()
 
-                        drawLine(
-                            color = buttonGray,
-                            start = Offset(0f, size.height - strokeWidth / 2),
-                            end = Offset(size.width, size.height - strokeWidth / 2),
-                            strokeWidth = strokeWidth,
-                        )
-                    },
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.padding(horizontal = 21.dp).weight(1f)) {
-                Text(
-                    text = post.title,
-                    fontSize = 15.65.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = pretendardVariable,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = changeTime,
-                    fontSize = 12.sp,
-                    fontFamily = pretendardVariable,
-                    color = buttonGray,
-                )
-            }
-            Row(
-                modifier = Modifier.padding(end = 21.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.uil_thumbs_up),
-                    contentDescription = stringResource(id = R.string.thumbs_up),
-                    contentScale = ContentScale.Fit,
-                    modifier =
-                        Modifier
-                            .padding(end = 5.dp)
-                            .size(18.dp),
-                )
-                Text(
-                    text = post.like.toString(),
-                    fontSize = 12.sp,
-                    fontFamily = pretendardVariable,
-                    color = buttonGray,
-                )
-            }
-        }
+    LaunchedEffect(Unit) {
+        myPageViewModel.loadMyPosts()
     }
-}
 
-@Composable
-fun myPage2Screen(
-    navController: NavHostController,
-    modifier: Modifier = Modifier,
-) {
+    val myPosts =
+        (postsState as? MyPostsUiState.Success)
+            ?.response
+            ?.content
+            .orEmpty()
+
     Box(modifier = modifier.fillMaxSize()) {
         Button(
             onClick = {
@@ -170,7 +120,7 @@ fun myPage2Screen(
                 Modifier
                     .fillMaxWidth()
                     .padding(top = 100.dp)
-                    .align(Alignment.BottomCenter),
+                    .align(Alignment.TopCenter),
         ) {
             Text(
                 text = "내가 쓴 글",
@@ -182,16 +132,46 @@ fun myPage2Screen(
                 fontFamily = pretendardVariable,
             )
             Spacer(modifier = Modifier.height(25.dp))
-            LazyColumn {
-                itemsIndexed(
-                    posts,
-                ) { index, item ->
-                    PostItem(
-                        post = posts[index],
-                        navController = navController,
-                        showTopBorder = index == 0,
+
+            when (val state = postsState) {
+                is MyPostsUiState.Loading -> {
+                    Text(
+                        text = "불러오는 중...",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
                     )
                 }
+
+                is MyPostsUiState.Error -> {
+                    Text(
+                        text = state.message,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                is MyPostsUiState.Success -> {
+                    if (myPosts.isEmpty()) {
+                        Text(
+                            text = "작성된 게시물이 없습니다.",
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
+                    } else {
+                        LazyColumn {
+                            itemsIndexed(myPosts) { index, post ->
+                                PostItem(
+                                    title = post.title,
+                                    time = post.createdAt,
+                                    trailingText = post.category,
+                                    showTopBorder = index == 0,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                else -> Unit
             }
         }
     }
