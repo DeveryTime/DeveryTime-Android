@@ -26,6 +26,14 @@ sealed interface CommentListUiState {
     data class Error(val message: String) : CommentListUiState
 }
 
+// 댓글 삭제 상태
+sealed interface DeleteCommentUiState {
+    data object Idle : DeleteCommentUiState
+    data object Loading : DeleteCommentUiState
+    data class Success(val message: String) : DeleteCommentUiState
+    data class Error(val message: String) : DeleteCommentUiState
+}
+
 class CommentViewModel : ViewModel() {
     private val repository = CommentRepository()
     private val _state = MutableStateFlow<CreateCommentUiState>(CreateCommentUiState.Idle)
@@ -33,6 +41,44 @@ class CommentViewModel : ViewModel() {
     private val _listState = MutableStateFlow<CommentListUiState>(CommentListUiState.Loading)
     val listState = _listState.asStateFlow()
     private var listJob: Job? = null
+    private val _deleteState = MutableStateFlow<DeleteCommentUiState>(DeleteCommentUiState.Idle)
+    val deleteState = _deleteState.asStateFlow()
+
+    // 조회된 댓글 삭제·중복 요청 방지
+    fun deleteComment(postId: Long, commentId: Long) {
+        if (_deleteState.value is DeleteCommentUiState.Loading ||
+            _deleteState.value is DeleteCommentUiState.Success ||
+            _state.value is CreateCommentUiState.Loading ||
+            _state.value is CreateCommentUiState.Success
+        ) return
+        val list = _listState.value as? CommentListUiState.Success ?: return
+        if (list.comments.none { it.id == commentId }) return
+
+        _deleteState.value = DeleteCommentUiState.Loading
+        viewModelScope.launch {
+            try {
+                val response = repository.deleteComment(postId, commentId)
+                _deleteState.value = deleteCommentResult(response)
+                // 삭제 완료 후 목록·댓글 수 갱신
+                if (_deleteState.value is DeleteCommentUiState.Success) {
+                    loadComments(postId)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: IOException) {
+                _deleteState.value = DeleteCommentUiState.Error("네트워크 연결을 확인하고 다시 시도해 주세요.")
+            } catch (exception: Exception) {
+                _deleteState.value = DeleteCommentUiState.Error("댓글 삭제에 실패했습니다. 다시 시도해 주세요.")
+            }
+        }
+    }
+
+    // 삭제 안내 상태 초기화
+    fun resetDeleteState() {
+        if (_deleteState.value !is DeleteCommentUiState.Loading) {
+            _deleteState.value = DeleteCommentUiState.Idle
+        }
+    }
 
     // 댓글 목록 조회·이전 요청 취소
     fun loadComments(postId: Long) {
@@ -55,7 +101,9 @@ class CommentViewModel : ViewModel() {
     // 빈 입력·중복 전송 방지
     fun createComment(postId: Long, content: String) {
         if (_state.value is CreateCommentUiState.Loading ||
-            _state.value is CreateCommentUiState.Success
+            _state.value is CreateCommentUiState.Success ||
+            _deleteState.value is DeleteCommentUiState.Loading ||
+            _deleteState.value is DeleteCommentUiState.Success
         ) return
 
         val trimmedContent = content.trim()
@@ -88,6 +136,48 @@ class CommentViewModel : ViewModel() {
     fun resetState() {
         if (_state.value !is CreateCommentUiState.Loading) {
             _state.value = CreateCommentUiState.Idle
+        }
+    }
+}
+
+// 200·성공 여부 확인 (data는 null 허용)
+internal fun deleteCommentResult(response: Response<DeleteCommentResponse>): DeleteCommentUiState {
+    if (!response.isSuccessful) {
+        return DeleteCommentUiState.Error(
+            deleteCommentErrorMessage(response.code(), response.errorBody()?.string()),
+        )
+    }
+
+    val body = response.body()
+    if (response.code() != 200 || body?.success != true) {
+        return DeleteCommentUiState.Error("댓글 삭제 응답을 확인할 수 없습니다.")
+    }
+    val message = if (body.message.isNullOrBlank()) "댓글이 삭제되었습니다." else body.message
+    return DeleteCommentUiState.Success(message)
+}
+
+// 삭제 오류 문구 선택 (서버 메시지 우선)
+internal fun deleteCommentErrorMessage(httpStatus: Int, errorBody: String?): String {
+    val error = try {
+        Gson().fromJson(errorBody, ApiErrorResponse::class.java)?.error
+    } catch (exception: Exception) {
+        null
+    }
+    val serverMessage = error?.message
+    if (!serverMessage.isNullOrBlank()) return serverMessage
+
+    return when (error?.code) {
+        "POST_NOT_FOUND" -> "존재하지 않는 게시글입니다."
+        "COMMENT_NOT_FOUND", "CATEGORY_NOT_FOUND" -> "존재하지 않는 댓글입니다."
+        "COMMENT_ACCESS_DENIED", "POST_ACCESS_DENIED" -> "본인 댓글만 삭제할 수 있습니다."
+        "UNAUTHORIZED" -> "로그인이 필요합니다. 다시 로그인해 주세요."
+        "INTERNAL_SERVER_ERR", "INTERNAL_SERVER_ERROR" -> "서버 측 오류가 발생했습니다."
+        else -> when (httpStatus) {
+            401 -> "로그인이 필요합니다. 다시 로그인해 주세요."
+            403 -> "본인 댓글만 삭제할 수 있습니다."
+            404 -> "존재하지 않는 댓글입니다."
+            500 -> "서버 측 오류가 발생했습니다."
+            else -> "댓글 삭제에 실패했습니다. (HTTP $httpStatus)"
         }
     }
 }

@@ -86,6 +86,9 @@ public fun commentItem2(
     comment: CommentListItem,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
+    currentUserId: Long? = null,
+    deleteEnabled: Boolean = true,
+    onDelete: () -> Unit = {},
 ) {
     var commentExpanded by remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
@@ -195,6 +198,17 @@ public fun commentItem2(
                             onDismissRequest = { commentExpanded = false },
                             containerColor = Color.White,
                         ) {
+                            // 본인 댓글 삭제 메뉴
+                            if (currentUserId == comment.userId) {
+                                DropdownMenuItem(
+                                    text = { Text("삭제하기") },
+                                    enabled = deleteEnabled,
+                                    onClick = {
+                                        commentExpanded = false
+                                        onDelete()
+                                    },
+                                )
+                            }
                             DropdownMenuItem(
                                 text = { Text("신고하기") },
                                 onClick = {
@@ -234,15 +248,21 @@ fun PostViewScreen(
     onCommentHandled: () -> Unit = {},
     commentListState: CommentListUiState = CommentListUiState.Loading,
     onRetryComments: () -> Unit = {},
+    commentDeleteState: DeleteCommentUiState = DeleteCommentUiState.Idle,
+    onDeleteComment: (Long) -> Unit = {},
+    onCommentDeleteHandled: () -> Unit = {},
 ) {
     val changeTime = formatTime(post.createdAt, "yyyy년 MM월 dd일 HH:mm")
     var expanded by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf("") }
     val uriHandler = LocalUriHandler.current
     var showDeleteConfirm by remember(post.id) { mutableStateOf(false) }
+    var commentToDelete by remember(post.id) { mutableStateOf<Long?>(null) }
     val isDeleting = deleteState is DeletePostUiState.Loading
     val isCommentSending = commentState is CreateCommentUiState.Loading ||
         commentState is CreateCommentUiState.Success
+    val isCommentDeleting = commentDeleteState is DeleteCommentUiState.Loading ||
+        commentDeleteState is DeleteCommentUiState.Success
     // 조회된 목록의 댓글 수
     val commentCountText = when (val state = commentListState) {
         is CommentListUiState.Success -> state.comments.size.toString()
@@ -264,6 +284,48 @@ fun PostViewScreen(
             }
             else -> Unit
         }
+    }
+
+    // 댓글 삭제 완료 안내·확인창 닫기
+    LaunchedEffect(commentDeleteState) {
+        if (commentDeleteState is DeleteCommentUiState.Success) {
+            commentToDelete = null
+            snackbarHostState.showSnackbar(commentDeleteState.message)
+            onCommentDeleteHandled()
+        }
+    }
+
+    // 댓글 삭제 확인·실패 문구 표시
+    val selectedCommentId = commentToDelete
+    if (selectedCommentId != null) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!isCommentDeleting) {
+                    commentToDelete = null
+                    onCommentDeleteHandled()
+                }
+            },
+            title = { Text("댓글 삭제") },
+            text = {
+                val error = commentDeleteState as? DeleteCommentUiState.Error
+                Text(error?.message ?: "이 댓글을 삭제할까요?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { onDeleteComment(selectedCommentId) },
+                    enabled = !isCommentDeleting && !isCommentSending && !isDeleting,
+                ) { Text(if (isCommentDeleting) "삭제 중…" else "삭제") }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !isCommentDeleting,
+                    onClick = {
+                        commentToDelete = null
+                        onCommentDeleteHandled()
+                    },
+                ) { Text("취소") }
+            },
+        )
     }
 
     // 삭제 확인·실패 문구 표시
@@ -372,7 +434,7 @@ fun PostViewScreen(
                                     )
                                     DropdownMenuItem(
                                         text = { Text("삭제하기") },
-                                        enabled = !isDeleting && !isCommentSending,
+                                        enabled = !isDeleting && !isCommentSending && !isCommentDeleting,
                                         onClick = {
                                             expanded = false
                                             showDeleteConfirm = true
@@ -506,6 +568,12 @@ fun PostViewScreen(
                                 commentItem2(
                                     comment = comment,
                                     showTopBorder = comment.id == state.comments.first().id,
+                                    currentUserId = currentUserId,
+                                    deleteEnabled = !isDeleting && !isCommentSending && !isCommentDeleting,
+                                    onDelete = {
+                                        onCommentDeleteHandled()
+                                        commentToDelete = comment.id
+                                    },
                                 )
                             }
                         }
@@ -533,7 +601,7 @@ fun PostViewScreen(
                 BasicTextField(
                     value = comment,
                     onValueChange = { comment = it },
-                    enabled = !isCommentSending,
+                    enabled = !isCommentSending && !isCommentDeleting,
                     singleLine = true,
                     modifier =
                         Modifier
@@ -563,13 +631,13 @@ fun PostViewScreen(
                             .size(24.dp)
                             .align(Alignment.CenterVertically)
                             // 빈 입력·전송 중 클릭 방지
-                            .clickable(enabled = comment.isNotBlank() && !isCommentSending && !isDeleting) {
+                            .clickable(enabled = comment.isNotBlank() && !isCommentSending && !isCommentDeleting && !isDeleting) {
                                 onCreateComment(comment)
                             },
                 )
             }
         }
-        // 댓글 작성 결과 안내
+        // 댓글 작성·삭제 결과 안내
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(bottom = 80.dp),
