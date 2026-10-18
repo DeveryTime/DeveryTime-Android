@@ -43,6 +43,7 @@ fun PostDetailScreen(
 ) {
     val state by model.state.collectAsState()
     val deleteState by model.deleteState.collectAsState()
+    val commentState by commentModel.state.collectAsState()
     val commentListState by commentModel.listState.collectAsState()
     val entry = remember(navController) { requireNotNull(navController.currentBackStackEntry) }
     val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
@@ -81,6 +82,9 @@ fun PostDetailScreen(
                 deleteState = deleteState,
                 onDelete = { model.deletePost(postId) },
                 onDeleteDismiss = model::resetDeleteState,
+                commentState = commentState,
+                onCreateComment = { content -> commentModel.createComment(postId, content) },
+                onCommentHandled = commentModel::resetState,
                 commentListState = commentListState,
                 onRetryComments = { commentModel.loadComments(postId) },
             )

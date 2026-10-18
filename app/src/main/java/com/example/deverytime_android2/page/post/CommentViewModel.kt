@@ -11,6 +11,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Response
 
+// 댓글 작성 상태
+sealed interface CreateCommentUiState {
+    data object Idle : CreateCommentUiState
+    data object Loading : CreateCommentUiState
+    data class Success(val comment: CommentData, val message: String) : CreateCommentUiState
+    data class Error(val message: String) : CreateCommentUiState
+}
+
 // 댓글 목록 상태
 sealed interface CommentListUiState {
     data object Loading : CommentListUiState
@@ -20,6 +28,8 @@ sealed interface CommentListUiState {
 
 class CommentViewModel : ViewModel() {
     private val repository = CommentRepository()
+    private val _state = MutableStateFlow<CreateCommentUiState>(CreateCommentUiState.Idle)
+    val state = _state.asStateFlow()
     private val _listState = MutableStateFlow<CommentListUiState>(CommentListUiState.Loading)
     val listState = _listState.asStateFlow()
     private var listJob: Job? = null
@@ -42,6 +52,44 @@ class CommentViewModel : ViewModel() {
         }
     }
 
+    // 빈 입력·중복 전송 방지
+    fun createComment(postId: Long, content: String) {
+        if (_state.value is CreateCommentUiState.Loading ||
+            _state.value is CreateCommentUiState.Success
+        ) return
+
+        val trimmedContent = content.trim()
+        if (trimmedContent.isEmpty()) {
+            _state.value = CreateCommentUiState.Error("댓글 내용을 입력해 주세요.")
+            return
+        }
+
+        _state.value = CreateCommentUiState.Loading
+        viewModelScope.launch {
+            try {
+                val response = repository.createComment(postId, trimmedContent)
+                _state.value = createCommentResult(response)
+                // 등록 완료 후 댓글 목록 갱신
+                if (_state.value is CreateCommentUiState.Success) {
+                    loadComments(postId)
+                }
+            } catch (exception: CancellationException) {
+                // 취소된 요청의 오류 처리 제외
+                throw exception
+            } catch (exception: IOException) {
+                _state.value = CreateCommentUiState.Error("네트워크 연결을 확인하고 다시 시도해 주세요.")
+            } catch (exception: Exception) {
+                _state.value = CreateCommentUiState.Error("댓글 작성에 실패했습니다. 다시 시도해 주세요.")
+            }
+        }
+    }
+
+    // 안내 완료 후 상태 초기화
+    fun resetState() {
+        if (_state.value !is CreateCommentUiState.Loading) {
+            _state.value = CreateCommentUiState.Idle
+        }
+    }
 }
 
 // 빈 목록·잘못된 응답 구분
@@ -82,3 +130,42 @@ internal fun commentListErrorMessage(httpStatus: Int, errorBody: String?): Strin
     }
 }
 
+// 상태 코드·성공 여부·댓글 응답 확인
+internal fun createCommentResult(response: Response<CreateCommentResponse>): CreateCommentUiState {
+    if (!response.isSuccessful) {
+        val message = createCommentErrorMessage(response.code(), response.errorBody()?.string())
+        return CreateCommentUiState.Error(message)
+    }
+
+    val body = response.body()
+    val comment = body?.data
+    if (response.code() != 201 || body?.success != true || comment == null) {
+        return CreateCommentUiState.Error("댓글 작성 응답을 확인할 수 없습니다.")
+    }
+
+    val message = if (body.message.isNullOrBlank()) "댓글이 등록되었습니다." else body.message
+    return CreateCommentUiState.Success(comment, message)
+}
+
+// 댓글 작성 오류 문구 선택 (서버 메시지 우선)
+internal fun createCommentErrorMessage(httpStatus: Int, errorBody: String?): String {
+    val error = try {
+        Gson().fromJson(errorBody, ApiErrorResponse::class.java)?.error
+    } catch (exception: Exception) {
+        null
+    }
+    val serverMessage = error?.message
+    if (!serverMessage.isNullOrBlank()) return serverMessage
+
+    return when (error?.code) {
+        "VALIDATION_ERROR" -> "댓글 내용을 확인해 주세요."
+        "UNAUTHORIZED" -> "로그인이 필요합니다. 다시 로그인해 주세요."
+        "INTERNAL_SERVER_ERR", "INTERNAL_SERVER_ERROR" -> "서버 측 오류가 발생했습니다."
+        else -> when (httpStatus) {
+            400 -> "댓글 내용을 확인해 주세요."
+            401 -> "로그인이 필요합니다. 다시 로그인해 주세요."
+            500 -> "서버 측 오류가 발생했습니다."
+            else -> "댓글 작성에 실패했습니다. (HTTP $httpStatus)"
+        }
+    }
+}

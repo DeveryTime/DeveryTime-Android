@@ -29,7 +29,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -226,6 +229,9 @@ fun PostViewScreen(
     deleteState: DeletePostUiState = DeletePostUiState.Idle,
     onDelete: () -> Unit = {},
     onDeleteDismiss: () -> Unit = {},
+    commentState: CreateCommentUiState = CreateCommentUiState.Idle,
+    onCreateComment: (String) -> Unit = {},
+    onCommentHandled: () -> Unit = {},
     commentListState: CommentListUiState = CommentListUiState.Loading,
     onRetryComments: () -> Unit = {},
 ) {
@@ -235,10 +241,29 @@ fun PostViewScreen(
     val uriHandler = LocalUriHandler.current
     var showDeleteConfirm by remember(post.id) { mutableStateOf(false) }
     val isDeleting = deleteState is DeletePostUiState.Loading
+    val isCommentSending = commentState is CreateCommentUiState.Loading ||
+        commentState is CreateCommentUiState.Success
     // 조회된 목록의 댓글 수
     val commentCountText = when (val state = commentListState) {
         is CommentListUiState.Success -> state.comments.size.toString()
         else -> "—"
+    }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // 성공 시 입력 초기화·실패 시 입력 유지
+    LaunchedEffect(commentState) {
+        when (val state = commentState) {
+            is CreateCommentUiState.Success -> {
+                comment = ""
+                snackbarHostState.showSnackbar(state.message)
+                onCommentHandled()
+            }
+            is CreateCommentUiState.Error -> {
+                snackbarHostState.showSnackbar(state.message)
+                onCommentHandled()
+            }
+            else -> Unit
+        }
     }
 
     // 삭제 확인·실패 문구 표시
@@ -347,7 +372,7 @@ fun PostViewScreen(
                                     )
                                     DropdownMenuItem(
                                         text = { Text("삭제하기") },
-                                        enabled = !isDeleting,
+                                        enabled = !isDeleting && !isCommentSending,
                                         onClick = {
                                             expanded = false
                                             showDeleteConfirm = true
@@ -508,6 +533,7 @@ fun PostViewScreen(
                 BasicTextField(
                     value = comment,
                     onValueChange = { comment = it },
+                    enabled = !isCommentSending,
                     singleLine = true,
                     modifier =
                         Modifier
@@ -536,10 +562,17 @@ fun PostViewScreen(
                             .padding(horizontal = 15.dp)
                             .size(24.dp)
                             .align(Alignment.CenterVertically)
-                            // 댓글 작성 API 연결 전 전송 비활성화
-                            .clickable(enabled = false) {},
+                            // 빈 입력·전송 중 클릭 방지
+                            .clickable(enabled = comment.isNotBlank() && !isCommentSending && !isDeleting) {
+                                onCreateComment(comment)
+                            },
                 )
             }
         }
+        // 댓글 작성 결과 안내
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(bottom = 80.dp),
+        )
     }
 }
