@@ -39,9 +39,11 @@ fun PostDetailScreen(
     model: PostViewModel = viewModel(),
     isEditing: Boolean = false,
     currentUserId: Long? = null,
+    commentModel: CommentViewModel = viewModel(),
 ) {
     val state by model.state.collectAsState()
     val deleteState by model.deleteState.collectAsState()
+    val commentListState by commentModel.listState.collectAsState()
     val entry = remember(navController) { requireNotNull(navController.currentBackStackEntry) }
     val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
     LaunchedEffect(postId) { model.loadPost(postId) }
@@ -70,6 +72,8 @@ fun PostDetailScreen(
                 currentUserId = currentUserId,
             )
         } else {
+            // 상세 화면 진입 시 댓글 조회
+            LaunchedEffect(postId) { commentModel.loadComments(postId) }
             PostViewScreen(
                 navController = navController,
                 post = currentState.post,
@@ -77,6 +81,8 @@ fun PostDetailScreen(
                 deleteState = deleteState,
                 onDelete = { model.deletePost(postId) },
                 onDeleteDismiss = model::resetDeleteState,
+                commentListState = commentListState,
+                onRetryComments = { commentModel.loadComments(postId) },
             )
         }
     } else {
