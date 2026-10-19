@@ -24,9 +24,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +44,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.commentTextFieldColor
+import com.example.deverytime_android2.page.theme.mainBlue
 import com.example.deverytime_android2.page.theme.nonprofile
 import coil3.compose.AsyncImage
 import java.text.SimpleDateFormat
@@ -217,6 +222,9 @@ fun PostViewScreen(
     deleteState: DeletePostUiState = DeletePostUiState.Idle,
     onDelete: () -> Unit = {},
     onDeleteDismiss: () -> Unit = {},
+    likeState: LikeUiState = LikeUiState(),
+    onLikeClick: () -> Unit = {},
+    onLikeHandled: () -> Unit = {},
 ) {
     val changeTime = formatTime(post.createdAt, "yyyy년 MM월 dd일 HH:mm")
     var expanded by remember { mutableStateOf(false) }
@@ -224,6 +232,16 @@ fun PostViewScreen(
     val uriHandler = LocalUriHandler.current
     var showDeleteConfirm by remember(post.id) { mutableStateOf(false) }
     val isDeleting = deleteState is DeletePostUiState.Loading
+    val isLiked = if (likeState.isReady) likeState.isLiked else post.liked == true
+    val likeCount = if (likeState.isReady) likeState.likeCount else post.likeCount
+    val snackbarHostState = remember(post.id) { SnackbarHostState() }
+
+    // 좋아요 등록·취소·오류 안내
+    LaunchedEffect(post.id, likeState.message) {
+        val message = likeState.message ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        onLikeHandled()
+    }
 
     // 삭제 확인·실패 문구 표시
     if (showDeleteConfirm) {
@@ -386,17 +404,27 @@ fun PostViewScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.uil_thumbs_up),
-                                contentDescription = stringResource(id = R.string.thumbs_up),
+                                contentDescription = when {
+                                    likeState.isLoading && isLiked -> "좋아요 취소 중"
+                                    likeState.isLoading -> "좋아요 등록 중"
+                                    isLiked -> "좋아요 취소"
+                                    else -> stringResource(id = R.string.thumbs_up)
+                                },
+                                tint = if (isLiked) mainBlue else Color.Black,
                                 modifier =
                                     Modifier
                                         .padding(start = 26.dp)
                                         .size(20.dp)
-                                        .clickable {
-                                        },
+                                        // 현재 상태에 따라 등록·취소 (중복 요청 방지)
+                                        .clickable(
+                                            enabled = likeState.isReady && !isDeleting && !likeState.isLoading,
+                                            role = Role.Button,
+                                            onClick = onLikeClick,
+                                        ),
                             )
                             Text(
-                                // 상세 API에 좋아요 수 미제공
-                                text = "—",
+                                // 상세 조회·등록·취소 후 좋아요 수
+                                text = likeCount?.toString() ?: "—",
                                 fontSize = 15.sp,
                                 fontFamily = pretendardVariable,
                                 modifier =
@@ -487,5 +515,9 @@ fun PostViewScreen(
                 )
             }
         }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(bottom = 80.dp),
+        )
     }
 }

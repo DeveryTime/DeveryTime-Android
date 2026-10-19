@@ -12,6 +12,8 @@ data class PostDetailResponse(
     val images: List<PostImage>,
     val createdAt: String,
     val updatedAt: String?,
+    val likeCount: Int? = null,
+    val liked: Boolean? = null,
 )
 
 // 작성자 정보
