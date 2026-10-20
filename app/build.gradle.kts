@@ -15,7 +15,9 @@ val localProperties =
 
 val baseUrl =
     localProperties.getProperty("BASE_URL")
-        ?: error("local.properties에 BASE_URL을 설정해 주세요.")
+        ?: providers.gradleProperty("BASE_URL").orNull
+        ?: providers.environmentVariable("BASE_URL").orNull
+        ?: error("local.properties, Gradle 속성 또는 환경 변수에 BASE_URL을 설정해 주세요.")
 
 android {
     namespace = "com.example.deverytime_android2"
