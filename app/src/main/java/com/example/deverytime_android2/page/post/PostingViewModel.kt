@@ -170,9 +170,9 @@ internal fun postErrorMessage(httpStatus: Int, errorBody: String?): String {
     if (!serverMessage.isNullOrBlank()) return serverMessage
 
     return when (error?.code) {
-        "VALIDATION_ERROR" -> "필수 입력 항목입니다.에러코드"
-        "USER_NOT_FOUND" -> "존재하지 않는 사용자입니다. 에러코드"
-        "CATEGORY_NOT_FOUND" -> "존재하지 않는 카테고리입니다. 에러코드"
+        "VALIDATION_ERROR" -> "필수 입력 항목입니다."
+        "USER_NOT_FOUND" -> "존재하지 않는 사용자입니다."
+        "CATEGORY_NOT_FOUND" -> "존재하지 않는 카테고리입니다."
         else -> when (httpStatus) {
             401 -> "로그인이 필요합니다. 다시 로그인해 주세요."
             else -> "게시글 작성에 실패했습니다. 다시 시도해 주세요."
