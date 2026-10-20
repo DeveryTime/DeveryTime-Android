@@ -339,7 +339,7 @@ fun PostViewScreen(
                                 containerColor = Color.White,
                             ) {
                                 // 본인 게시글 수정·삭제 메뉴
-                                if (currentUserId == post.writer.userId) {
+                                if (currentUserId != null && currentUserId == post.writer.userId) {
                                     DropdownMenuItem(
                                         text = { Text("수정하기") },
                                         onClick = {

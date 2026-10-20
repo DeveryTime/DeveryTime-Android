@@ -231,7 +231,7 @@ fun PostingScreen(
                         }
                     },
                     enabled = !isSubmitting && categoriesState is PostCategoriesUiState.Success &&
-                        (editingPost == null || currentUserId == editingPost.writer.userId),
+                        (editingPost == null || (currentUserId != null && currentUserId == editingPost.writer.userId)),
                     colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                     shape = RoundedCornerShape(23.dp),
                     modifier =

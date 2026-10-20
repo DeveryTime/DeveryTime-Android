@@ -7,6 +7,7 @@ import okhttp3.Protocol
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import retrofit2.Retrofit
@@ -37,38 +38,74 @@ class PostDetailTest {
     @Test
     fun detailRequestParsesWriterCategoryImagesAndNullUpdatedAt() = runBlocking {
         val id = 4294967296L
-        val json = """{
+        val json = """{"success":true,"data":{
             "id":4294967296,"title":"제목","content":"내용","status":"PUBLISHED","viewCount":43,
-            "writer":{"userId":1,"nickname":"닉네임","profileImageUrl":"https://example.test/profile.jpg"},
-            "category":{"id":3,"name":"프로젝트"},
-            "images":[{"id":1,"imageUrl":"https://example.test/img1.png","sortOrder":0}],
-            "createdAt":"2026-08-04T12:30:00","updatedAt":null
-        }"""
+            "writerNickname":"닉네임","writerProfileImageUrl":"https://example.test/profile.jpg",
+            "categoryName":"프로젝트",
+            "imageUrls":["https://example.test/img1.png","https://example.test/img2.png"],
+            "createdAt":"2026-08-04T12:30:00","updatedAt":null,"likeCount":1,"liked":true
+        }}"""
         val response = PostRepository(api(id, 200, json)).getPost(id)
         val post = response.body()!!
         assertEquals(200, response.code())
         assertEquals(id, post.id)
         assertEquals("내용", post.content)
         assertEquals(43, post.viewCount)
-        assertEquals(PostWriter(1L, "닉네임", "https://example.test/profile.jpg"), post.writer)
-        assertEquals(PostDetailCategory(3L, "프로젝트"), post.category)
-        assertEquals(PostImage(1L, "https://example.test/img1.png", 0), post.images.single())
+        assertEquals("제목", post.title)
+        assertEquals("2026-08-04T12:30:00", post.createdAt)
+        assertEquals(PostWriter(null, "닉네임", "https://example.test/profile.jpg"), post.writer)
+        assertEquals(PostDetailCategory(null, "프로젝트"), post.category)
+        assertEquals(
+            listOf(
+                PostImage(null, "https://example.test/img1.png", 0),
+                PostImage(null, "https://example.test/img2.png", 1),
+            ),
+            post.images,
+        )
+        assertEquals(1, post.likeCount)
+        assertEquals(true, post.liked)
         assertNull(post.updatedAt)
     }
 
     // 이미지 없는 게시글·프로필 누락 검증
     @Test
     fun detailResponseAllowsEmptyImagesAndNullProfile() = runBlocking {
-        val json = """{
-            "id":15,"title":"제목","content":"내용","status":"PUBLISHED","viewCount":0,
-            "writer":{"userId":1,"nickname":"닉네임","profileImageUrl":null},
-            "category":{"id":4,"name":"전공"},"images":[],
-            "createdAt":"2026-08-04T12:30:00","updatedAt":"2026-08-05T12:30:00"
-        }"""
-        val post = PostRepository(api(15L, 200, json)).getPost(15L).body()!!
+        val json = """{"success":true,"data":{
+            "id":1,"title":"댓글 테스트 게시글","content":"Postman 테스트용 게시글입니다.",
+            "status":"PUBLISHED","viewCount":1,"writerNickname":"테스트",
+            "writerProfileImageUrl":null,"categoryName":"테스트","imageUrls":[],
+            "createdAt":"2026-09-08T19:19:41","updatedAt":"2026-09-18T19:58:49.369051",
+            "likeCount":1,"liked":true
+        }}"""
+        val post = PostRepository(api(1L, 200, json)).getPost(1L).body()!!
         assertTrue(post.images.isEmpty())
+        assertNull(post.writer.userId)
         assertNull(post.writer.profileImageUrl)
-        assertEquals("2026-08-05T12:30:00", post.updatedAt)
+        assertEquals("테스트", post.writer.nickname)
+        assertEquals("테스트", post.category.name)
+        assertEquals("2026-09-08T19:19:41", post.createdAt)
+        assertEquals("2026-09-18T19:58:49.369051", post.updatedAt)
+    }
+
+    // data 누락·실패 응답은 정상 상세 정보로 전달하지 않음
+    @Test
+    fun missingDataAndUnsuccessfulResponseDoNotProduceDetail() = runBlocking {
+        for (json in listOf("""{"success":true,"data":null}""", """{"success":false}""")) {
+            assertNull(PostRepository(api(1L, 200, json)).getPost(1L).body())
+        }
+    }
+
+    // 작성일 누락으로 상세 화면의 날짜 변환 함수가 크래시하지 않도록 사전 검증
+    @Test
+    fun missingCreatedAtIsRejectedBeforeRendering() {
+        val json = """{"success":true,"data":{
+            "id":1,"title":"제목","content":"내용","status":"PUBLISHED","viewCount":0,
+            "writerNickname":"테스트","categoryName":"테스트","imageUrls":[]
+        }}"""
+        val exception = assertThrows(IllegalArgumentException::class.java) {
+            runBlocking { PostRepository(api(1L, 200, json)).getPost(1L) }
+        }
+        assertEquals("상세 응답의 createdAt이 없습니다.", exception.message)
     }
 
     // 존재하지 않는 게시글의 서버 오류 검증

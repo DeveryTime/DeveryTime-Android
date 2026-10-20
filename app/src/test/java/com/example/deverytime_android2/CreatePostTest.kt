@@ -36,7 +36,7 @@ class CreatePostTest {
             override suspend fun updatePost(id: Long, request: UpdatePostRequest): Response<UpdatePostResponse> =
                 error("Post update is not part of this test")
 
-            override suspend fun getPost(id: Long): Response<PostDetailResponse> =
+            override suspend fun getPost(id: Long): Response<PostDetailApiResponse> =
                 error("Post detail is not part of this test")
 
             override suspend fun getPosts(page: Int, size: Int, sort: String, categoryId: Long?): Response<PostListResponse> =

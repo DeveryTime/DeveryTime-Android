@@ -19,7 +19,13 @@ class PostRepository(
 
     // 게시글 상세 조회
     suspend fun getPost(id: Long): Response<PostDetailResponse> {
-        return postApi.getPost(id)
+        val response = postApi.getPost(id)
+        if (!response.isSuccessful) {
+            return Response.error(requireNotNull(response.errorBody()), response.raw())
+        }
+        val result = response.body()
+        val post = if (result?.success == true) result.data?.toPostDetail() else null
+        return Response.success(post, response.raw())
     }
 
     // 정렬·카테고리별 목록 조회
