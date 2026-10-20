@@ -69,8 +69,9 @@ class CreatePostTest {
     // 오류 코드별 기본 문구 검증
     @Test
     fun knownErrorsDoNotDependOnCategoryHttpStatus() {
-        assertEquals("존재하지 않는 사용자입니다.(404)", postErrorMessage(404, """{"error":{"code":"USER_NOT_FOUND"}}"""))
-        assertEquals("존재하지 않는 카테고리입니다.(409)", postErrorMessage(409, """{"error":{"code":"CATEGORY_NOT_FOUND"}}"""))
+        assertEquals("필수 입력 항목입니다.", postErrorMessage(400, """{"error":{"code":"VALIDATION_ERROR"}}"""))
+        assertEquals("존재하지 않는 사용자입니다.", postErrorMessage(404, """{"error":{"code":"USER_NOT_FOUND"}}"""))
+        assertEquals("존재하지 않는 카테고리입니다.", postErrorMessage(409, """{"error":{"code":"CATEGORY_NOT_FOUND"}}"""))
     }
 
     // 오류 응답 누락·형식 오류 시 기본 문구 검증
