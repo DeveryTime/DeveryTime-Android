@@ -36,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,6 +59,7 @@ import com.example.deverytime_android2.page.theme.nonprofile
 import coil3.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 
 private fun yearMonthDay(time: String): String {
@@ -269,17 +271,18 @@ fun PostViewScreen(
         else -> "—"
     }
     val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
 
     // 성공 시 입력 초기화·실패 시 입력 유지
     LaunchedEffect(commentState) {
         when (val state = commentState) {
             is CreateCommentUiState.Success -> {
                 comment = ""
-                snackbarHostState.showSnackbar(state.message)
+                snackbarScope.launch { snackbarHostState.showSnackbar(state.message) }
                 onCommentHandled()
             }
             is CreateCommentUiState.Error -> {
-                snackbarHostState.showSnackbar(state.message)
+                snackbarScope.launch { snackbarHostState.showSnackbar(state.message) }
                 onCommentHandled()
             }
             else -> Unit
@@ -290,7 +293,8 @@ fun PostViewScreen(
     LaunchedEffect(commentDeleteState) {
         if (commentDeleteState is DeleteCommentUiState.Success) {
             commentToDelete = null
-            snackbarHostState.showSnackbar(commentDeleteState.message)
+            val message = commentDeleteState.message
+            snackbarScope.launch { snackbarHostState.showSnackbar(message) }
             onCommentDeleteHandled()
         }
     }
