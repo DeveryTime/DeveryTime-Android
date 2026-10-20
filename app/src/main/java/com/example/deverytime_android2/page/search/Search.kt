@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.deverytime_android2.page.theme.BottomNavigationBar
 import com.example.deverytime_android2.page.theme.CommonSearchBar
 import com.example.deverytime_android2.page.theme.DeveryTime_Android2Theme
@@ -49,61 +55,6 @@ import com.example.deverytime_android2.page.theme.nonprofile
 
 //해당 부분은 GPT 5.6 SOL을 사용하여 구성한 부분입니다.
 
-/**
- * 검색 결과에 표시할 사용자 UI 모델입니다.
- *
- * 현재는 API가 연결되지 않아 화면에 필요한 최소 정보만 가지고 있습니다.
- * 추후 사용자 검색 API가 연결되면 서버 응답 DTO를 이 형태로 변환하거나,
- * 서버 모델에 맞게 필드를 추가하면 됩니다.
- *
- * 예상 추가 필드: 사용자 ID, 프로필 이미지 URL, 학번 등
- */
-private data class SearchUser(
-    val name: String,
-    val introduction: String,
-)
-
-/**
- * 검색 결과 목록에서 사용하는 게시글 UI 모델입니다.
- *
- * 기존 [Post] 전체를 직접 사용하지 않고 검색 결과에 필요한 값만 분리했습니다.
- * API 연결 후에는 게시글 검색 응답을 이 모델로 변환하면 UI 코드는 그대로 유지할 수 있습니다.
- */
-private data class SearchPost(
-    val id: Int,
-    val title: String,
-    val content: String,
-    val time: String,
-)
-
-// TODO: 사용자 검색 API 연동 후 서버 응답으로 교체합니다.
-// 디자인 확인을 위해 main_search.png에 표시된 사용자 정보를 임시로 사용하고 있습니다.
-private val mockSearchUsers =
-    listOf(
-        SearchUser(
-            name = "파이썬 마스터",
-            introduction = "안녕하세요 반가워용",
-        ),
-    )
-
-// TODO: 게시글 검색 API 연동 후 서버 응답으로 교체합니다.
-// 검색 화면 표시용 예시 데이터
-private val mockSearchPosts =
-    listOf(
-        SearchPost(
-            id = 0,
-            title = "파이썬 마스터 되는 법",
-            content = "파이썬 공부 방법을 공유합니다.",
-            time = "2026-08-29T12:00:00",
-        ),
-        SearchPost(
-            id = 1,
-            title = "파이썬 마스터 되는 법",
-            content = "기초부터 공부하는 방법입니다.",
-            time = "2026-08-29T12:00:00",
-        ),
-    )
-
 // Main1~4 화면에서 입력한 검색어를 SavedStateHandle을 통해 전달할 때 사용하는 공통 키입니다.
 // 문자열을 여러 파일에 직접 작성하지 않고 이 상수를 사용해야 오타로 인한 전달 실패를 막을 수 있습니다.
 const val SEARCH_QUERY_KEY = "searchQuery"
@@ -113,6 +64,7 @@ const val SEARCH_QUERY_KEY = "searchQuery"
 fun SearchScreen(
     navigator: NavHostController,
     modifier: Modifier = Modifier,
+    model: SearchViewModel = viewModel(),
 ) {
     // 검색 버튼을 누른 이전 화면(Main1~4)의 SavedStateHandle에서 검색어를 읽습니다.
     // Preview처럼 이전 화면이 없는 경우에는 빈 문자열을 사용합니다.
@@ -129,7 +81,39 @@ fun SearchScreen(
 
     // 검색 아이콘 또는 키보드의 검색 버튼을 눌렀을 때 키보드를 닫는 데 사용합니다.
     val focusManager = LocalFocusManager.current
+    val state by model.state.collectAsState()
 
+    // 메인 화면에서 전달받은 검색어로 첫 진입 시 검색
+    LaunchedEffect(Unit) {
+        if (!state.hasSearched && initialQuery.isNotBlank()) model.search(initialQuery)
+    }
+
+    SearchContent(
+        query = query,
+        onQueryChange = { query = it },
+        onSearch = {
+            focusManager.clearFocus()
+            model.search(query)
+        },
+        state = state,
+        onPostClick = { id -> navigator.navigate("postView/$id") },
+        onRetry = model::retry,
+        onLoadNext = model::loadNext,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun SearchContent(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onSearch: () -> Unit,
+    state: SearchUiState,
+    onPostClick: (Long) -> Unit,
+    onRetry: () -> Unit,
+    onLoadNext: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     // Box를 사용해 최신 게시글 영역 위에 검색 결과 패널을 겹쳐 배치합니다.
     Box(
         modifier =
@@ -144,14 +128,12 @@ fun SearchScreen(
         // zIndex를 지정해 LatestPostSection보다 항상 위에 그려지도록 합니다.
         SearchResultPanel(
             query = query,
-            onQueryChange = { query = it },
-            onSearch = {
-                focusManager.clearFocus()
-            },
-            // UI 확인용 데이터 (검색 API 미연결)
-            users = mockSearchUsers,
-            posts = mockSearchPosts,
-            onPostClick = {},
+            onQueryChange = onQueryChange,
+            onSearch = onSearch,
+            state = state,
+            onPostClick = onPostClick,
+            onRetry = onRetry,
+            onLoadNext = onLoadNext,
             modifier =
                 Modifier
                     .align(Alignment.TopCenter)
@@ -169,9 +151,10 @@ private fun SearchResultPanel(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
-    users: List<SearchUser>,
-    posts: List<SearchPost>,
-    onPostClick: (Int) -> Unit,
+    state: SearchUiState,
+    onPostClick: (Long) -> Unit,
+    onRetry: () -> Unit,
+    onLoadNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -201,52 +184,69 @@ private fun SearchResultPanel(
             modifier = Modifier.padding(start = 7.dp, top = 5.dp, end = 7.dp),
         )
 
-        // 사용자 검색 결과가 있을 때만 사용자 섹션을 표시합니다.
-        if (users.isNotEmpty()) {
-            Text(
-                text = "사용자",
-                fontFamily = pretendardVariable,
-                fontSize = 14.sp,
-                color = buttonGray,
-                modifier = Modifier.padding(start = 13.dp, top = 13.dp),
-            )
-            users.forEach { user ->
-                SearchUserResultItem(
-                    user = user,
-                    modifier = Modifier.padding(horizontal = 13.dp),
-                )
+        // 결과가 많아도 기존 카드 안에서 스크롤로 확인
+        LazyColumn(modifier = Modifier.fillMaxWidth().weight(1f)) {
+            if (state.users.isNotEmpty()) {
+                item(key = "users-title") {
+                    Text(
+                        text = "사용자",
+                        fontFamily = pretendardVariable,
+                        fontSize = 14.sp,
+                        color = buttonGray,
+                        modifier = Modifier.padding(start = 13.dp, top = 13.dp),
+                    )
+                }
+                items(state.users, key = { "user-${it.id}" }) { user ->
+                    SearchUserResultItem(
+                        user = user,
+                        modifier = Modifier.padding(horizontal = 13.dp),
+                    )
+                }
             }
-        }
 
-        // 게시글 검색 결과가 있을 때만 게시글 섹션을 표시합니다.
-        if (posts.isNotEmpty()) {
-            Text(
-                text = "게시글",
-                fontFamily = pretendardVariable,
-                fontSize = 14.sp,
-                color = buttonGray,
-                modifier = Modifier.padding(start = 13.dp, top = 9.dp, bottom = 3.dp),
-            )
-            posts.forEach { post ->
-                SearchPostResultItem(
-                    post = post,
-                    onClick = { onPostClick(post.id) },
-                )
+            if (state.posts.isNotEmpty()) {
+                item(key = "posts-title") {
+                    Text(
+                        text = "게시글",
+                        fontFamily = pretendardVariable,
+                        fontSize = 14.sp,
+                        color = buttonGray,
+                        modifier = Modifier.padding(start = 13.dp, top = 9.dp, bottom = 3.dp),
+                    )
+                }
+                items(state.posts, key = { "post-${it.id}" }) { post ->
+                    SearchPostResultItem(post = post, onClick = { onPostClick(post.id) })
+                }
             }
-        }
 
-        // 사용자와 게시글 검색 결과가 모두 없을 때 카드 중앙에 빈 상태를 표시합니다.
-        if (users.isEmpty() && posts.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "검색 결과가 없습니다",
-                    fontFamily = pretendardVariable,
-                    fontSize = 14.sp,
-                    color = buttonGray,
-                )
+            item(key = "search-status") {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    when {
+                        state.loading -> CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        state.error != null -> {
+                            Text(state.error, fontFamily = pretendardVariable, fontSize = 14.sp)
+                            if (state.hasSearched) {
+                                TextButton(onClick = onRetry) { Text("다시 시도") }
+                            }
+                        }
+                        !state.hasSearched -> Text(
+                            "검색어를 입력해 주세요.",
+                            fontFamily = pretendardVariable,
+                            fontSize = 14.sp,
+                            color = buttonGray,
+                        )
+                        state.users.isEmpty() && state.posts.isEmpty() -> Text(
+                            "검색 결과가 없습니다",
+                            fontFamily = pretendardVariable,
+                            fontSize = 14.sp,
+                            color = buttonGray,
+                        )
+                        state.hasNextPage -> TextButton(onClick = onLoadNext) { Text("게시글 더 보기") }
+                    }
+                }
             }
         }
     }
@@ -255,7 +255,7 @@ private fun SearchResultPanel(
 /** 검색 결과의 사용자 한 명을 표시하는 행입니다. */
 @Composable
 private fun SearchUserResultItem(
-    user: SearchUser,
+    user: SearchUserResult,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -274,7 +274,7 @@ private fun SearchUserResultItem(
         )
         Column(modifier = Modifier.padding(start = 7.dp)) {
             Text(
-                text = user.name,
+                text = user.displayName,
                 fontFamily = pretendardVariable,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -282,7 +282,7 @@ private fun SearchUserResultItem(
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = user.introduction,
+                text = user.username.orEmpty(),
                 fontFamily = pretendardVariable,
                 fontSize = 12.sp,
                 color = buttonGray,
@@ -299,7 +299,7 @@ private fun SearchUserResultItem(
  */
 @Composable
 private fun SearchPostResultItem(
-    post: SearchPost,
+    post: PostListItem,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -328,7 +328,7 @@ private fun SearchPostResultItem(
             )
             Text(
                 // 검색 시안은 연도를 네 자리로 표시하므로 yyyy.MM.dd 형식을 사용합니다.
-                text = formatTime(post.time, "yyyy.MM.dd"),
+                text = formatTime(post.createdAt, "yyyy.MM.dd"),
                 fontFamily = pretendardVariable,
                 fontSize = 12.sp,
                 color = buttonGray,
@@ -388,8 +388,6 @@ private fun LatestPostSection(modifier: Modifier = Modifier) {
 @Composable
 private fun SearchScreenPreview() {
     DeveryTime_Android2Theme {
-        val navController = rememberNavController()
-
         Scaffold(
             bottomBar = {
                 BottomNavigationBar(
@@ -398,8 +396,21 @@ private fun SearchScreenPreview() {
                 )
             },
         ) { innerPadding ->
-            SearchScreen(
-                navigator = navController,
+            SearchContent(
+                query = "대회",
+                onQueryChange = {},
+                onSearch = {},
+                state = SearchUiState(
+                    keyword = "대회",
+                    users = listOf(SearchUserResult(5L, "최지민", "지민")),
+                    posts = listOf(PostListItem(12L, "대회 안내", "일상", "2026-08-25T19:41:54")),
+                    hasSearched = true,
+                    page = 0,
+                    totalPages = 1,
+                ),
+                onPostClick = {},
+                onRetry = {},
+                onLoadNext = {},
                 modifier = Modifier.padding(innerPadding),
             )
         }

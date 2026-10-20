@@ -49,4 +49,9 @@ object RetrofitClient {
     val likeApi: LikeApi by lazy {
         authenticatedRetrofit.create(LikeApi::class.java)
     }
+
+    // 통합 검색에도 로그인 토큰·갱신 처리 적용
+    val searchApi: SearchApi by lazy {
+        authenticatedRetrofit.create(SearchApi::class.java)
+    }
 }
