@@ -31,7 +31,7 @@ interface PostApi {
     suspend fun getPosts(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
-        @Query("sort") sort: String = "latest",
+        @Query("sort") sort: String = "createdAt,desc",
         @Query("categoryId") categoryId: Long? = null,
     ): Response<PostListResponse>
 

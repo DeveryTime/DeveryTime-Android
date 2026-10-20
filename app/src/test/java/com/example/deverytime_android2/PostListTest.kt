@@ -38,7 +38,7 @@ class PostListTest {
             assertEquals("/api/posts", request.url.encodedPath)
             assertEquals("0", request.url.queryParameter("page"))
             assertEquals("20", request.url.queryParameter("size"))
-            assertEquals("latest", request.url.queryParameter("sort"))
+            assertEquals("createdAt,desc", request.url.queryParameter("sort"))
             assertNull(request.url.queryParameter("categoryId"))
         }
         val page = PostRepository(api).getPosts().body()!!
@@ -51,10 +51,10 @@ class PostListTest {
     fun filteredPageUsesServerSortingAndParsesPostAndPagination() = runBlocking {
         val api = api("""{"content":[{"id":15,"title":"제목","category":"분실물","createdAt":"2026-08-04T12:30:00"}],"page":1,"size":20,"totalElements":21,"totalPages":2}""") { request ->
             assertEquals("1", request.url.queryParameter("page"))
-            assertEquals("likes", request.url.queryParameter("sort"))
+            assertEquals("viewCount,desc", request.url.queryParameter("sort"))
             assertEquals("8", request.url.queryParameter("categoryId"))
         }
-        val page = PostRepository(api).getPosts(page = 1, sort = "likes", categoryId = 8L).body()!!
+        val page = PostRepository(api).getPosts(page = 1, sort = "views", categoryId = 8L).body()!!
         assertEquals(PostListItem(15L, "제목", "분실물", "2026-08-04T12:30:00"), page.content.single())
         assertEquals(1, page.page)
         assertEquals(21L, page.totalElements)

@@ -29,7 +29,12 @@ class PostRepository(
         sort: String = "latest",
         categoryId: Long? = null,
     ): Response<PostListResponse> {
-        return postApi.getPosts(page, size, sort, categoryId)
+        val serverSort = when (sort) {
+            "latest" -> "createdAt,desc"
+            "views" -> "viewCount,desc"
+            else -> sort
+        }
+        return postApi.getPosts(page, size, serverSort, categoryId)
     }
 
     // 카테고리 조회
