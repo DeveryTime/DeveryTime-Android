@@ -82,7 +82,7 @@ private fun yearMonthDay(time: String): String {
 }
 
 @Composable
-public fun commentItehttps://github.com/DeveryTime/DeveryTime-Android/pull/22/conflict?name=app%252Fsrc%252Fmain%252Fjava%252Fcom%252Fexample%252Fdeverytime_android2%252Fpage%252Fmain%252FMain1.kt&ancestor_oid=8b7d4ffc8b3e9e8895ff935a97f30c5cd34adda3&base_oid=142c02638d1033408099efe16732fecb1b44cf79&head_oid=2179b5c92e9fc9f656201aa5abad1026be388065m2(
+public fun CommentItem2(
     comment: CommentListItem,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
@@ -565,7 +565,7 @@ fun PostViewScreen(
                             }
                         } else {
                             items(state.comments, key = { "comment-${it.id}" }) { comment ->
-                                commentItem2(
+                                CommentItem2(
                                     comment = comment,
                                     showTopBorder = comment.id == state.comments.first().id,
                                     currentUserId = currentUserId,

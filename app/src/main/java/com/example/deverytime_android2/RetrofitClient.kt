@@ -74,6 +74,8 @@ object RetrofitClient {
     // 댓글 API에 기존 인증 처리 적용
     val commentApi: CommentApi by lazy {
         authenticatedRetrofit.create(CommentApi::class.java)
+    }
+
     val myPageApi: MyPageApi by lazy {
         authenticatedRetrofit.create(MyPageApi::class.java)
     }
