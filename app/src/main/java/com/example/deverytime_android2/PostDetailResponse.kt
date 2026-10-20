@@ -29,6 +29,7 @@ data class PostDetailData(
         status = requireNotNull(status) { "상세 응답의 status가 없습니다." },
         viewCount = viewCount,
         writer = PostWriter(
+            // TODO: 백엔드 머지 후 상세 응답의 작성자 ID를 매핑해 수정·삭제의 본인 글 판별에 연결
             userId = null,
             nickname = requireNotNull(writerNickname) { "상세 응답의 writerNickname이 없습니다." },
             profileImageUrl = writerProfileImageUrl,
