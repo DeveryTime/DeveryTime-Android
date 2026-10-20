@@ -17,7 +17,7 @@
 #@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
 #@Composable
 #fun GreetingPreview() {
-#    DeveryTime_Android2Theme {
+#    DeveryTimeAndroid2Theme {
 #        Greeting("Android")
 #    }
 #}
@@ -45,7 +45,7 @@
    #@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
    #@Composable
    #fun SignUpScreenPreview() {
-   #    DeveryTime_Android2Theme {
+   #    DeveryTimeAndroid2Theme {
    #        Box(modifier = Modifier.fillMaxSize()) {
    #            // 디자인 이미지를 반투명하게 배경에 깔기
    #            Image(
@@ -64,7 +64,7 @@
    #@Preview(showBackground = true, device = "id:pixel_4", showSystemUi = true)
    #@Composable
    #fun SignUpScreenPreview2() {
-   #    DeveryTime_Android2Theme {
+   #    DeveryTimeAndroid2Theme {
    #        Box(modifier = Modifier.fillMaxSize()) {
    #            SignUpScreen(navController = rememberNavController())
    #        }

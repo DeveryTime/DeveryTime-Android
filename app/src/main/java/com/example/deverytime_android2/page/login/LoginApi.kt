@@ -14,4 +14,9 @@ interface LoginApi {
     suspend fun reissueToken(
         @Body request: TokenReissueRequest,
     ): Response<TokenReissueResponse>
+
+    @POST("api/auth/logout")
+    suspend fun logout(
+        @Body request: LogoutRequest,
+    ): Response<LogoutResponse>
 }
