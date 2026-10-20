@@ -4,6 +4,7 @@ import retrofit2.Response
 
 class SignUpRepository(
     private val signUpApi: SignUpApi = RetrofitClient.signUpApi,
+    private val usernameApi: UsernameApi = RetrofitClient.usernameApi,
 ) {
     suspend fun signUp(
         request: SignUpRequest,
@@ -14,7 +15,7 @@ class SignUpRepository(
     suspend fun checkUsername(
         username: String,
     ): Response<CheckUsernameResponse> {
-        return signUpApi.checkUsername(username)
+        return usernameApi.checkUsername(username)
     }
 
     suspend fun sendEmailVerification(

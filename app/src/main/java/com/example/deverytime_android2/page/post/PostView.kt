@@ -77,7 +77,7 @@ private fun yearMonthDay(time: String): String {
 }
 
 @Composable
-public fun commentItem2(
+public fun CommentItem2(
     post: Post,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
@@ -379,9 +379,23 @@ fun PostViewScreen(
                         fontFamily = pretendardVariable,
                         modifier =
                             Modifier
-                                .padding(top = 18.dp)
-                                .padding(horizontal = 25.dp)
-                                .fillMaxWidth(),
+                                .align(Alignment.CenterVertically)
+                                .padding(start = 6.dp),
+                    )
+                }
+            }
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .padding(top = 30.dp)
+                        .fillMaxSize(),
+            ) {
+                itemsIndexed(
+                    comments,
+                ) { index, commentText ->
+                    CommentItem2(
+                        post = post.copy(comment = commentText),
+                        showTopBorder = index == 0,
                     )
                     // 첨부 이미지 순서대로 표시
                     post.images.sortedBy { it.sortOrder }.forEach { image ->

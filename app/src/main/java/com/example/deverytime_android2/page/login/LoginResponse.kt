@@ -32,3 +32,12 @@ data class TokenReissueError(
     @SerializedName("message")
     val message: String?,
 )
+
+data class LogoutResponse(
+    @SerializedName("success")
+    val success: Boolean,
+    @SerializedName("data")
+    val data: Any?,
+    @SerializedName("message")
+    val message: String?,
+)

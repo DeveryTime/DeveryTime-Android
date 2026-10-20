@@ -28,7 +28,7 @@ private val lightColorSchemeColors =
     )
 
 @Composable
-fun DeveryTime_Android2Theme(
+fun DeveryTimeAndroid2Theme(
     darkTheme: Boolean = false,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,

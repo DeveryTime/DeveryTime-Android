@@ -67,7 +67,12 @@ fun formatTime(
 
 @Composable
 fun PostItem(
-    title: String, time: String, like: Int?, showTopBorder: Boolean = false, onClick: () -> Unit = {}
+    title: String,
+    time: String,
+    like: Int? = null,
+    showTopBorder: Boolean = false,
+    onClick: () -> Unit = {},
+    trailingText: String? = null,
 ) {
     // 날짜 표시 형식 변환
     val changeTime = formatTime(time)
@@ -120,26 +125,41 @@ fun PostItem(
                     color = buttonGray,
                 )
             }
-            Row(
-                modifier = Modifier.padding(end = 21.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_thumbs_up),
-                    contentDescription = stringResource(id = R.string.thumbs_up),
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .padding(end = 5.dp)
-                        .size(18.dp),
-                )
-                Text(
-                    // 좋아요 수 미제공 시 대시 표시
-                    text = like?.toString() ?: "—",
-                    fontSize = 12.sp,
-                    fontFamily = pretendardVariable,
-                    color = buttonGray,
-                )
+            when {
+                like != null -> {
+                    Row(
+                        modifier = Modifier.padding(end = 21.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.ic_thumbs_up),
+                            contentDescription = stringResource(id = R.string.thumbs_up),
+                            contentScale = ContentScale.Fit,
+                            modifier =
+                                Modifier
+                                    .padding(end = 5.dp)
+                                    .size(18.dp),
+                        )
+
+                        Text(
+                            text = like.toString(),
+                            fontSize = 12.sp,
+                            fontFamily = pretendardVariable,
+                            color = buttonGray,
+                        )
+                    }
+                }
+
+                trailingText != null -> {
+                    Text(
+                        text = trailingText,
+                        fontSize = 12.sp,
+                        fontFamily = pretendardVariable,
+                        color = buttonGray,
+                        modifier = Modifier.padding(end = 21.dp),
+                    )
+                }
             }
         }
     }
