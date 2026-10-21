@@ -132,7 +132,7 @@ fun Main3Screen(navigator: NavHostController) {
                     PostItem(
                         title = post.title,
                         time = post.createdAt,
-                        like = null,
+                        like = post.likeCount,
                         showTopBorder = (index == 0),
                         onClick = { navigator.navigate("postView/${post.id}") })
                 }

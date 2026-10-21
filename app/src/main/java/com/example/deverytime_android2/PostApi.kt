@@ -26,12 +26,12 @@ interface PostApi {
     @GET("/api/posts/{id}")
     suspend fun getPost(@Path("id") id: Long): Response<PostDetailApiResponse>
 
-    // 목록 조회 (page: 0부터 / categoryId: null이면 전체)
+    // 목록 조회 (page: 0부터 / sort: null이면 정렬 없음 / categoryId: null이면 전체)
     @GET("/api/posts")
     suspend fun getPosts(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
-        @Query("sort") sort: String = "createdAt,desc",
+        @Query("sort") sort: String? = null,
         @Query("categoryId") categoryId: Long? = null,
     ): Response<PostListResponse>
 

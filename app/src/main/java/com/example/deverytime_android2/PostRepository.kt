@@ -32,12 +32,13 @@ class PostRepository(
     suspend fun getPosts(
         page: Int = 0,
         size: Int = 20,
-        sort: String = "latest",
+        sort: String? = null,
         categoryId: Long? = null,
     ): Response<PostListResponse> {
         val serverSort = when (sort) {
             "latest" -> "createdAt,desc"
             "views" -> "viewCount,desc"
+            "likes" -> "likeCount,desc"
             else -> sort
         }
         return postApi.getPosts(page, size, serverSort, categoryId)
