@@ -42,15 +42,12 @@ fun PostDetailScreen(
     isEditing: Boolean = false,
     currentUserId: Long? = null,
     likeModel: LikeViewModel = viewModel(),
+    commentModel: CommentViewModel = viewModel(),
 ) {
     val state by model.state.collectAsState()
     val deleteState by model.deleteState.collectAsState()
     val likeState by likeModel.state.collectAsState()
     var previousLiked by remember(postId) { mutableStateOf<Boolean?>(null) }
-    commentModel: CommentViewModel = viewModel(),
-) {
-    val state by model.state.collectAsState()
-    val deleteState by model.deleteState.collectAsState()
     val commentState by commentModel.state.collectAsState()
     val commentListState by commentModel.listState.collectAsState()
     val commentDeleteState by commentModel.deleteState.collectAsState()

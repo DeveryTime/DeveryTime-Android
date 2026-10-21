@@ -28,8 +28,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -86,7 +84,6 @@ private fun yearMonthDay(time: String): String {
 
 @Composable
 public fun CommentItem2(
-    post: Post,
     comment: CommentListItem,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
@@ -275,6 +272,8 @@ fun PostViewScreen(
         val message = likeState.message ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
         onLikeHandled()
+    }
+
     val isCommentSending = commentState is CreateCommentUiState.Loading ||
         commentState is CreateCommentUiState.Success
     val isCommentDeleting = commentDeleteState is DeleteCommentUiState.Loading ||
@@ -284,7 +283,6 @@ fun PostViewScreen(
         is CommentListUiState.Success -> state.comments.size.toString()
         else -> "—"
     }
-    val snackbarHostState = remember { SnackbarHostState() }
     val snackbarScope = rememberCoroutineScope()
 
     // 성공 시 입력 초기화·실패 시 입력 유지
