@@ -1,5 +1,6 @@
 package com.example.deverytime_android2
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.io.IOException
@@ -74,8 +75,9 @@ class PostListViewModel : ViewModel() {
         loadJob = viewModelScope.launch {
             try {
                 val response = repository.getPosts(page = page, sort = sort, categoryId = categoryId)
-                val body = response.body()
-                if (response.isSuccessful && body != null) {
+                val result = response.body()
+                val body = result?.data
+                if (response.isSuccessful && result?.success == true && body != null) {
                     val posts = if (page == 0) {
                         body.content
                     } else {
@@ -99,10 +101,23 @@ class PostListViewModel : ViewModel() {
                 // 취소된 요청의 오류 처리 제외
                 throw exception
             } catch (exception: IOException) {
+                logLoadFailure(page, exception)
                 showError("네트워크 연결을 확인하고 다시 시도해 주세요.")
             } catch (exception: Exception) {
+                logLoadFailure(page, exception)
                 showError("게시글 목록 응답을 확인할 수 없습니다.")
             }
+        }
+    }
+
+    // 응답 오류 원인 확인용 임시 로그 (디버그 빌드에서만 기록)
+    private fun logLoadFailure(page: Int, exception: Exception) {
+        if (BuildConfig.DEBUG) {
+            Log.e(
+                "PostListViewModel",
+                "게시글 목록 조회 실패: page=$page, sort=$sort, categoryId=$categoryId",
+                exception,
+            )
         }
     }
 

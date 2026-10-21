@@ -1,9 +1,7 @@
 package com.example.deverytime_android2
 
-// 기존 명세의 작성 응답 (실제 서버 형식 확인 필요)
+// 게시글 작성 응답 (data: 등록된 게시글 ID)
 data class CreatePostResponse(
-    val id: Int,
-    val title: String,
-    val status: String,
-    val createdAt: String,
+    val success: Boolean,
+    val data: Long?,
 )

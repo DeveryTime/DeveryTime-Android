@@ -65,7 +65,9 @@ class PostingViewModel : ViewModel() {
                 if (!response.isSuccessful) {
                     val message = postErrorMessage(response.code(), response.errorBody()?.string())
                     _uiState.value = PostingUiState.Error(message)
-                } else if (body == null) {
+                } else if (body?.success == false) {
+                    _uiState.value = PostingUiState.Error("게시글 작성에 실패했습니다. 다시 시도해 주세요.")
+                } else if (body == null || body.data == null || body.data <= 0) {
                     _uiState.value = PostingUiState.Error("게시글 작성 응답을 확인할 수 없습니다.")
                 } else {
                     _uiState.value = PostingUiState.Success(body)

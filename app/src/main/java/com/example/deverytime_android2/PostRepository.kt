@@ -19,7 +19,13 @@ class PostRepository(
 
     // 게시글 상세 조회
     suspend fun getPost(id: Long): Response<PostDetailResponse> {
-        return postApi.getPost(id)
+        val response = postApi.getPost(id)
+        if (!response.isSuccessful) {
+            return Response.error(requireNotNull(response.errorBody()), response.raw())
+        }
+        val result = response.body()
+        val post = if (result?.success == true) result.data?.toPostDetail() else null
+        return Response.success(post, response.raw())
     }
 
     // 정렬·카테고리별 목록 조회
@@ -29,7 +35,12 @@ class PostRepository(
         sort: String = "latest",
         categoryId: Long? = null,
     ): Response<PostListResponse> {
-        return postApi.getPosts(page, size, sort, categoryId)
+        val serverSort = when (sort) {
+            "latest" -> "createdAt,desc"
+            "views" -> "viewCount,desc"
+            else -> sort
+        }
+        return postApi.getPosts(page, size, serverSort, categoryId)
     }
 
     // 카테고리 조회

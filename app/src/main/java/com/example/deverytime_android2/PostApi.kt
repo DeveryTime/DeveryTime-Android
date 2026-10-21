@@ -24,14 +24,14 @@ interface PostApi {
 
     // 게시글 ID로 상세 조회
     @GET("/api/posts/{id}")
-    suspend fun getPost(@Path("id") id: Long): Response<PostDetailResponse>
+    suspend fun getPost(@Path("id") id: Long): Response<PostDetailApiResponse>
 
     // 목록 조회 (page: 0부터 / categoryId: null이면 전체)
     @GET("/api/posts")
     suspend fun getPosts(
         @Query("page") page: Int = 0,
         @Query("size") size: Int = 20,
-        @Query("sort") sort: String = "latest",
+        @Query("sort") sort: String = "createdAt,desc",
         @Query("categoryId") categoryId: Long? = null,
     ): Response<PostListResponse>
 

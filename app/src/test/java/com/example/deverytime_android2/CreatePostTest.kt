@@ -28,7 +28,7 @@ class CreatePostTest {
     fun repositoryPassesRequestAndCreatedResponseThrough() = runBlocking {
         val request = CreatePostRequest(3, "제목", "내용")
         val expectedRequest = request
-        val created = CreatePostResponse(15, "제목", "PUBLISHED", "2026-08-04T12:30:00")
+        val created = CreatePostResponse(success = true, data = 15L)
         val api = object : PostApi {
             override suspend fun deletePost(id: Long): Response<Unit> =
                 error("Post deletion is not part of this test")
@@ -36,7 +36,7 @@ class CreatePostTest {
             override suspend fun updatePost(id: Long, request: UpdatePostRequest): Response<UpdatePostResponse> =
                 error("Post update is not part of this test")
 
-            override suspend fun getPost(id: Long): Response<PostDetailResponse> =
+            override suspend fun getPost(id: Long): Response<PostDetailApiResponse> =
                 error("Post detail is not part of this test")
 
             override suspend fun getPosts(page: Int, size: Int, sort: String, categoryId: Long?): Response<PostListResponse> =
@@ -44,7 +44,7 @@ class CreatePostTest {
 
             override suspend fun createPost(request: CreatePostRequest): Response<CreatePostResponse> {
                 assertSame(expectedRequest, request)
-                return Response.success(201, created)
+                return Response.success(200, created)
             }
 
             override suspend fun getCategories(): Response<List<PostCategory>> =
@@ -52,7 +52,7 @@ class CreatePostTest {
         }
 
         val response = PostRepository(api).createPost(request)
-        assertEquals(201, response.code())
+        assertEquals(200, response.code())
         assertSame(created, response.body())
         assertEquals(listOf(PostCategory(3, "교과")), PostRepository(api).getCategories().body())
     }

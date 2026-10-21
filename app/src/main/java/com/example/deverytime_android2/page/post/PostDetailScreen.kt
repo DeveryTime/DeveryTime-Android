@@ -18,7 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +41,12 @@ fun PostDetailScreen(
     model: PostViewModel = viewModel(),
     isEditing: Boolean = false,
     currentUserId: Long? = null,
+    likeModel: LikeViewModel = viewModel(),
+) {
+    val state by model.state.collectAsState()
+    val deleteState by model.deleteState.collectAsState()
+    val likeState by likeModel.state.collectAsState()
+    var previousLiked by remember(postId) { mutableStateOf<Boolean?>(null) }
     commentModel: CommentViewModel = viewModel(),
 ) {
     val state by model.state.collectAsState()
@@ -49,6 +57,15 @@ fun PostDetailScreen(
     val entry = remember(navController) { requireNotNull(navController.currentBackStackEntry) }
     val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
     LaunchedEffect(postId) { model.loadPost(postId) }
+    // 좋아요 등록·취소 후 이전 목록 갱신 예약
+    LaunchedEffect(likeState.isReady, likeState.isLiked) {
+        if (likeState.isReady) {
+            if (previousLiked != null && likeState.isLiked != previousLiked) {
+                navController.previousBackStackEntry?.savedStateHandle?.set(POST_UPDATED_KEY, true)
+            }
+            previousLiked = likeState.isLiked
+        }
+    }
     // 삭제 완료 후 이전 목록 갱신·뒤로 이동
     LaunchedEffect(deleteState) {
         if (deleteState is DeletePostUiState.Success) {
@@ -74,6 +91,8 @@ fun PostDetailScreen(
                 currentUserId = currentUserId,
             )
         } else {
+            // 상세 조회 완료 후 좋아요 초기 상태 연결
+            LaunchedEffect(currentState.post) { likeModel.selectPost(currentState.post) }
             // 상세 화면 진입 시 댓글 조회
             LaunchedEffect(postId) { commentModel.loadComments(postId) }
             PostViewScreen(
@@ -83,6 +102,15 @@ fun PostDetailScreen(
                 deleteState = deleteState,
                 onDelete = { model.deletePost(postId) },
                 onDeleteDismiss = model::resetDeleteState,
+                likeState = likeState,
+                onLikeClick = {
+                    if (likeState.isLiked) {
+                        likeModel.deleteLike(postId)
+                    } else {
+                        likeModel.createLike(postId)
+                    }
+                },
+                onLikeHandled = likeModel::clearMessage,
                 commentState = commentState,
                 onCreateComment = { content -> commentModel.createComment(postId, content) },
                 onCommentHandled = commentModel::resetState,

@@ -191,6 +191,7 @@ class MainActivity : ComponentActivity() {
                 composable(route = Screen.Main3.route) { Main3Screen(navController) }
                 composable(route = Screen.Main4.route) { Main4Screen(navController) }
                 // 기존 작성 화면으로 게시글 수정
+                // TODO: 백엔드 머지 후 상세·수정 화면에 로그인 사용자 ID를 currentUserId로 전달해 작성자 ID와 비교
                 composable(
                     route = Screen.PostEdit.route,
                     arguments = listOf(navArgument("postId") { type = NavType.LongType }),

@@ -1,11 +1,9 @@
 package com.example.deverytime_android2
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
@@ -27,6 +24,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.SnackbarHost
@@ -48,6 +47,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.commentTextFieldColor
+import com.example.deverytime_android2.page.theme.mainBlue
 import com.example.deverytime_android2.page.theme.nonprofile
 import coil3.compose.AsyncImage
 import java.text.SimpleDateFormat
@@ -85,6 +86,7 @@ private fun yearMonthDay(time: String): String {
 
 @Composable
 public fun CommentItem2(
+    post: Post,
     comment: CommentListItem,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
@@ -245,6 +247,9 @@ fun PostViewScreen(
     deleteState: DeletePostUiState = DeletePostUiState.Idle,
     onDelete: () -> Unit = {},
     onDeleteDismiss: () -> Unit = {},
+    likeState: LikeUiState = LikeUiState(),
+    onLikeClick: () -> Unit = {},
+    onLikeHandled: () -> Unit = {},
     commentState: CreateCommentUiState = CreateCommentUiState.Idle,
     onCreateComment: (String) -> Unit = {},
     onCommentHandled: () -> Unit = {},
@@ -261,6 +266,15 @@ fun PostViewScreen(
     var showDeleteConfirm by remember(post.id) { mutableStateOf(false) }
     var commentToDelete by remember(post.id) { mutableStateOf<Long?>(null) }
     val isDeleting = deleteState is DeletePostUiState.Loading
+    val isLiked = if (likeState.isReady) likeState.isLiked else post.liked == true
+    val likeCount = if (likeState.isReady) likeState.likeCount else post.likeCount
+    val snackbarHostState = remember(post.id) { SnackbarHostState() }
+
+    // 좋아요 등록·취소·오류 안내
+    LaunchedEffect(post.id, likeState.message) {
+        val message = likeState.message ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(message)
+        onLikeHandled()
     val isCommentSending = commentState is CreateCommentUiState.Loading ||
         commentState is CreateCommentUiState.Success
     val isCommentDeleting = commentDeleteState is DeleteCommentUiState.Loading ||
@@ -428,7 +442,7 @@ fun PostViewScreen(
                                 containerColor = Color.White,
                             ) {
                                 // 본인 게시글 수정·삭제 메뉴
-                                if (currentUserId == post.writer.userId) {
+                                if (currentUserId != null && currentUserId == post.writer.userId) {
                                     DropdownMenuItem(
                                         text = { Text("수정하기") },
                                         onClick = {
@@ -493,17 +507,27 @@ fun PostViewScreen(
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.uil_thumbs_up),
-                                contentDescription = stringResource(id = R.string.thumbs_up),
+                                contentDescription = when {
+                                    likeState.isLoading && isLiked -> "좋아요 취소 중"
+                                    likeState.isLoading -> "좋아요 등록 중"
+                                    isLiked -> "좋아요 취소"
+                                    else -> stringResource(id = R.string.thumbs_up)
+                                },
+                                tint = if (isLiked) mainBlue else Color.Black,
                                 modifier =
                                     Modifier
                                         .padding(start = 26.dp)
                                         .size(20.dp)
-                                        .clickable {
-                                        },
+                                        // 현재 상태에 따라 등록·취소 (중복 요청 방지)
+                                        .clickable(
+                                            enabled = likeState.isReady && !isDeleting && !likeState.isLoading,
+                                            role = Role.Button,
+                                            onClick = onLikeClick,
+                                        ),
                             )
                             Text(
-                                // 상세 API에 좋아요 수 미제공
-                                text = "—",
+                                // 상세 조회·등록·취소 후 좋아요 수
+                                text = likeCount?.toString() ?: "—",
                                 fontSize = 15.sp,
                                 fontFamily = pretendardVariable,
                                 modifier =
