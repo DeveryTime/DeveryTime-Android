@@ -47,6 +47,13 @@ fun PostDetailScreen(
     val deleteState by model.deleteState.collectAsState()
     val likeState by likeModel.state.collectAsState()
     var previousLiked by remember(postId) { mutableStateOf<Boolean?>(null) }
+    commentModel: CommentViewModel = viewModel(),
+) {
+    val state by model.state.collectAsState()
+    val deleteState by model.deleteState.collectAsState()
+    val commentState by commentModel.state.collectAsState()
+    val commentListState by commentModel.listState.collectAsState()
+    val commentDeleteState by commentModel.deleteState.collectAsState()
     val entry = remember(navController) { requireNotNull(navController.currentBackStackEntry) }
     val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
     LaunchedEffect(postId) { model.loadPost(postId) }
@@ -86,6 +93,8 @@ fun PostDetailScreen(
         } else {
             // 상세 조회 완료 후 좋아요 초기 상태 연결
             LaunchedEffect(currentState.post) { likeModel.selectPost(currentState.post) }
+            // 상세 화면 진입 시 댓글 조회
+            LaunchedEffect(postId) { commentModel.loadComments(postId) }
             PostViewScreen(
                 navController = navController,
                 post = currentState.post,
@@ -102,6 +111,14 @@ fun PostDetailScreen(
                     }
                 },
                 onLikeHandled = likeModel::clearMessage,
+                commentState = commentState,
+                onCreateComment = { content -> commentModel.createComment(postId, content) },
+                onCommentHandled = commentModel::resetState,
+                commentListState = commentListState,
+                onRetryComments = { commentModel.loadComments(postId) },
+                commentDeleteState = commentDeleteState,
+                onDeleteComment = { commentId -> commentModel.deleteComment(postId, commentId) },
+                onCommentDeleteHandled = commentModel::resetDeleteState,
             )
         }
     } else {

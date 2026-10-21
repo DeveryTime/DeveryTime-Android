@@ -388,6 +388,8 @@ private fun LatestPostSection(modifier: Modifier = Modifier) {
 @Composable
 private fun SearchScreenPreview() {
     DeveryTimeAndroid2Theme {
+        val navController = rememberNavController()
+
         Scaffold(
             bottomBar = {
                 BottomNavigationBar(

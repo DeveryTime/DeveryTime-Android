@@ -9,14 +9,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -24,11 +28,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +60,7 @@ import com.example.deverytime_android2.page.theme.nonprofile
 import coil3.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 
 private fun yearMonthDay(time: String): String {
@@ -79,23 +87,26 @@ private fun yearMonthDay(time: String): String {
 @Composable
 public fun CommentItem2(
     post: Post,
+    comment: CommentListItem,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
+    currentUserId: Long? = null,
+    deleteEnabled: Boolean = true,
+    onDelete: () -> Unit = {},
 ) {
-    val changeTime = formatTime(post.time)
     var commentExpanded by remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
 
     Box(
         modifier =
-            Modifier
-                .fillMaxSize(),
+            modifier
+                .fillMaxWidth(),
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
+                    .heightIn(min = 72.dp)
                     .drawBehind {
                         val strokeWidth = 1.dp.toPx()
 
@@ -119,26 +130,33 @@ public fun CommentItem2(
             Column(
                 modifier =
                     Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 15.dp),
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp, vertical = 10.dp),
             ) {
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth(),
                 ) {
-                    Row(modifier = Modifier.padding(top = 10.dp)) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.frame_799),
-                            contentDescription = "프로필 사진",
-                            modifier =
-                                Modifier
-                                    .padding(end = 5.dp)
-                                    .size(24.dp),
-                            tint = nonprofile,
-                        )
+                    Row {
+                        // 프로필 없는 작성자 기본 아이콘
+                        if (comment.profileImageUrl.isNullOrBlank()) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.frame_799),
+                                contentDescription = "프로필 사진",
+                                modifier = Modifier.padding(end = 5.dp).size(24.dp),
+                                tint = nonprofile,
+                            )
+                        } else {
+                            AsyncImage(
+                                model = comment.profileImageUrl,
+                                contentDescription = "프로필 사진",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.padding(end = 5.dp).size(24.dp).clip(CircleShape),
+                            )
+                        }
                         Text(
-                            text = post.otherUserName,
+                            text = comment.authorName,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = pretendardVariable,
@@ -154,7 +172,7 @@ public fun CommentItem2(
                                 .align(Alignment.CenterVertically),
                     ) {
                         Text(
-                            text = yearMonthDay(post.time),
+                            text = yearMonthDay(comment.createdAt),
                             fontSize = 12.sp,
                             fontFamily = pretendardVariable,
                             color = buttonGray,
@@ -184,6 +202,17 @@ public fun CommentItem2(
                             onDismissRequest = { commentExpanded = false },
                             containerColor = Color.White,
                         ) {
+                            // 본인 댓글 삭제 메뉴
+                            if (currentUserId == comment.userId) {
+                                DropdownMenuItem(
+                                    text = { Text("삭제하기") },
+                                    enabled = deleteEnabled,
+                                    onClick = {
+                                        commentExpanded = false
+                                        onDelete()
+                                    },
+                                )
+                            }
                             DropdownMenuItem(
                                 text = { Text("신고하기") },
                                 onClick = {
@@ -196,7 +225,7 @@ public fun CommentItem2(
                     }
                 }
                 Text(
-                    text = post.comment,
+                    text = comment.content,
                     fontSize = 14.sp,
                     fontFamily = pretendardVariable,
                     modifier =
@@ -221,12 +250,21 @@ fun PostViewScreen(
     likeState: LikeUiState = LikeUiState(),
     onLikeClick: () -> Unit = {},
     onLikeHandled: () -> Unit = {},
+    commentState: CreateCommentUiState = CreateCommentUiState.Idle,
+    onCreateComment: (String) -> Unit = {},
+    onCommentHandled: () -> Unit = {},
+    commentListState: CommentListUiState = CommentListUiState.Loading,
+    onRetryComments: () -> Unit = {},
+    commentDeleteState: DeleteCommentUiState = DeleteCommentUiState.Idle,
+    onDeleteComment: (Long) -> Unit = {},
+    onCommentDeleteHandled: () -> Unit = {},
 ) {
     val changeTime = formatTime(post.createdAt, "yyyy년 MM월 dd일 HH:mm")
     var expanded by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf("") }
     val uriHandler = LocalUriHandler.current
     var showDeleteConfirm by remember(post.id) { mutableStateOf(false) }
+    var commentToDelete by remember(post.id) { mutableStateOf<Long?>(null) }
     val isDeleting = deleteState is DeletePostUiState.Loading
     val isLiked = if (likeState.isReady) likeState.isLiked else post.liked == true
     val likeCount = if (likeState.isReady) likeState.likeCount else post.likeCount
@@ -237,6 +275,75 @@ fun PostViewScreen(
         val message = likeState.message ?: return@LaunchedEffect
         snackbarHostState.showSnackbar(message)
         onLikeHandled()
+    val isCommentSending = commentState is CreateCommentUiState.Loading ||
+        commentState is CreateCommentUiState.Success
+    val isCommentDeleting = commentDeleteState is DeleteCommentUiState.Loading ||
+        commentDeleteState is DeleteCommentUiState.Success
+    // 조회된 목록의 댓글 수
+    val commentCountText = when (val state = commentListState) {
+        is CommentListUiState.Success -> state.comments.size.toString()
+        else -> "—"
+    }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
+
+    // 성공 시 입력 초기화·실패 시 입력 유지
+    LaunchedEffect(commentState) {
+        when (val state = commentState) {
+            is CreateCommentUiState.Success -> {
+                comment = ""
+                snackbarScope.launch { snackbarHostState.showSnackbar(state.message) }
+                onCommentHandled()
+            }
+            is CreateCommentUiState.Error -> {
+                snackbarScope.launch { snackbarHostState.showSnackbar(state.message) }
+                onCommentHandled()
+            }
+            else -> Unit
+        }
+    }
+
+    // 댓글 삭제 완료 안내·확인창 닫기
+    LaunchedEffect(commentDeleteState) {
+        if (commentDeleteState is DeleteCommentUiState.Success) {
+            commentToDelete = null
+            val message = commentDeleteState.message
+            snackbarScope.launch { snackbarHostState.showSnackbar(message) }
+            onCommentDeleteHandled()
+        }
+    }
+
+    // 댓글 삭제 확인·실패 문구 표시
+    val selectedCommentId = commentToDelete
+    if (selectedCommentId != null) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!isCommentDeleting) {
+                    commentToDelete = null
+                    onCommentDeleteHandled()
+                }
+            },
+            title = { Text("댓글 삭제") },
+            text = {
+                val error = commentDeleteState as? DeleteCommentUiState.Error
+                Text(error?.message ?: "이 댓글을 삭제할까요?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { onDeleteComment(selectedCommentId) },
+                    enabled = !isCommentDeleting && !isCommentSending && !isDeleting,
+                ) { Text(if (isCommentDeleting) "삭제 중…" else "삭제") }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !isCommentDeleting,
+                    onClick = {
+                        commentToDelete = null
+                        onCommentDeleteHandled()
+                    },
+                ) { Text("취소") }
+            },
+        )
     }
 
     // 삭제 확인·실패 문구 표시
@@ -345,7 +452,7 @@ fun PostViewScreen(
                                     )
                                     DropdownMenuItem(
                                         text = { Text("삭제하기") },
-                                        enabled = !isDeleting,
+                                        enabled = !isDeleting && !isCommentSending && !isCommentDeleting,
                                         onClick = {
                                             expanded = false
                                             showDeleteConfirm = true
@@ -444,8 +551,7 @@ fun PostViewScreen(
                                         .align(Alignment.CenterVertically),
                             )
                             Text(
-                                // 댓글 조회 API 연결 전
-                                text = "—",
+                                text = commentCountText,
                                 fontSize = 15.sp,
                                 fontFamily = pretendardVariable,
                                 modifier =
@@ -453,6 +559,51 @@ fun PostViewScreen(
                                         .align(Alignment.CenterVertically)
                                         .padding(start = 6.dp),
                             )
+                        }
+                    }
+                }
+                // 댓글 로딩·빈 목록·오류 표시
+                when (val state = commentListState) {
+                    CommentListUiState.Loading -> item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
+                    }
+                    is CommentListUiState.Error -> item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(state.message, fontFamily = pretendardVariable, fontSize = 14.sp)
+                            TextButton(onClick = onRetryComments) { Text("다시 시도") }
+                        }
+                    }
+                    is CommentListUiState.Success -> {
+                        if (state.comments.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "아직 댓글이 없습니다.",
+                                    fontFamily = pretendardVariable,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(16.dp),
+                                )
+                            }
+                        } else {
+                            items(state.comments, key = { "comment-${it.id}" }) { comment ->
+                                CommentItem2(
+                                    comment = comment,
+                                    showTopBorder = comment.id == state.comments.first().id,
+                                    currentUserId = currentUserId,
+                                    deleteEnabled = !isDeleting && !isCommentSending && !isCommentDeleting,
+                                    onDelete = {
+                                        onCommentDeleteHandled()
+                                        commentToDelete = comment.id
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -478,6 +629,7 @@ fun PostViewScreen(
                 BasicTextField(
                     value = comment,
                     onValueChange = { comment = it },
+                    enabled = !isCommentSending && !isCommentDeleting,
                     singleLine = true,
                     modifier =
                         Modifier
@@ -506,11 +658,14 @@ fun PostViewScreen(
                             .padding(horizontal = 15.dp)
                             .size(24.dp)
                             .align(Alignment.CenterVertically)
-                            // 댓글 작성 API 연결 전 전송 비활성화
-                            .clickable(enabled = false) {},
+                            // 빈 입력·전송 중 클릭 방지
+                            .clickable(enabled = comment.isNotBlank() && !isCommentSending && !isCommentDeleting && !isDeleting) {
+                                onCreateComment(comment)
+                            },
                 )
             }
         }
+        // 댓글 작성·삭제 결과 안내
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(bottom = 80.dp),
