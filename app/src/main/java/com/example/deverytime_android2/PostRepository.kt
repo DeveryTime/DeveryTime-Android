@@ -24,7 +24,7 @@ class PostRepository(
             return Response.error(requireNotNull(response.errorBody()), response.raw())
         }
         val result = response.body()
-        val post = if (result?.success == true) result.data?.toPostDetail() else null
+        val post = result?.toPostDetail()
         return Response.success(post, response.raw())
     }
 

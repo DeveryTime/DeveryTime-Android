@@ -1,45 +1,35 @@
 package com.example.deverytime_android2
 
-// 서버의 상세 조회 응답
+// success/data 래퍼 없이 반환되는 서버의 상세 조회 응답
 data class PostDetailApiResponse(
-    val success: Boolean,
-    val data: PostDetailData?,
-)
-
-data class PostDetailData(
     val id: Long,
     val title: String?,
     val content: String?,
     val status: String?,
     val viewCount: Int,
-    val writerNickname: String?,
-    val writerProfileImageUrl: String?,
-    val categoryName: String?,
-    val imageUrls: List<String>?,
+    val writer: PostWriter?,
+    val category: PostDetailCategory?,
+    val images: List<PostImage>?,
     val createdAt: String?,
     val updatedAt: String?,
     val likeCount: Int?,
     val liked: Boolean?,
 ) {
-    // 필수 값은 화면에 전달하기 전에 확인하고, 응답에 없는 ID는 null로 유지
+    // 필수 값 확인 후 작성자·카테고리·이미지 ID와 정렬 순서를 그대로 전달
     internal fun toPostDetail(): PostDetailResponse = PostDetailResponse(
         id = id,
         title = requireNotNull(title) { "상세 응답의 title이 없습니다." },
         content = requireNotNull(content) { "상세 응답의 content가 없습니다." },
         status = requireNotNull(status) { "상세 응답의 status가 없습니다." },
         viewCount = viewCount,
-        writer = PostWriter(
-            // TODO: 백엔드 머지 후 상세 응답의 작성자 ID를 매핑해 수정·삭제의 본인 글 판별에 연결
-            userId = null,
-            nickname = requireNotNull(writerNickname) { "상세 응답의 writerNickname이 없습니다." },
-            profileImageUrl = writerProfileImageUrl,
-        ),
-        category = PostDetailCategory(
-            id = null,
-            name = requireNotNull(categoryName) { "상세 응답의 categoryName이 없습니다." },
-        ),
-        images = imageUrls.orEmpty().mapIndexed { index, url ->
-            PostImage(id = null, imageUrl = url, sortOrder = index)
+        writer = requireNotNull(writer) { "상세 응답의 writer가 없습니다." }.also {
+            requireNotNull(it.nickname) { "상세 응답의 writer.nickname이 없습니다." }
+        },
+        category = requireNotNull(category) { "상세 응답의 category가 없습니다." }.also {
+            requireNotNull(it.name) { "상세 응답의 category.name이 없습니다." }
+        },
+        images = images.orEmpty().onEach {
+            requireNotNull(it.imageUrl) { "상세 응답의 images.imageUrl이 없습니다." }
         },
         createdAt = requireNotNull(createdAt) { "상세 응답의 createdAt이 없습니다." },
         updatedAt = updatedAt,
