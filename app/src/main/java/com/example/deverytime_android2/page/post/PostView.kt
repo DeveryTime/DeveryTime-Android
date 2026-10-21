@@ -11,28 +11,36 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -48,11 +56,10 @@ import androidx.navigation.NavHostController
 import com.example.deverytime_android2.page.theme.buttonGray
 import com.example.deverytime_android2.page.theme.commentTextFieldColor
 import com.example.deverytime_android2.page.theme.nonprofile
+import coil3.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.Locale
-
-val otherUserName = "홍길동"
-val view = 3
+import kotlinx.coroutines.launch
 
 
 private fun yearMonthDay(time: String): String {
@@ -78,24 +85,26 @@ private fun yearMonthDay(time: String): String {
 
 @Composable
 public fun CommentItem2(
-    post: Post,
+    comment: CommentListItem,
     showTopBorder: Boolean = false,
     modifier: Modifier = Modifier,
+    currentUserId: Long? = null,
+    deleteEnabled: Boolean = true,
+    onDelete: () -> Unit = {},
 ) {
-    val changeTime = formatTime(post.time)
     var commentExpanded by remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
 
     Box(
         modifier =
-            Modifier
-                .fillMaxSize(),
+            modifier
+                .fillMaxWidth(),
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
+                    .heightIn(min = 72.dp)
                     .drawBehind {
                         val strokeWidth = 1.dp.toPx()
 
@@ -119,26 +128,33 @@ public fun CommentItem2(
             Column(
                 modifier =
                     Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 15.dp),
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp, vertical = 10.dp),
             ) {
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth(),
                 ) {
-                    Row(modifier = Modifier.padding(top = 10.dp)) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.frame_799),
-                            contentDescription = "프로필 사진",
-                            modifier =
-                                Modifier
-                                    .padding(end = 5.dp)
-                                    .size(24.dp),
-                            tint = nonprofile,
-                        )
+                    Row {
+                        // 프로필 없는 작성자 기본 아이콘
+                        if (comment.profileImageUrl.isNullOrBlank()) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.frame_799),
+                                contentDescription = "프로필 사진",
+                                modifier = Modifier.padding(end = 5.dp).size(24.dp),
+                                tint = nonprofile,
+                            )
+                        } else {
+                            AsyncImage(
+                                model = comment.profileImageUrl,
+                                contentDescription = "프로필 사진",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.padding(end = 5.dp).size(24.dp).clip(CircleShape),
+                            )
+                        }
                         Text(
-                            text = post.otherUserName,
+                            text = comment.authorName,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             fontFamily = pretendardVariable,
@@ -154,7 +170,7 @@ public fun CommentItem2(
                                 .align(Alignment.CenterVertically),
                     ) {
                         Text(
-                            text = yearMonthDay(post.time),
+                            text = yearMonthDay(comment.createdAt),
                             fontSize = 12.sp,
                             fontFamily = pretendardVariable,
                             color = buttonGray,
@@ -184,6 +200,17 @@ public fun CommentItem2(
                             onDismissRequest = { commentExpanded = false },
                             containerColor = Color.White,
                         ) {
+                            // 본인 댓글 삭제 메뉴
+                            if (currentUserId == comment.userId) {
+                                DropdownMenuItem(
+                                    text = { Text("삭제하기") },
+                                    enabled = deleteEnabled,
+                                    onClick = {
+                                        commentExpanded = false
+                                        onDelete()
+                                    },
+                                )
+                            }
                             DropdownMenuItem(
                                 text = { Text("신고하기") },
                                 onClick = {
@@ -196,7 +223,7 @@ public fun CommentItem2(
                     }
                 }
                 Text(
-                    text = post.comment,
+                    text = comment.content,
                     fontSize = 14.sp,
                     fontFamily = pretendardVariable,
                     modifier =
@@ -212,196 +239,349 @@ public fun CommentItem2(
 @Composable
 fun PostViewScreen(
     navController: NavHostController,
-    post: Post,
+    post: PostDetailResponse,
     modifier: Modifier = Modifier,
+    currentUserId: Long? = null,
+    deleteState: DeletePostUiState = DeletePostUiState.Idle,
+    onDelete: () -> Unit = {},
+    onDeleteDismiss: () -> Unit = {},
+    commentState: CreateCommentUiState = CreateCommentUiState.Idle,
+    onCreateComment: (String) -> Unit = {},
+    onCommentHandled: () -> Unit = {},
+    commentListState: CommentListUiState = CommentListUiState.Loading,
+    onRetryComments: () -> Unit = {},
+    commentDeleteState: DeleteCommentUiState = DeleteCommentUiState.Idle,
+    onDeleteComment: (Long) -> Unit = {},
+    onCommentDeleteHandled: () -> Unit = {},
 ) {
-    val changeTime = formatTime(post.time, "yyyy년 MM월 dd일 HH:mm")
+    val changeTime = formatTime(post.createdAt, "yyyy년 MM월 dd일 HH:mm")
     var expanded by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf("") }
-    val comments =
-        remember(post.id) {
-            mutableStateListOf(post.comment)
-        }
     val uriHandler = LocalUriHandler.current
+    var showDeleteConfirm by remember(post.id) { mutableStateOf(false) }
+    var commentToDelete by remember(post.id) { mutableStateOf<Long?>(null) }
+    val isDeleting = deleteState is DeletePostUiState.Loading
+    val isCommentSending = commentState is CreateCommentUiState.Loading ||
+        commentState is CreateCommentUiState.Success
+    val isCommentDeleting = commentDeleteState is DeleteCommentUiState.Loading ||
+        commentDeleteState is DeleteCommentUiState.Success
+    // 조회된 목록의 댓글 수
+    val commentCountText = when (val state = commentListState) {
+        is CommentListUiState.Success -> state.comments.size.toString()
+        else -> "—"
+    }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
+
+    // 성공 시 입력 초기화·실패 시 입력 유지
+    LaunchedEffect(commentState) {
+        when (val state = commentState) {
+            is CreateCommentUiState.Success -> {
+                comment = ""
+                snackbarScope.launch { snackbarHostState.showSnackbar(state.message) }
+                onCommentHandled()
+            }
+            is CreateCommentUiState.Error -> {
+                snackbarScope.launch { snackbarHostState.showSnackbar(state.message) }
+                onCommentHandled()
+            }
+            else -> Unit
+        }
+    }
+
+    // 댓글 삭제 완료 안내·확인창 닫기
+    LaunchedEffect(commentDeleteState) {
+        if (commentDeleteState is DeleteCommentUiState.Success) {
+            commentToDelete = null
+            val message = commentDeleteState.message
+            snackbarScope.launch { snackbarHostState.showSnackbar(message) }
+            onCommentDeleteHandled()
+        }
+    }
+
+    // 댓글 삭제 확인·실패 문구 표시
+    val selectedCommentId = commentToDelete
+    if (selectedCommentId != null) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!isCommentDeleting) {
+                    commentToDelete = null
+                    onCommentDeleteHandled()
+                }
+            },
+            title = { Text("댓글 삭제") },
+            text = {
+                val error = commentDeleteState as? DeleteCommentUiState.Error
+                Text(error?.message ?: "이 댓글을 삭제할까요?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { onDeleteComment(selectedCommentId) },
+                    enabled = !isCommentDeleting && !isCommentSending && !isDeleting,
+                ) { Text(if (isCommentDeleting) "삭제 중…" else "삭제") }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !isCommentDeleting,
+                    onClick = {
+                        commentToDelete = null
+                        onCommentDeleteHandled()
+                    },
+                ) { Text("취소") }
+            },
+        )
+    }
+
+    // 삭제 확인·실패 문구 표시
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!isDeleting) {
+                    showDeleteConfirm = false
+                    onDeleteDismiss()
+                }
+            },
+            title = { Text("게시글 삭제") },
+            text = {
+                val error = deleteState as? DeletePostUiState.Error
+                Text(error?.message ?: "이 게시글을 삭제할까요?")
+            },
+            confirmButton = {
+                TextButton(onClick = onDelete, enabled = !isDeleting) {
+                    Text(if (isDeleting) "삭제 중…" else "삭제")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !isDeleting,
+                    onClick = {
+                        showDeleteConfirm = false
+                        onDeleteDismiss()
+                    },
+                ) { Text("취소") }
+            },
+        )
+    }
 
     Box {
         Column(modifier = modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier.padding(start = 15.dp, top = 45.dp),
-            ) {
-                Button(
-                    onClick = {
-                        navController.popBackStack()
-                    },
-                    modifier =
-                        Modifier
-                            .size(40.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0x00FFFFFF)),
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.back_arrow),
-                        contentDescription = stringResource(id = R.string.back_arrow),
-                        contentScale = ContentScale.Fit,
+            PostBackButton(navController)
+            // 긴 본문·이미지 스크롤
+            LazyColumn(modifier = Modifier.weight(1f)) {
+                item {
+                    Row(
                         modifier =
                             Modifier
-                                .size(40.dp)
-                                .align(Alignment.CenterVertically),
-                    )
-                }
-            }
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-            ) {
-                // TODO: 사진을 백엔드에서 가져와야함
-                Image(
-                    painter = painterResource(id = R.drawable.frame_799),
-                    contentDescription = "마이페이지 프로필",
-                    modifier =
-                        Modifier
-                            .padding(start = 28.dp),
-                )
-                Column(
-                    modifier =
-                        Modifier
-                            .padding(start = 8.dp)
-                            .align(Alignment.CenterVertically),
-                ) {
+                                .fillMaxWidth()
+                                .padding(top = 16.dp),
+                    ) {
+                        // 작성자 프로필 이미지
+                        AsyncImage(
+                            model = post.writer.profileImageUrl,
+                            placeholder = painterResource(R.drawable.frame_799),
+                            error = painterResource(R.drawable.frame_799),
+                            fallback = painterResource(R.drawable.frame_799),
+                            contentDescription = "작성자 프로필",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.padding(start = 28.dp).size(48.dp).clip(CircleShape),
+                        )
+                        Column(
+                            modifier =
+                                Modifier
+                                    .padding(start = 8.dp)
+                                    .align(Alignment.CenterVertically),
+                        ) {
+                            Text(
+                                text = post.writer.nickname,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = pretendardVariable,
+                            )
+                            Text(
+                                text = "$changeTime - ${post.viewCount} 조회",
+                                fontSize = 13.sp,
+                                fontFamily = pretendardVariable,
+                            )
+                        }
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                    },
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_menu_kebab),
+                                contentDescription = "케밥",
+                                modifier =
+                                    Modifier
+                                        .padding(end = 20.dp, top = 6.dp)
+                                        .size(16.dp)
+                                        .align(Alignment.TopEnd)
+                                        .clickable {
+                                            expanded = !expanded
+                                        },
+                            )
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                containerColor = Color.White,
+                            ) {
+                                // 본인 게시글 수정·삭제 메뉴
+                                if (currentUserId == post.writer.userId) {
+                                    DropdownMenuItem(
+                                        text = { Text("수정하기") },
+                                        onClick = {
+                                            expanded = false
+                                            navController.navigate("postEdit/${post.id}")
+                                        },
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("삭제하기") },
+                                        enabled = !isDeleting && !isCommentSending && !isCommentDeleting,
+                                        onClick = {
+                                            expanded = false
+                                            showDeleteConfirm = true
+                                        },
+                                    )
+                                }
+                                DropdownMenuItem(
+                                    text = { Text("신고하기") },
+                                    onClick = {
+                                        uriHandler.openUri(
+                                            "https://docs.google.com/forms/d/e/1FAIpQLSeLaXHB-Wo9VVqcbNtGBlzQtL5rscli2KoiMpWsRs277_8Qbw/viewform",
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
                     Text(
-                        text = post.otherUserName,
-                        fontSize = 20.sp,
+                        text = post.title,
+                        fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = pretendardVariable,
-                    )
-                    Text(
-                        text = "$changeTime - $view 조회",
-                        fontSize = 13.sp,
-                        fontFamily = pretendardVariable,
-                    )
-                }
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                            },
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_menu_kebab),
-                        contentDescription = "케밥",
                         modifier =
                             Modifier
-                                .padding(end = 20.dp, top = 6.dp)
-                                .size(16.dp)
-                                .align(Alignment.TopEnd)
-                                .clickable {
-                                    expanded = !expanded
-                                },
+                                .padding(start = 26.dp, top = 24.dp)
+                                .fillMaxWidth(),
                     )
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false },
-                        containerColor = Color.White,
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("신고하기") },
-                            onClick = {
-                                uriHandler.openUri(
-                                    "https://docs.google.com/forms/d/e/1FAIpQLSeLaXHB-Wo9VVqcbNtGBlzQtL5rscli2KoiMpWsRs277_8Qbw/viewform",
-                                )
-                            },
+                    Text(
+                        text = post.content,
+                        fontSize = 18.sp,
+                        fontFamily = pretendardVariable,
+                        modifier =
+                            Modifier
+                                .padding(top = 18.dp)
+                                .padding(horizontal = 25.dp)
+                                .fillMaxWidth(),
+                    )
+                    // 첨부 이미지 순서대로 표시
+                    post.images.sortedBy { it.sortOrder }.forEach { image ->
+                        AsyncImage(
+                            model = image.imageUrl,
+                            contentDescription = "게시글 첨부 이미지",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 25.dp, vertical = 12.dp).height(240.dp),
                         )
                     }
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier =
+                                Modifier
+                                    .padding(top = 30.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.uil_thumbs_up),
+                                contentDescription = stringResource(id = R.string.thumbs_up),
+                                modifier =
+                                    Modifier
+                                        .padding(start = 26.dp)
+                                        .size(20.dp)
+                                        .clickable {
+                                        },
+                            )
+                            Text(
+                                // 상세 API에 좋아요 수 미제공
+                                text = "—",
+                                fontSize = 15.sp,
+                                fontFamily = pretendardVariable,
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .padding(start = 5.dp),
+                            )
+                        }
+                        Row(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 30.dp, start = 30.dp),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_speech_bubble_rtl),
+                                contentDescription = "댓글",
+                                modifier =
+                                    Modifier
+                                        .size(16.dp)
+                                        .align(Alignment.CenterVertically),
+                            )
+                            Text(
+                                text = commentCountText,
+                                fontSize = 15.sp,
+                                fontFamily = pretendardVariable,
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.CenterVertically)
+                                        .padding(start = 6.dp),
+                            )
+                        }
+                    }
                 }
-            }
-            Text(
-                text = post.title,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = pretendardVariable,
-                modifier =
-                    Modifier
-                        .padding(start = 26.dp, top = 24.dp)
-                        .fillMaxWidth(),
-            )
-            Text(
-                text = post.content,
-                fontSize = 18.sp,
-                fontFamily = pretendardVariable,
-                modifier =
-                    Modifier
-                        .padding(top = 18.dp)
-                        .padding(horizontal = 25.dp)
-                        .fillMaxWidth(),
-            )
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier =
-                        Modifier
-                            .padding(top = 30.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.uil_thumbs_up),
-                        contentDescription = stringResource(id = R.string.thumbs_up),
-                        modifier =
-                            Modifier
-                                .padding(start = 26.dp)
-                                .size(20.dp)
-                                .clickable {
-                                },
-                    )
-                    Text(
-                        text = post.like.toString(),
-                        fontSize = 15.sp,
-                        fontFamily = pretendardVariable,
-                        modifier =
-                            Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(start = 5.dp),
-                    )
-                }
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 30.dp, start = 30.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_speech_bubble_rtl),
-                        contentDescription = "댓글",
-                        modifier =
-                            Modifier
-                                .size(16.dp)
-                                .align(Alignment.CenterVertically),
-                    )
-                    Text(
-                        text = "8",
-                        fontSize = 15.sp,
-                        fontFamily = pretendardVariable,
-                        modifier =
-                            Modifier
-                                .align(Alignment.CenterVertically)
-                                .padding(start = 6.dp),
-                    )
-                }
-            }
-            LazyColumn(
-                modifier =
-                    Modifier
-                        .padding(top = 30.dp)
-                        .fillMaxSize(),
-            ) {
-                itemsIndexed(
-                    comments,
-                ) { index, commentText ->
-                    CommentItem2(
-                        post = post.copy(comment = commentText),
-                        showTopBorder = index == 0,
-                    )
+                // 댓글 로딩·빈 목록·오류 표시
+                when (val state = commentListState) {
+                    CommentListUiState.Loading -> item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
+                    }
+                    is CommentListUiState.Error -> item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(state.message, fontFamily = pretendardVariable, fontSize = 14.sp)
+                            TextButton(onClick = onRetryComments) { Text("다시 시도") }
+                        }
+                    }
+                    is CommentListUiState.Success -> {
+                        if (state.comments.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "아직 댓글이 없습니다.",
+                                    fontFamily = pretendardVariable,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(16.dp),
+                                )
+                            }
+                        } else {
+                            items(state.comments, key = { "comment-${it.id}" }) { comment ->
+                                CommentItem2(
+                                    comment = comment,
+                                    showTopBorder = comment.id == state.comments.first().id,
+                                    currentUserId = currentUserId,
+                                    deleteEnabled = !isDeleting && !isCommentSending && !isCommentDeleting,
+                                    onDelete = {
+                                        onCommentDeleteHandled()
+                                        commentToDelete = comment.id
+                                    },
+                                )
+                            }
+                        }
+                    }
                 }
                 item {
                     Spacer(modifier = Modifier.height(80.dp))
@@ -425,6 +605,7 @@ fun PostViewScreen(
                 BasicTextField(
                     value = comment,
                     onValueChange = { comment = it },
+                    enabled = !isCommentSending && !isCommentDeleting,
                     singleLine = true,
                     modifier =
                         Modifier
@@ -453,13 +634,17 @@ fun PostViewScreen(
                             .padding(horizontal = 15.dp)
                             .size(24.dp)
                             .align(Alignment.CenterVertically)
-                            .clickable(enabled = comment.isNotBlank()) {
-                                comments.add(comment.trim())
-                                // TODO: submittedComment를 서버에 전송
-                                comment = ""
+                            // 빈 입력·전송 중 클릭 방지
+                            .clickable(enabled = comment.isNotBlank() && !isCommentSending && !isCommentDeleting && !isDeleting) {
+                                onCreateComment(comment)
                             },
                 )
             }
         }
+        // 댓글 작성·삭제 결과 안내
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter).imePadding().padding(bottom = 80.dp),
+        )
     }
 }
