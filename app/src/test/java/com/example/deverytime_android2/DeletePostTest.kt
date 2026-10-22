@@ -40,6 +40,16 @@ class DeletePostTest {
         val response = PostRepository(api(204, "")).deletePost(15L)
         assertEquals(204, response.code())
         assertNull(response.body())
+        assertEquals(DeletePostUiState.Success, deletePostResult(response))
+    }
+
+    @Test
+    fun deletionAccepts200WithOrWithoutResponseBody() = runBlocking {
+        for (json in listOf("", """{"success":true,"message":"게시글이 삭제되었습니다."}""")) {
+            val response = PostRepository(api(200, json)).deletePost(15L)
+            assertEquals(200, response.code())
+            assertEquals(DeletePostUiState.Success, deletePostResult(response))
+        }
     }
 
     // 빈 403 응답 처리 검증
@@ -48,6 +58,10 @@ class DeletePostTest {
         val response = PostRepository(api(403, "")).deletePost(15L)
         assertFalse(response.isSuccessful)
         assertEquals("해당 작업을 수행할 권한이 없습니다.", deletePostErrorMessage(response.code(), response.errorBody()?.string()))
+        assertEquals(
+            DeletePostUiState.Error("해당 작업을 수행할 권한이 없습니다."),
+            deletePostResult(response),
+        )
     }
 
     // 없는 게시글의 서버 오류 검증
@@ -64,6 +78,6 @@ class DeletePostTest {
         assertEquals("해당 작업을 수행할 권한이 없습니다.", deletePostErrorMessage(400, """{"error":{"code":"FORBIDDEN"}}"""))
         assertEquals("존재하지 않는 게시글입니다.", deletePostErrorMessage(400, """{"error":{"code":"POST_NOT_FOUND"}}"""))
         assertEquals("로그인이 필요합니다. 다시 로그인해 주세요.", deletePostErrorMessage(401, null))
-        assertEquals("게시글 삭제에 실패했습니다. (HTTP 500)", deletePostErrorMessage(500, "<html>error</html>"))
+        assertEquals("게시글 삭제에 실패했습니다. 다시 시도해 주세요.", deletePostErrorMessage(500, "<html>error</html>"))
     }
 }

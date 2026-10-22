@@ -10,6 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 // 상세 화면 상태
 sealed interface PostDetailUiState {
@@ -46,13 +47,7 @@ class PostViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = repository.deletePost(id)
-                // 204는 응답 본문 없이 삭제 성공
-                if (response.code() == 204) {
-                    _deleteState.value = DeletePostUiState.Success
-                } else {
-                    val message = deletePostErrorMessage(response.code(), response.errorBody()?.string())
-                    _deleteState.value = DeletePostUiState.Error(message)
-                }
+                _deleteState.value = deletePostResult(response)
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: IOException) {
@@ -120,6 +115,15 @@ internal fun postDetailErrorMessage(httpStatus: Int, errorBody: String?): String
     return "게시글을 불러오지 못했습니다. (HTTP $httpStatus)"
 }
 
+// 200·204를 포함한 성공 응답 처리
+internal fun deletePostResult(response: Response<Unit>): DeletePostUiState {
+    return if (response.isSuccessful) {
+        DeletePostUiState.Success
+    } else {
+        DeletePostUiState.Error(deletePostErrorMessage(response.code(), response.errorBody()?.string()))
+    }
+}
+
 // 삭제 오류 문구 선택 (서버 메시지 우선)
 internal fun deletePostErrorMessage(httpStatus: Int, errorBody: String?): String {
     val error = try {
@@ -132,5 +136,5 @@ internal fun deletePostErrorMessage(httpStatus: Int, errorBody: String?): String
     if (error?.code == "FORBIDDEN" || httpStatus == 403) return "해당 작업을 수행할 권한이 없습니다."
     if (error?.code == "POST_NOT_FOUND" || httpStatus == 404) return "존재하지 않는 게시글입니다."
     if (httpStatus == 401) return "로그인이 필요합니다. 다시 로그인해 주세요."
-    return "게시글 삭제에 실패했습니다. (HTTP $httpStatus)"
+    return "게시글 삭제에 실패했습니다. 다시 시도해 주세요."
 }
