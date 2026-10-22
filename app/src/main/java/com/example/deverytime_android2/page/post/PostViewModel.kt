@@ -1,5 +1,6 @@
 package com.example.deverytime_android2
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -89,10 +90,18 @@ class PostViewModel : ViewModel() {
                 // 취소된 요청의 오류 처리 제외
                 throw exception
             } catch (exception: IOException) {
+                logLoadFailure(id, exception)
                 _state.value = PostDetailUiState.Error("네트워크 연결을 확인하고 다시 시도해 주세요.")
             } catch (exception: Exception) {
+                logLoadFailure(id, exception)
                 _state.value = PostDetailUiState.Error("게시글 상세 응답을 확인할 수 없습니다.")
             }
+        }
+    }
+
+    private fun logLoadFailure(id: Long, exception: Exception) {
+        if (BuildConfig.DEBUG) {
+            Log.e("PostViewModel", "게시글 상세 조회 실패: postId=$id", exception)
         }
     }
 }

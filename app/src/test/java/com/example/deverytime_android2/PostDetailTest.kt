@@ -38,16 +38,13 @@ class PostDetailTest {
     @Test
     fun detailRequestParsesWriterCategoryImagesAndNullUpdatedAt() = runBlocking {
         val id = 4294967296L
-        val json = """{
+        val json = """{"success":true,"data":{
             "id":4294967296,"title":"제목","content":"내용","status":"PUBLISHED","viewCount":43,
-            "writer":{"userId":4294967297,"nickname":"닉네임","profileImageUrl":"https://example.test/profile.jpg"},
-            "category":{"id":3,"name":"프로젝트"},
-            "images":[
-                {"id":4294967298,"imageUrl":"https://example.test/img1.png","sortOrder":2},
-                {"id":2,"imageUrl":"https://example.test/img2.png","sortOrder":0}
-            ],
-            "createdAt":"2026-08-04T12:30:00","updatedAt":null
-        }"""
+            "writerId":4294967297,"writerNickname":"닉네임","writerProfileImageUrl":"https://example.test/profile.jpg",
+            "categoryName":"프로젝트",
+            "imageUrls":["https://example.test/img1.png","https://example.test/img2.png"],
+            "createdAt":"2026-08-04T12:30:00","updatedAt":null,"likeCount":7,"liked":true
+        }}"""
         val response = PostRepository(api(id, 200, json)).getPost(id)
         val post = response.body()!!
         assertEquals(200, response.code())
@@ -57,40 +54,71 @@ class PostDetailTest {
         assertEquals("제목", post.title)
         assertEquals("2026-08-04T12:30:00", post.createdAt)
         assertEquals(PostWriter(4294967297L, "닉네임", "https://example.test/profile.jpg"), post.writer)
-        assertEquals(PostDetailCategory(3L, "프로젝트"), post.category)
+        assertEquals(PostDetailCategory(null, "프로젝트"), post.category)
         assertEquals(
             listOf(
-                PostImage(4294967298L, "https://example.test/img1.png", 2),
-                PostImage(2L, "https://example.test/img2.png", 0),
+                PostImage(null, "https://example.test/img1.png", 0),
+                PostImage(null, "https://example.test/img2.png", 1),
             ),
             post.images,
         )
-        assertNull(post.likeCount)
-        assertNull(post.liked)
+        assertEquals(7, post.likeCount)
+        assertEquals(true, post.liked)
         assertNull(post.updatedAt)
     }
 
     // 이미지 없는 게시글·프로필 누락 검증
     @Test
     fun detailResponseAllowsEmptyImagesAndNullProfile() = runBlocking {
-        val json = """{
-            "id":1,"title":"댓글 테스트 게시글","content":"Postman 테스트용 게시글입니다.",
-            "status":"PUBLISHED","viewCount":1,
-            "writer":{"userId":1,"nickname":"테스트","profileImageUrl":null},
-            "category":{"id":3,"name":"테스트"},"images":[],
-            "createdAt":"2026-09-08T19:19:41","updatedAt":"2026-09-18T19:58:49.369051",
-            "likeCount":1,"liked":true
-        }"""
-        val post = PostRepository(api(1L, 200, json)).getPost(1L).body()!!
+        val json = """{"success":true,"data":{
+            "id":5,"title":"수정한제목","content":"수정한내용","status":"PUBLISHED","viewCount":1,
+            "writerId":1,"writerNickname":"테스트유저","writerProfileImageUrl":null,"categoryName":"일상","imageUrls":[],
+            "createdAt":"2026-08-25T19:51:41","updatedAt":"2026-10-22T00:23:50.159844",
+            "likeCount":0,"liked":false
+        }}"""
+        val post = PostRepository(api(5L, 200, json)).getPost(5L).body()!!
+        assertEquals(5L, post.id)
+        assertEquals("수정한제목", post.title)
+        assertEquals("수정한내용", post.content)
+        assertEquals("PUBLISHED", post.status)
+        assertEquals(1, post.viewCount)
         assertTrue(post.images.isEmpty())
         assertEquals(1L, post.writer.userId)
         assertNull(post.writer.profileImageUrl)
-        assertEquals("테스트", post.writer.nickname)
-        assertEquals("테스트", post.category.name)
-        assertEquals("2026-09-08T19:19:41", post.createdAt)
-        assertEquals("2026-09-18T19:58:49.369051", post.updatedAt)
-        assertEquals(1, post.likeCount)
-        assertEquals(true, post.liked)
+        assertEquals("테스트유저", post.writer.nickname)
+        assertNull(post.category.id)
+        assertEquals("일상", post.category.name)
+        assertEquals("2026-08-25T19:51:41", post.createdAt)
+        assertEquals("2026-10-22T00:23:50.159844", post.updatedAt)
+        assertEquals(0, post.likeCount)
+        assertEquals(false, post.liked)
+    }
+
+    // 좋아요 필드가 누락된 응답은 알 수 없는 상태로 유지
+    @Test
+    fun missingLikeFieldsRemainUnknown() = runBlocking {
+        val json = """{"success":true,"data":{
+            "id":15,"title":"제목","content":"내용","status":"PUBLISHED","viewCount":43,
+            "writerNickname":"닉네임","writerProfileImageUrl":null,"categoryName":"프로젝트","imageUrls":[],
+            "createdAt":"2026-08-04T12:30:00","updatedAt":null
+        }}"""
+        val post = PostRepository(api(15L, 200, json)).getPost(15L).body()!!
+        assertNull(post.writer.userId)
+        assertNull(post.likeCount)
+        assertNull(post.liked)
+    }
+
+    @Test
+    fun unsuccessfulOrMissingWrappedDataIsRejected() {
+        for ((json, expectedMessage) in listOf(
+            """{"success":false}""" to "상세 조회 응답이 실패 상태입니다.",
+            """{"success":true,"data":null}""" to "상세 응답의 data가 없습니다.",
+        )) {
+            val error = assertThrows(IllegalArgumentException::class.java) {
+                runBlocking { PostRepository(api(15L, 200, json)).getPost(15L) }
+            }
+            assertEquals(expectedMessage, error.message)
+        }
     }
 
     // 빈 본문은 정상 상세 정보로 전달하지 않음
@@ -102,11 +130,10 @@ class PostDetailTest {
     // 작성일 누락으로 상세 화면의 날짜 변환 함수가 크래시하지 않도록 사전 검증
     @Test
     fun missingCreatedAtIsRejectedBeforeRendering() {
-        val json = """{
+        val json = """{"success":true,"data":{
             "id":1,"title":"제목","content":"내용","status":"PUBLISHED","viewCount":0,
-            "writer":{"userId":1,"nickname":"테스트","profileImageUrl":null},
-            "category":{"id":3,"name":"테스트"},"images":[]
-        }"""
+            "writerNickname":"테스트","categoryName":"테스트","imageUrls":[]
+        }}"""
         val exception = assertThrows(IllegalArgumentException::class.java) {
             runBlocking { PostRepository(api(1L, 200, json)).getPost(1L) }
         }
@@ -114,15 +141,15 @@ class PostDetailTest {
     }
 
     @Test
-    fun missingWriterOrCategoryIsRejectedBeforeRendering() {
+    fun missingWriterNicknameOrCategoryNameIsRejectedBeforeRendering() {
         for ((field, expectedMessage) in listOf(
-            "\"category\":{\"id\":3,\"name\":\"프로젝트\"}" to "상세 응답의 writer가 없습니다.",
-            "\"writer\":{\"userId\":1,\"nickname\":\"닉네임\"}" to "상세 응답의 category가 없습니다.",
+            "\"categoryName\":\"프로젝트\"" to "상세 응답의 writerNickname이 없습니다.",
+            "\"writerNickname\":\"닉네임\"" to "상세 응답의 categoryName이 없습니다.",
         )) {
-            val json = """{
+            val json = """{"success":true,"data":{
                 "id":15,"title":"제목","content":"내용","status":"PUBLISHED","viewCount":43,
-                $field,"images":[],"createdAt":"2026-08-04T12:30:00","updatedAt":null
-            }"""
+                $field,"imageUrls":[],"createdAt":"2026-08-04T12:30:00","updatedAt":null
+            }}"""
             val exception = assertThrows(IllegalArgumentException::class.java) {
                 runBlocking { PostRepository(api(15L, 200, json)).getPost(15L) }
             }
