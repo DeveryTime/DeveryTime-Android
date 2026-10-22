@@ -13,14 +13,14 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class DeleteCommentTest {
-    // PATCH 경로·요청 값 없음 검증
+    // DELETE 경로·요청 본문 없음 검증
     private fun api(status: Int, json: String): CommentApi {
         val client = OkHttpClient.Builder().addInterceptor { chain ->
             val request = chain.request()
-            assertEquals("PATCH", request.method)
+            assertEquals("DELETE", request.method)
             assertEquals("/api/posts/4294967296/comments/4294967297", request.url.encodedPath)
             assertNull(request.url.query)
-            assertEquals(0L, request.body?.contentLength() ?: 0L)
+            assertNull(request.body)
             okhttp3.Response.Builder()
                 .request(request)
                 .protocol(Protocol.HTTP_1_1)
