@@ -25,11 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.deverytime_android2.page.mypage.MyPageViewModel
+import com.example.deverytime_android2.page.mypage.MyPageViewModelFactory
+import com.example.deverytime_android2.page.mypage.MyProfileUiState
 
 internal const val POST_UPDATED_KEY = "post-updated"
 
@@ -44,6 +48,17 @@ fun PostDetailScreen(
     likeModel: LikeViewModel = viewModel(),
     commentModel: CommentViewModel = viewModel(),
 ) {
+    val context = LocalContext.current
+    val profileModel: MyPageViewModel = viewModel(
+        factory = remember(context) {
+            MyPageViewModelFactory(context.applicationContext.contentResolver)
+        },
+    )
+    val profileState by profileModel.profileState.collectAsState()
+    val loggedInUserId = currentUserId ?: (profileState as? MyProfileUiState.Success)?.profile?.id
+    LaunchedEffect(profileModel, currentUserId) {
+        if (currentUserId == null) profileModel.loadMyProfile()
+    }
     val state by model.state.collectAsState()
     val deleteState by model.deleteState.collectAsState()
     val likeState by likeModel.state.collectAsState()
@@ -85,7 +100,7 @@ fun PostDetailScreen(
             PostingScreen(
                 navController = navController,
                 editingPost = currentState.post,
-                currentUserId = currentUserId,
+                currentUserId = loggedInUserId,
             )
         } else {
             // 상세 조회 완료 후 좋아요 초기 상태 연결
@@ -95,7 +110,7 @@ fun PostDetailScreen(
             PostViewScreen(
                 navController = navController,
                 post = currentState.post,
-                currentUserId = currentUserId,
+                currentUserId = loggedInUserId,
                 deleteState = deleteState,
                 onDelete = { model.deletePost(postId) },
                 onDeleteDismiss = model::resetDeleteState,
