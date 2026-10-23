@@ -33,7 +33,7 @@ data class MyPostSummary(
     val id: Long,
     val title: String,
     val writerId: Long,
-    val category: String,
+    @SerializedName(value = "categoryName", alternate = ["category"]) val category: String,
     val createdAt: String,
     val likeCount: Int,
 )

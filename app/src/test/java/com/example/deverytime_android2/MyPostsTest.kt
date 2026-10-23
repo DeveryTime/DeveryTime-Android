@@ -84,6 +84,18 @@ class MyPostsTest {
     }
 
     @Test
+    fun actualServerCategoryNameMapsToVisiblePostCategory() = runBlocking {
+        val json = """{"success":true,"data":{
+            "content":[{"id":15,"title":"제목","writerId":1,"categoryName":"일상",
+                "createdAt":"2026-08-04T12:30:00","likeCount":0}],
+            "number":0,"size":3,"totalElements":1,"totalPages":1
+        }}"""
+        val state = myPostsResult(repository(retrofit(json)).getMyPosts(size = 3)) as MyPostsUiState.Success
+        assertEquals("일상", state.response.content.single().category)
+        assertEquals("제목", state.response.content.single().title)
+    }
+
+    @Test
     fun convertsMyPageSortNamesAndPreservesOptionalCategory() = runBlocking {
         for ((sort, serverSort) in listOf(
             "latest" to "createdAt,desc",
