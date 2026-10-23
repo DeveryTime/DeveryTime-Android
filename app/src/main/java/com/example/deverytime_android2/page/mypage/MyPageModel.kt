@@ -16,9 +16,14 @@ data class MyProfile(
     val profileImageUrl: String?,
 )
 
+data class MyPostsApiResponse(
+    val success: Boolean,
+    val data: MyPostsResponse?,
+)
+
 data class MyPostsResponse(
     val content: List<MyPostSummary>,
-    val page: Int,
+    @SerializedName("number") val page: Int,
     val size: Int,
     val totalElements: Long,
     val totalPages: Int,
@@ -27,8 +32,10 @@ data class MyPostsResponse(
 data class MyPostSummary(
     val id: Long,
     val title: String,
+    val writerId: Long,
     val category: String,
     val createdAt: String,
+    val likeCount: Int,
 )
 
 data class UpdateProfileRequest(

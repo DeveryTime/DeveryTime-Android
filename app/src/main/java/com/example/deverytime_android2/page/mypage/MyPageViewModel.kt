@@ -1,5 +1,9 @@
 package com.example.deverytime_android2.page.mypage
 
+import android.util.Log
+import com.example.deverytime_android2.BuildConfig
+import com.example.deverytime_android2.MyPostSummary
+import com.example.deverytime_android2.MyPostsApiResponse
 import com.example.deverytime_android2.MyPostsResponse
 import com.example.deverytime_android2.MyProfile
 import androidx.lifecycle.ViewModel
@@ -7,10 +11,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.deverytime_android2.ApiErrorResponse
 import com.example.deverytime_android2.MyPageRepository
 import com.google.gson.Gson
+import java.io.IOException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.Response
 
 sealed interface MyProfileUiState {
     data object Idle : MyProfileUiState
@@ -127,7 +134,7 @@ class MyPageViewModel(
     fun loadMyPosts(
         page: Int = 0,
         size: Int = 20,
-        sort: String? = null,
+        sort: String = "createdAt,desc",
         categoryId: Long? = null,
     ) {
         if (_postsState.value is MyPostsUiState.Loading) {
@@ -146,27 +153,22 @@ class MyPageViewModel(
                         categoryId = categoryId,
                     )
 
-                val body = response.body()
-
-                _postsState.value =
-                    if (response.isSuccessful && body != null) {
-                        MyPostsUiState.Success(body)
-                    } else {
-                        MyPostsUiState.Error(
-                            "${
-                                parseErrorMessage(
-                                    response.errorBody()?.string(),
-                                ) ?: "게시글을 불러오지 못했습니다."
-                            } (${response.code()})",
-                        )
-                    }
+                _postsState.value = myPostsResult(response)
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: IOException) {
+                logMyPostsFailure(exception)
+                _postsState.value = MyPostsUiState.Error("네트워크 연결을 확인하고 다시 시도해 주세요.")
             } catch (exception: Exception) {
-                _postsState.value =
-                    MyPostsUiState.Error(
-                        exception.message
-                            ?: "네트워크 오류가 발생했습니다.",
-                    )
+                logMyPostsFailure(exception)
+                _postsState.value = MyPostsUiState.Error("내가 쓴 글 응답을 확인할 수 없습니다.")
             }
+        }
+    }
+
+    private fun logMyPostsFailure(exception: Exception) {
+        if (BuildConfig.DEBUG) {
+            Log.e("MyPageViewModel", "내가 쓴 글 조회 실패", exception)
         }
     }
     fun checkUsername(
@@ -322,4 +324,30 @@ class MyPageViewModel(
                 ?: error?.message
         }.getOrNull()
     }
+}
+
+// content: []는 정상 빈 목록이며, content 누락은 응답 오류로 구분
+internal fun myPostsResult(response: Response<MyPostsApiResponse>): MyPostsUiState {
+    if (!response.isSuccessful) {
+        val error = runCatching {
+            Gson().fromJson(response.errorBody()?.string(), ApiErrorResponse::class.java)?.error
+        }.getOrNull()
+        val message = error?.message?.takeIf { it.isNotBlank() }
+            ?: if (response.code() == 401) {
+                "로그인이 필요합니다. 다시 로그인해 주세요."
+            } else {
+                "내가 쓴 글을 불러오지 못했습니다. 다시 시도해 주세요."
+            }
+        return MyPostsUiState.Error(message)
+    }
+
+    val result = response.body()
+    val body = result?.data
+    val posts: List<MyPostSummary>? = body?.content
+    if (result?.success != true || body == null || posts == null || posts.any {
+            listOf<String?>(it.title, it.category, it.createdAt).any { field -> field == null }
+        }) {
+        return MyPostsUiState.Error("내가 쓴 글 응답을 확인할 수 없습니다.")
+    }
+    return MyPostsUiState.Success(body)
 }

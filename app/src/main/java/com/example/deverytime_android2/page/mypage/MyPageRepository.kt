@@ -20,13 +20,18 @@ class MyPageRepository(
     suspend fun getMyPosts(
         page: Int = 0,
         size: Int = 20,
-        sort: String? = null,
+        sort: String = "createdAt,desc",
         categoryId: Long? = null,
-    ): Response<MyPostsResponse> {
+    ): Response<MyPostsApiResponse> {
+        val serverSort = when (sort) {
+            "latest" -> "createdAt,desc"
+            "views" -> "viewCount,desc"
+            else -> sort
+        }
         return api.getMyPosts(
             page = page,
             size = size,
-            sort = sort,
+            sort = serverSort,
             categoryId = categoryId,
         )
     }
