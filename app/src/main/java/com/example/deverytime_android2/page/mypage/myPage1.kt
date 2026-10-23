@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,7 +70,13 @@ fun MyPage1Screen(
 
     LaunchedEffect(Unit) {
         myPageViewModel.loadMyProfile()
+    }
+
+    val entry = remember(navController) { requireNotNull(navController.currentBackStackEntry) }
+    val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
+    LaunchedEffect(postUpdated) {
         myPageViewModel.loadMyPosts(size = 3)
+        if (postUpdated) entry.savedStateHandle[POST_UPDATED_KEY] = false
     }
 
     LaunchedEffect(logoutState) {
@@ -180,10 +187,10 @@ fun MyPage1Screen(
                     }
 
                     is MyPostsUiState.Error -> {
-                        Text(
-                            text = state.message,
-                            modifier = Modifier.align(Alignment.Center),
-                        )
+                        Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(state.message)
+                            TextButton(onClick = { myPageViewModel.loadMyPosts(size = 3) }) { Text("다시 시도") }
+                        }
                     }
 
                     is MyPostsUiState.Success -> {
@@ -202,6 +209,7 @@ fun MyPage1Screen(
                                         time = post.createdAt,
                                         trailingText = post.category,
                                         showTopBorder = index == 0,
+                                        onClick = { navController.navigate("postView/${post.id}") },
                                     )
                                 }
                             }

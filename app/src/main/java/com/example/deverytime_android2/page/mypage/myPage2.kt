@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -82,8 +83,14 @@ fun MyPage2Screen(
     val postsState by
     myPageViewModel.postsState.collectAsState()
 
-    LaunchedEffect(Unit) {
+    val entry = remember(navController) { requireNotNull(navController.currentBackStackEntry) }
+    val postUpdated by entry.savedStateHandle.getStateFlow(POST_UPDATED_KEY, false).collectAsState()
+    LaunchedEffect(postUpdated) {
         myPageViewModel.loadMyPosts()
+        if (postUpdated) {
+            navController.previousBackStackEntry?.savedStateHandle?.set(POST_UPDATED_KEY, true)
+            entry.savedStateHandle[POST_UPDATED_KEY] = false
+        }
     }
 
     val myPosts =
@@ -143,11 +150,10 @@ fun MyPage2Screen(
                 }
 
                 is MyPostsUiState.Error -> {
-                    Text(
-                        text = state.message,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                    )
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(state.message, textAlign = TextAlign.Center)
+                        TextButton(onClick = { myPageViewModel.loadMyPosts() }) { Text("다시 시도") }
+                    }
                 }
 
                 is MyPostsUiState.Success -> {
@@ -165,6 +171,7 @@ fun MyPage2Screen(
                                     time = post.createdAt,
                                     trailingText = post.category,
                                     showTopBorder = index == 0,
+                                    onClick = { navController.navigate("postView/${post.id}") },
                                 )
                             }
                         }
