@@ -153,30 +153,30 @@ fun PostingScreen(
                             .padding(start = 3.dp),
                 )
             }
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 10.dp)
-                        .padding(bottom = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                // 카테고리 버튼 표시
-                val categoryState = categoriesState
-                val categories = if (categoryState is PostCategoriesUiState.Success) {
-                    categoryState.categories
-                } else {
-                    emptyList()
-                }
-                categories.forEach { category ->
-                    CommonCategory(
-                        text = category.name,
-                        selected = selectedCategoryId == category.id,
-                        onClick = {
-                            // 수정 API에서 카테고리 변경 미지원
-                            if (!isSubmitting && !isEditing) selectedCategoryId = category.id
-                        },
-                    )
+            if (!isEditing) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 10.dp)
+                            .padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    val categoryState = categoriesState
+                    val categories = if (categoryState is PostCategoriesUiState.Success) {
+                        categoryState.categories
+                    } else {
+                        emptyList()
+                    }
+                    categories.forEach { category ->
+                        CommonCategory(
+                            text = category.name,
+                            selected = selectedCategoryId == category.id,
+                            onClick = {
+                                if (!isSubmitting) selectedCategoryId = category.id
+                            },
+                        )
+                    }
                 }
             }
             OutlinedTextField(
@@ -230,7 +230,7 @@ fun PostingScreen(
                             )
                         }
                     },
-                    enabled = !isSubmitting && categoriesState is PostCategoriesUiState.Success &&
+                    enabled = !isSubmitting && (isEditing || categoriesState is PostCategoriesUiState.Success) &&
                         (editingPost == null || (currentUserId != null && currentUserId == editingPost.writer.userId)),
                     colors = ButtonDefaults.buttonColors(containerColor = mainBlue),
                     shape = RoundedCornerShape(23.dp),
