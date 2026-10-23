@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -88,6 +89,7 @@ class MainActivity : ComponentActivity() {
 
         val navController = rememberNavController()
         val signUpViewModel: SignUpViewModel = viewModel()
+        val startDestination = remember { sessionStartDestination() }
 
         val backStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = backStackEntry?.destination?.route
@@ -98,8 +100,8 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(sessionExpired) {
             if (sessionExpired) {
                 navController.navigate(Screen.Login.route) {
-                    popUpTo(navController.graph.startDestinationId) {
-                        inclusive = true
+                    popUpTo(navController.graph.id) {
+                        inclusive = false
                     }
                     launchSingleTop = true
                 }
@@ -138,7 +140,7 @@ class MainActivity : ComponentActivity() {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Screen.OnBoard1.route,
+                startDestination = startDestination,
                 modifier =
                     Modifier
                         .padding(innerPadding)

@@ -8,6 +8,7 @@ import okhttp3.Response
 import okhttp3.Route
 
 class TokenAuthenticator(
+    private val tokens: SessionTokenStore = TokenStorage,
     private val loginApiProvider: () -> LoginApi,
 ) : Authenticator {
 
@@ -18,6 +19,7 @@ class TokenAuthenticator(
         response: Response,
     ): Request? {
         if (responseCount(response) >= 2) {
+            if (response.code == 401) tokens.clear()
             return null
         }
 
@@ -28,7 +30,7 @@ class TokenAuthenticator(
                     ?.removePrefix("Bearer ")
 
             val currentAccessToken =
-                TokenStorage.getAccessToken()
+                tokens.getAccessToken()
 
             if (
                 !currentAccessToken.isNullOrBlank() &&
@@ -38,8 +40,11 @@ class TokenAuthenticator(
             }
 
             val refreshToken =
-                TokenStorage.getRefreshToken()
-                    ?: return null
+                tokens.getRefreshToken()
+            if (refreshToken.isNullOrBlank()) {
+                tokens.clear()
+                return null
+            }
 
             val reissueResponse =
                 runCatching {
@@ -51,12 +56,12 @@ class TokenAuthenticator(
                 }.getOrNull() ?: return null
 
             val body = reissueResponse.body()
-            val tokens = body?.data
+            val refreshedTokens = body?.data
 
             if (
                 !reissueResponse.isSuccessful ||
                 body?.success != true ||
-                tokens == null
+                refreshedTokens == null
             ) {
                 val errorCode =
                     runCatching {
@@ -66,17 +71,17 @@ class TokenAuthenticator(
                         )?.error?.code
                     }.getOrNull()
 
-                if (errorCode.isTokenAuthenticationError()) {
-                    TokenStorage.clear()
+                if (reissueResponse.code() == 401 || errorCode.isTokenAuthenticationError()) {
+                    tokens.clear()
                 }
 
                 return null
             }
 
-            TokenStorage.saveTokens(tokens)
+            tokens.saveTokens(refreshedTokens)
 
             return response.request.withToken(
-                tokens.accessToken,
+                refreshedTokens.accessToken,
             )
         }
     }

@@ -13,7 +13,14 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-object TokenStorage {
+interface SessionTokenStore {
+    fun getAccessToken(): String?
+    fun getRefreshToken(): String?
+    fun saveTokens(tokens: TokenData)
+    fun clear()
+}
+
+object TokenStorage : SessionTokenStore {
     private const val PREFERENCES_NAME = "authentication"
     private const val ACCESS_TOKEN_KEY = "access_token"
     private const val REFRESH_TOKEN_KEY = "refresh_token"
@@ -39,7 +46,7 @@ object TokenStorage {
         migratePlaintextTokens()
     }
 
-    fun saveTokens(tokens: TokenData) {
+    override fun saveTokens(tokens: TokenData) {
         preferences.edit()
             .putString(
                 ACCESS_TOKEN_KEY,
@@ -54,15 +61,15 @@ object TokenStorage {
         _sessionExpired.value = false
     }
 
-    fun getAccessToken(): String? {
+    override fun getAccessToken(): String? {
         return readToken(ACCESS_TOKEN_KEY)
     }
 
-    fun getRefreshToken(): String? {
+    override fun getRefreshToken(): String? {
         return readToken(REFRESH_TOKEN_KEY)
     }
 
-    fun clear() {
+    override fun clear() {
         preferences.edit()
             .remove(ACCESS_TOKEN_KEY)
             .remove(REFRESH_TOKEN_KEY)
