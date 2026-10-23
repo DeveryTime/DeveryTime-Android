@@ -94,7 +94,7 @@ fun PostingScreen(
 
     // 수정할 기존 본문 채우기
     LaunchedEffect(editingPost?.id) {
-        if (editingPost != null) contentState.setText(editingPost.content)
+        if (editingPost != null) contentState.setMarkdown(editingPost.content)
     }
 
     // 작성 성공 시 이동·실패 시 안내
@@ -220,13 +220,13 @@ fun PostingScreen(
                                 postId = editingPost.id,
                                 userId = currentUserId,
                                 title = title,
-                                content = contentState.annotatedString.text,
+                                content = contentState.toPostMarkdown(),
                             )
                         } else {
                             postingViewModel.createPost(
                                 categoryId = selectedCategoryId,
                                 title = title,
-                                content = contentState.annotatedString.text,
+                                content = contentState.toPostMarkdown(),
                             )
                         }
                     },

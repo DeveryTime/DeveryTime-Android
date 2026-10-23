@@ -59,6 +59,9 @@ import coil3.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.Locale
 import kotlinx.coroutines.launch
+import com.mohamedrejeb.richeditor.model.RichTextState
+import com.mohamedrejeb.richeditor.ui.material3.RichText
+import com.mohamedrejeb.richeditor.annotation.ExperimentalRichTextApi
 
 
 private fun yearMonthDay(time: String): String {
@@ -236,6 +239,7 @@ public fun CommentItem2(
 }
 
 @Composable
+@OptIn(ExperimentalRichTextApi::class)
 fun PostViewScreen(
     navController: NavHostController,
     post: PostDetailResponse,
@@ -257,6 +261,7 @@ fun PostViewScreen(
     onCommentDeleteHandled: () -> Unit = {},
 ) {
     val changeTime = formatTime(post.createdAt, "yyyy년 MM월 dd일 HH:mm")
+    val contentState = remember(post.id, post.content) { RichTextState().setMarkdown(post.content) }
     var expanded by remember { mutableStateOf(false) }
     var comment by remember { mutableStateOf("") }
     val uriHandler = LocalUriHandler.current
@@ -478,8 +483,8 @@ fun PostViewScreen(
                                 .padding(start = 26.dp, top = 24.dp)
                                 .fillMaxWidth(),
                     )
-                    Text(
-                        text = post.content,
+                    RichText(
+                        state = contentState,
                         fontSize = 18.sp,
                         fontFamily = pretendardVariable,
                         modifier =
