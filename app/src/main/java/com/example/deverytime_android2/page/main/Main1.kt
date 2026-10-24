@@ -76,6 +76,7 @@ fun PostItem(
 ) {
     // 날짜 표시 형식 변환
     val changeTime = formatTime(time)
+    val displayTitle = remember(title) { singleLinePostTitle(title) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -111,7 +112,8 @@ fun PostItem(
                     .weight(1f)
             ) {
                 Text(
-                    text = title,
+                    text = displayTitle,
+                    modifier = Modifier.padding(end = if (like != null) 20.dp else 0.dp),
                     fontSize = 15.65.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = pretendardVariable,

@@ -319,7 +319,7 @@ private fun SearchPostResultItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = post.title,
+                text = singleLinePostTitle(post.title),
                 fontFamily = pretendardVariable,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
