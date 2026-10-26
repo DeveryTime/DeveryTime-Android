@@ -565,6 +565,9 @@ fun PostViewScreen(
                         }
                     }
                 }
+                item {
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
                 // 댓글 로딩·빈 목록·오류 표시
                 when (val state = commentListState) {
                     CommentListUiState.Loading -> item {
