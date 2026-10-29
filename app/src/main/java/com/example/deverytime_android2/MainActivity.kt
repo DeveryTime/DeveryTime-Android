@@ -68,6 +68,8 @@ sealed class Screen(
     data object Main4 : Screen(route = "Main4")
 
     data object Search : Screen(route = "search")
+
+    data object SearchLatest : Screen(route = "searchLatest")
 }
 
 class MainActivity : ComponentActivity() {
@@ -118,7 +120,8 @@ class MainActivity : ComponentActivity() {
                         currentRoute == Screen.Main2.route ||
                             currentRoute == Screen.Main3.route ||
                                 currentRoute == Screen.Main4.route ||
-                                    currentRoute == Screen.Search.route
+                                    currentRoute == Screen.Search.route ||
+                                        currentRoute == Screen.SearchLatest.route
 
 
 
@@ -214,6 +217,7 @@ class MainActivity : ComponentActivity() {
                     PostDetailScreen(navController = navController, postId = postId)
                 }
                 composable(route = Screen.Search.route) { SearchScreen(navController) }
+                composable(route = Screen.SearchLatest.route) { entry -> SearchLatestScreen(navController, entry) }
             }
         }
     }

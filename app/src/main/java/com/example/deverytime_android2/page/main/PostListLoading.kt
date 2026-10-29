@@ -15,15 +15,28 @@ import androidx.compose.ui.unit.dp
 // 스크롤 위치 감지·다음 페이지 로딩
 @Composable
 internal fun ObservePostListEnd(listState: LazyListState, state: PostListUiState, model: PostListViewModel) {
-    LaunchedEffect(listState, state.page, state.loading, state.error) {
-        if (state.loading || state.error != null || !state.hasNextPage) return@LaunchedEffect
+    ObserveListEnd(listState, state.page, state.loading, state.error, state.hasNextPage, model::loadNext)
+}
+
+// 마지막 행이 상태 표시 행인 목록에서 끝에 닿으면 다음 페이지 요청
+@Composable
+internal fun ObserveListEnd(
+    listState: LazyListState,
+    page: Int,
+    loading: Boolean,
+    error: String?,
+    hasNextPage: Boolean,
+    loadNext: () -> Unit,
+) {
+    LaunchedEffect(listState, page, loading, error) {
+        if (loading || error != null || !hasNextPage) return@LaunchedEffect
         snapshotFlow {
             val layout = listState.layoutInfo
             val lastVisibleIndex = layout.visibleItemsInfo.lastOrNull()?.index ?: -1
             val lastPostIndex = layout.totalItemsCount - 2 // 마지막 행: 로딩 상태
             layout.totalItemsCount > 0 && lastVisibleIndex >= lastPostIndex
         }.collect { nearEnd ->
-            if (nearEnd) model.loadNext()
+            if (nearEnd) loadNext()
         }
     }
 }

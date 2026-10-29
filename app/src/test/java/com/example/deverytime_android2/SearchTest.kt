@@ -51,9 +51,9 @@ class SearchTest {
         val json = """{
             "success":true,
             "data":{
-                "users":[{"id":4294967296,"username":"최지민","nickname":"지민"}],
+                "users":[{"id":4294967296,"username":"최지민","nickname":"지민","profileImageUrl":"https://example.test/5.jpg"}],
                 "posts":{
-                    "content":[{"id":4294967297,"title":"대회 안내","categoryName":"일상","createdAt":"2026-08-25T19:41:54"}],
+                    "content":[{"id":4294967297,"title":"대회 안내","writerId":4294967296,"categoryName":"일상","createdAt":"2026-08-25T19:41:54","likeCount":0}],
                     "totalElements":1,"totalPages":1,"number":0,"size":10
                 }
             }
@@ -74,9 +74,9 @@ class SearchTest {
         val result = response.body()!!
         assertTrue(result.success)
         val data = result.data!!
-        assertEquals(SearchUserResult(4294967296L, "최지민", "지민"), data.users!!.single())
+        assertEquals(SearchUserResult(4294967296L, "최지민", "지민", "https://example.test/5.jpg"), data.users!!.single())
         assertEquals(
-            PostListItem(4294967297L, "대회 안내", "일상", "2026-08-25T19:41:54"),
+            PostListItem(4294967297L, "대회 안내", "일상", "2026-08-25T19:41:54", writerId = 4294967296L),
             data.posts!!.content.single(),
         )
         assertEquals(0, data.posts.page)
@@ -111,6 +111,7 @@ class SearchTest {
         assertEquals("사용자", user.displayName)
         assertNull(user.username)
         assertNull(user.nickname)
+        assertNull(user.profileImageUrl)
     }
 
     @Test
@@ -192,5 +193,61 @@ class SearchTest {
             runBlocking { SearchRepository(api).search(" \n\t ") }
         }
         assertEquals("검색어를 입력해 주세요.", exception.message)
+    }
+
+    private fun postApi(pages: List<String>, requestedPages: MutableList<Int>): PostApi {
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            val request = chain.request()
+            assertEquals("/api/posts", request.url.encodedPath)
+            assertEquals("createdAt,desc", request.url.queryParameter("sort"))
+            assertNull(request.url.queryParameter("categoryId"))
+            val page = request.url.queryParameter("page")!!.toInt()
+            requestedPages += page
+            okhttp3.Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(200)
+                .message("Test response")
+                .body(pages[page].toResponseBody("application/json".toMediaType()))
+                .build()
+        }.build()
+        return Retrofit.Builder()
+            .baseUrl("https://example.test/")
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(PostApi::class.java)
+    }
+
+    private fun postPage(page: Int, totalPages: Int, vararg posts: Pair<Long, Long>): String {
+        val content = posts.joinToString(",") { (id, writerId) ->
+            """{"id":$id,"title":"글$id","writerId":$writerId,"categoryName":"일상","createdAt":"2026-08-25T19:41:54","likeCount":0}"""
+        }
+        return """{"success":true,"data":{"content":[$content],"number":$page,"size":50,"totalElements":0,"totalPages":$totalPages}}"""
+    }
+
+    @Test
+    fun findsPostsByWritersAcrossPagesUpToLimit() = runBlocking {
+        val requestedPages = mutableListOf<Int>()
+        val pages = listOf(
+            postPage(0, 3, 1L to 5L, 2L to 9L, 3L to 5L),
+            postPage(1, 3, 4L to 7L, 5L to 5L, 6L to 5L),
+            postPage(2, 3, 7L to 7L),
+        )
+        val repository = SearchRepository(api("{}"), postApi(pages, requestedPages))
+        val found = repository.findPostsByWriters(setOf(5L, 7L), perWriter = 3)
+        assertEquals(listOf(1L, 3L, 5L), found.getValue(5L).map { it.id })
+        assertEquals(listOf(4L, 7L), found.getValue(7L).map { it.id })
+        assertEquals(listOf(0, 1, 2), requestedPages)
+    }
+
+    @Test
+    fun stopsScanningWhenEveryWriterHasEnoughPosts() = runBlocking {
+        val requestedPages = mutableListOf<Int>()
+        val pages = listOf(postPage(0, 5, 1L to 5L, 2L to 5L), postPage(1, 5, 3L to 5L))
+        val repository = SearchRepository(api("{}"), postApi(pages, requestedPages))
+        val found = repository.findPostsByWriters(setOf(5L), perWriter = 2)
+        assertEquals(listOf(1L, 2L), found.getValue(5L).map { it.id })
+        assertEquals(listOf(0), requestedPages)
     }
 }

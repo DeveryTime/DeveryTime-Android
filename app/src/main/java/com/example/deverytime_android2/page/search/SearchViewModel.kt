@@ -1,5 +1,6 @@
 package com.example.deverytime_android2
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
@@ -20,10 +21,22 @@ data class SearchUiState(
     val hasSearched: Boolean = false,
     val page: Int = -1,
     val totalPages: Int = 0,
+    // 검색된 사용자별 작성 글 (null: 아직 못 불러왔거나 실패)
+    val userPosts: Map<Long, List<PostListItem>>? = null,
+    val userPostsLoading: Boolean = false,
 ) {
     val hasNextPage: Boolean
         get() = page + 1 < totalPages
+
+    // 최신 게시글에서 찾은 글 + 검색된 게시글 중 해당 사용자의 글을 최신순으로 합침
+    fun postsWrittenBy(userId: Long): List<PostListItem> =
+        (userPosts?.get(userId).orEmpty() + posts.filter { it.writerId == userId })
+            .distinctBy { it.id }
+            .sortedByDescending { it.createdAt }
+            .take(USER_POST_PREVIEW_COUNT)
 }
+
+private const val USER_POST_PREVIEW_COUNT = 3
 
 class SearchViewModel(
     private val repository: SearchRepository = SearchRepository(),
@@ -31,6 +44,7 @@ class SearchViewModel(
     private val _state = MutableStateFlow(SearchUiState())
     val state = _state.asStateFlow()
     private var loadJob: Job? = null
+    private var userPostsJob: Job? = null
 
     fun search(query: String) {
         loadJob?.cancel()
@@ -80,15 +94,17 @@ class SearchViewModel(
                     showError("검색 응답을 확인할 수 없습니다.")
                     return@launch
                 }
-                _state.value = SearchUiState(
-                    keyword = current.keyword,
+                // copy로 갱신해 따로 불러오는 사용자별 작성 글 상태 유지
+                _state.value = _state.value.copy(
                     users = if (page == 0) users.distinctBy { it.id } else current.users,
                     posts = (if (page == 0) posts.content else current.posts + posts.content)
                         .distinctBy { it.id },
-                    hasSearched = true,
+                    loading = false,
+                    error = null,
                     page = posts.page,
                     totalPages = posts.totalPages,
                 )
+                if (page == 0) loadUserPosts(_state.value.users.map { it.id }.toSet())
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: IOException) {
@@ -98,6 +114,28 @@ class SearchViewModel(
                 ensureActive()
                 showError("검색 응답을 확인할 수 없습니다.")
             }
+        }
+    }
+
+    // 검색된 사용자가 쓴 글 조회 (실패해도 검색 결과는 유지)
+    private fun loadUserPosts(userIds: Set<Long>) {
+        userPostsJob?.cancel()
+        if (userIds.isEmpty()) return
+        val keyword = _state.value.keyword
+        _state.value = _state.value.copy(userPostsLoading = true)
+        userPostsJob = viewModelScope.launch {
+            val userPosts = try {
+                repository.findPostsByWriters(userIds)
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                if (BuildConfig.DEBUG) Log.e("SearchViewModel", "사용자 작성 글 조회 실패", exception)
+                null
+            }
+            ensureActive()
+            // 그 사이 다른 검색어로 새로 검색했으면 이전 결과는 버림
+            if (_state.value.keyword != keyword) return@launch
+            _state.value = _state.value.copy(userPosts = userPosts, userPostsLoading = false)
         }
     }
 

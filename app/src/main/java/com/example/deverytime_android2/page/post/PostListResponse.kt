@@ -9,6 +9,8 @@ data class PostListItem(
     @SerializedName("categoryName") val category: String,
     val createdAt: String,
     val likeCount: Int = 0,
+    // 통합 검색 응답에만 포함되는 작성자 ID
+    val writerId: Long? = null,
 )
 
 // 목록 조회 응답

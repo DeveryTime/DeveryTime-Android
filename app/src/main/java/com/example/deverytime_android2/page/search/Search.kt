@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,10 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -30,10 +38,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,9 +52,11 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
 import com.example.deverytime_android2.page.theme.BottomNavigationBar
 import com.example.deverytime_android2.page.theme.CommonSearchBar
 import com.example.deverytime_android2.page.theme.DeveryTimeAndroid2Theme
@@ -98,8 +111,8 @@ fun SearchScreen(
         },
         state = state,
         onPostClick = { id -> navigator.navigate("postView/$id") },
+        onLatestClick = { navigator.navigate(Screen.SearchLatest.route) },
         onRetry = model::retry,
-        onLoadNext = model::loadNext,
         modifier = modifier,
     )
 }
@@ -111,8 +124,8 @@ private fun SearchContent(
     onSearch: () -> Unit,
     state: SearchUiState,
     onPostClick: (Long) -> Unit,
+    onLatestClick: () -> Unit,
     onRetry: () -> Unit,
-    onLoadNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Box를 사용해 최신 게시글 영역 위에 검색 결과 패널을 겹쳐 배치합니다.
@@ -122,10 +135,15 @@ private fun SearchContent(
                 .fillMaxSize()
                 .background(Color.White),
     ) {
-        // 배경에 놓이는 홈 화면의 최신 게시글 영역입니다.
-        LatestPostSection(modifier = Modifier.fillMaxSize())
+        // 검색된 게시글을 최신순으로 보여주는 하단 영역입니다.
+        LatestPostSection(
+            state = state,
+            onPostClick = onPostClick,
+            onTitleClick = onLatestClick,
+            modifier = Modifier.fillMaxSize(),
+        )
 
-        // 검색창과 검색 결과가 들어 있는 흰색 카드입니다.
+        // 검색창과 사용자 검색 결과가 들어 있는 흰색 카드입니다.
         // zIndex를 지정해 LatestPostSection보다 항상 위에 그려지도록 합니다.
         SearchResultPanel(
             query = query,
@@ -134,7 +152,6 @@ private fun SearchContent(
             state = state,
             onPostClick = onPostClick,
             onRetry = onRetry,
-            onLoadNext = onLoadNext,
             modifier =
                 Modifier
                     .align(Alignment.TopCenter)
@@ -146,7 +163,7 @@ private fun SearchContent(
     }
 }
 
-// 검색창·사용자·게시글 결과 카드
+// 검색창·사용자 결과 카드 (사용자마다 그 사용자가 쓴 글을 바로 아래에 표시)
 @Composable
 private fun SearchResultPanel(
     query: String,
@@ -155,7 +172,6 @@ private fun SearchResultPanel(
     state: SearchUiState,
     onPostClick: (Long) -> Unit,
     onRetry: () -> Unit,
-    onLoadNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -197,26 +213,29 @@ private fun SearchResultPanel(
                         modifier = Modifier.padding(start = 13.dp, top = 13.dp),
                     )
                 }
-                items(state.users, key = { "user-${it.id}" }) { user ->
-                    SearchUserResultItem(
-                        user = user,
-                        modifier = Modifier.padding(horizontal = 13.dp),
-                    )
-                }
-            }
-
-            if (state.posts.isNotEmpty()) {
-                item(key = "posts-title") {
-                    Text(
-                        text = "게시글",
-                        fontFamily = pretendardVariable,
-                        fontSize = 14.sp,
-                        color = buttonGray,
-                        modifier = Modifier.padding(start = 13.dp, top = 9.dp, bottom = 3.dp),
-                    )
-                }
-                items(state.posts, key = { "post-${it.id}" }) { post ->
-                    SearchPostResultItem(post = post, onClick = { onPostClick(post.id) })
+                state.users.forEach { user ->
+                    item(key = "user-${user.id}") {
+                        SearchUserResultItem(
+                            user = user,
+                            modifier = Modifier.padding(horizontal = 13.dp),
+                        )
+                    }
+                    // 해당 사용자가 작성한 최신 글을 사용자 바로 아래에 표시
+                    val userPosts = state.postsWrittenBy(user.id)
+                    items(userPosts, key = { "user-${user.id}-post-${it.id}" }) { post ->
+                        SearchPostResultItem(post = post, onClick = { onPostClick(post.id) })
+                    }
+                    if (userPosts.isEmpty() && (state.userPostsLoading || state.userPosts != null)) {
+                        item(key = "user-${user.id}-posts-status") {
+                            Text(
+                                text = if (state.userPostsLoading) "작성한 글을 불러오는 중입니다" else "작성한 글이 없습니다",
+                                fontFamily = pretendardVariable,
+                                fontSize = 12.sp,
+                                color = buttonGray,
+                                modifier = Modifier.padding(start = 13.dp, bottom = 6.dp),
+                            )
+                        }
+                    }
                 }
             }
 
@@ -239,13 +258,12 @@ private fun SearchResultPanel(
                             fontSize = 14.sp,
                             color = buttonGray,
                         )
-                        state.users.isEmpty() && state.posts.isEmpty() -> Text(
-                            "검색 결과가 없습니다",
+                        state.users.isEmpty() -> Text(
+                            "검색된 사용자가 없습니다",
                             fontFamily = pretendardVariable,
                             fontSize = 14.sp,
                             color = buttonGray,
                         )
-                        state.hasNextPage -> TextButton(onClick = onLoadNext) { Text("게시글 더 보기") }
                     }
                 }
             }
@@ -266,12 +284,16 @@ private fun SearchUserResultItem(
                 .height(45.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // API 연결 후 프로필 이미지 URL이 추가되면 AsyncImage 등으로 교체할 영역입니다.
-        Box(
+        // 프로필 사진이 없거나 불러오지 못하면 회색 원 배경만 보임
+        AsyncImage(
+            model = user.profileImageUrl?.takeIf { it.isNotBlank() },
+            contentDescription = "${user.displayName} 프로필 사진",
+            contentScale = ContentScale.Crop,
             modifier =
                 Modifier
                     .size(34.dp)
-                    .background(nonprofile, CircleShape),
+                    .clip(CircleShape)
+                    .background(nonprofile),
         )
         Column(modifier = Modifier.padding(start = 7.dp)) {
             Text(
@@ -345,12 +367,16 @@ private fun SearchPostResultItem(
 
 /**
  * 검색 결과 패널 아래에 보이는 최신 게시글 영역입니다.
- * 현재 API가 연결되지 않았기 때문에 시안과 동일하게 빈 상태만 표시합니다.
- *
- * 추후 최신 게시글 API가 연결되면 Box의 빈 상태 Text를 LazyColumn 또는 게시글 목록으로 교체하면 됩니다.
+ * 통합 검색 API가 createdAt,desc로 정렬해 준 게시글 결과를 메인 홈의 최신순처럼 4개까지 표시하고,
+ * 제목을 누르면 전체 검색 결과 목록(SearchLatestScreen)으로 이동합니다.
  */
 @Composable
-private fun LatestPostSection(modifier: Modifier = Modifier) {
+private fun LatestPostSection(
+    state: SearchUiState,
+    onPostClick: (Long) -> Unit,
+    onTitleClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier =
             modifier
@@ -359,22 +385,117 @@ private fun LatestPostSection(modifier: Modifier = Modifier) {
         Text(
             text = "최신순 >",
             style = Style.SubTitle,
-            modifier = Modifier.padding(start = 14.dp),
+            modifier =
+                Modifier
+                    .clickable(onClick = onTitleClick)
+                    .padding(start = 15.dp),
         )
-        Box(
+        Spacer(modifier = Modifier.height(12.dp))
+        if (state.posts.isEmpty()) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                contentAlignment = Alignment.TopCenter,
+            ) {
+                // 첫 페이지를 불러오는 중에는 상단 카드의 로딩 표시만 보여줌
+                if (!state.loading) {
+                    Text(
+                        text = "작성된 게시물이 없습니다",
+                        fontFamily = pretendardVariable,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(top = 106.dp),
+                    )
+                }
+            }
+        } else {
+            state.posts.take(4).forEachIndexed { index, post ->
+                PostItem(
+                    title = post.title,
+                    time = post.createdAt,
+                    like = post.likeCount,
+                    showTopBorder = (index == 0),
+                    onClick = { onPostClick(post.id) },
+                )
+            }
+        }
+    }
+}
+
+/**
+ * 검색 화면의 "최신순 >"을 눌렀을 때 이동하는 전체 검색 게시글 목록입니다.
+ * 메인의 최신순 전체 화면(Main3)과 같은 형태로, 스크롤 끝에서 다음 페이지를 이어서 불러옵니다.
+ * 검색 화면의 SearchViewModel을 함께 사용하므로 이미 불러온 결과를 다시 요청하지 않습니다.
+ */
+@Composable
+fun SearchLatestScreen(
+    navigator: NavHostController,
+    backStackEntry: NavBackStackEntry,
+) {
+    // 현재 화면의 entry를 키로 써야 검색 화면 entry를 매번 다시 찾지 않음
+    val searchEntry = remember(backStackEntry) { navigator.getBackStackEntry(Screen.Search.route) }
+    val model: SearchViewModel = viewModel(searchEntry)
+    val state by model.state.collectAsState()
+    val listState = rememberLazyListState()
+    // 스크롤 하단 자동 로딩
+    ObserveListEnd(listState, state.page, state.loading, state.error, state.hasNextPage, model::loadNext)
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        IconButton(
+            onClick = { navigator.popBackStack() },
+            modifier =
+                Modifier
+                    .padding(start = 8.dp, top = 48.dp)
+                    .size(32.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.ArrowBackIosNew,
+                contentDescription = stringResource(R.string.back_arrow),
+            )
+        }
+        Spacer(modifier = Modifier.height(25.dp))
+        Text(
+            modifier = Modifier.padding(start = 15.dp),
+            text = "최신순",
+            style = Style.SubTitle,
+        )
+        LazyColumn(
+            state = listState,
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .padding(top = 12.dp)
                     .weight(1f),
-            contentAlignment = Alignment.TopCenter,
+            contentPadding = PaddingValues(bottom = 16.dp),
         ) {
-            Text(
-                text = "작성된 게시물이 없기",
-                fontFamily = pretendardVariable,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.padding(top = 106.dp),
+            itemsIndexed(items = state.posts, key = { _, post -> post.id }) { index, post ->
+                PostItem(
+                    title = post.title,
+                    time = post.createdAt,
+                    like = post.likeCount,
+                    showTopBorder = (index == 0),
+                    onClick = { navigator.navigate("postView/${post.id}") },
+                )
+            }
+            item { SearchPostListStatus(state, model::retry) }
+        }
+    }
+}
+
+// 메인 목록의 PostListStatus와 같은 로딩·오류·빈 목록 표시
+@Composable
+private fun SearchPostListStatus(state: SearchUiState, retry: () -> Unit) {
+    if (!state.loading && state.error == null && state.posts.isNotEmpty()) return
+    Column(modifier = Modifier.padding(horizontal = 21.dp, vertical = 12.dp)) {
+        when {
+            state.loading -> CircularProgressIndicator()
+            state.error != null -> Text(
+                text = "${state.error}\n눌러서 다시 시도",
+                modifier = Modifier.clickable(onClick = retry),
             )
+            state.posts.isEmpty() -> Text("게시글이 없습니다.")
         }
     }
 }
@@ -406,14 +527,17 @@ private fun SearchScreenPreview() {
                 state = SearchUiState(
                     keyword = "대회",
                     users = listOf(SearchUserResult(5L, "최지민", "지민")),
-                    posts = listOf(PostListItem(12L, "대회 안내", "일상", "2026-08-25T19:41:54")),
+                    posts = listOf(
+                        PostListItem(13L, "지민의 대회 후기", "일상", "2026-08-26T10:00:00", writerId = 5L),
+                        PostListItem(12L, "대회 안내", "일상", "2026-08-25T19:41:54", writerId = 1L),
+                    ),
                     hasSearched = true,
                     page = 0,
                     totalPages = 1,
                 ),
                 onPostClick = {},
+                onLatestClick = {},
                 onRetry = {},
-                onLoadNext = {},
                 modifier = Modifier.padding(innerPadding),
             )
         }

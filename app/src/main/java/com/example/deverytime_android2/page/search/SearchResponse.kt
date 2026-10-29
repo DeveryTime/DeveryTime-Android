@@ -15,6 +15,7 @@ data class SearchUserResult(
     val id: Long,
     val username: String?,
     val nickname: String?,
+    val profileImageUrl: String? = null,
 ) {
     val displayName: String
         get() = nickname?.takeIf { it.isNotBlank() }
