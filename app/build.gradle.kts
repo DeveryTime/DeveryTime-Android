@@ -24,7 +24,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.example.deverytime_android2"
+        applicationId = "com.deverytime_android"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
