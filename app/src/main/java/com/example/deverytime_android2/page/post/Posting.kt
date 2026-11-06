@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -154,27 +156,31 @@ fun PostingScreen(
                 )
             }
             if (!isEditing) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 10.dp)
-                            .padding(bottom = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                val categoryState = categoriesState
+                val categories = if (categoryState is PostCategoriesUiState.Success) {
+                    categoryState.categories
+                } else {
+                    emptyList()
+                }
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                        .padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    val categoryState = categoriesState
-                    val categories = if (categoryState is PostCategoriesUiState.Success) {
-                        categoryState.categories
-                    } else {
-                        emptyList()
-                    }
-                    categories.forEach { category ->
+                    items(
+                        items = categories,
+                        key = { it.id }
+                    ) { category ->
                         CommonCategory(
                             text = category.name,
                             selected = selectedCategoryId == category.id,
                             onClick = {
-                                if (!isSubmitting) selectedCategoryId = category.id
-                            },
+                                if (!isSubmitting) {
+                                    selectedCategoryId = category.id
+                                }
+                            }
                         )
                     }
                 }
@@ -413,7 +419,9 @@ fun PostingScreen(
         }
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter).imePadding(),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .imePadding(),
         )
     }
 }

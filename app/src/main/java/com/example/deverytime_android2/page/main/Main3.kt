@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -97,15 +99,21 @@ fun Main3Screen(navigator: NavHostController) {
             ) {
                 val categories = temporaryPostingCategories.map { it.name }
 
-                Row(
+                LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    categories.forEach { category ->
+                    items(
+                        items = categories,
+                        key = {it}
+                    ) { category ->
                         CommonCategory(
-                            text = category, selected = selectedCategory == category, onClick = {
+                            text = category,
+                            selected = selectedCategory == category,
+                            onClick = {
                                 selectedCategory = it
-                            })
+                            }
+                        )
                     }
                 }
             }
