@@ -49,11 +49,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -283,6 +281,7 @@ fun PostingScreen(
                                     strokeWidth = strokeWidth,
                                 )
                             },
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     IconButton(
                         onClick = {
@@ -330,42 +329,6 @@ fun PostingScreen(
                         Icon(
                             ImageVector.vectorResource(id = R.drawable.ic_midline),
                             contentDescription = "Line Through",
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            contentState.toggleParagraphStyle(
-                                ParagraphStyle(textAlign = TextAlign.Start),
-                            )
-                        },
-                    ) {
-                        Icon(
-                            ImageVector.vectorResource(id = R.drawable.ic_align_start),
-                            contentDescription = "Align Left",
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            contentState.toggleParagraphStyle(
-                                ParagraphStyle(textAlign = TextAlign.Center),
-                            )
-                        },
-                    ) {
-                        Icon(
-                            ImageVector.vectorResource(id = R.drawable.ic_align_center),
-                            contentDescription = "Align Center",
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            contentState.toggleParagraphStyle(
-                                ParagraphStyle(textAlign = TextAlign.End),
-                            )
-                        },
-                    ) {
-                        Icon(
-                            ImageVector.vectorResource(id = R.drawable.ic_align_end),
-                            contentDescription = "Align Right",
                         )
                     }
                     IconButton(
