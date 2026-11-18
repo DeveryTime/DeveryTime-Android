@@ -220,7 +220,6 @@ fun LoginScreen(
                 singleLine = true,
                 keyboardOptions =
                     KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next,
                     ),
                 keyboardActions =

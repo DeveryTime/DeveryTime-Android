@@ -128,9 +128,7 @@ class MainActivity : ComponentActivity() {
                                     currentRoute == Screen.Search.route ||
                                         currentRoute == Screen.SearchLatest.route
 
-
-
-                    Scaffold(
+        Scaffold(
             modifier = modifier,
             bottomBar = {
                 if (showBottomBar) {
@@ -221,8 +219,12 @@ class MainActivity : ComponentActivity() {
                     val postId = requireNotNull(backStackEntry.arguments?.getLong("postId"))
                     PostDetailScreen(navController = navController, postId = postId)
                 }
-                composable(route = Screen.Search.route) { SearchScreen(navController) }
-                composable(route = Screen.SearchLatest.route) { entry -> SearchLatestScreen(navController, entry) }
+                composable(route = Screen.Search.route) {
+                    SearchScreen(navController)
+                }
+                composable(route = Screen.SearchLatest.route) { entry ->
+                    SearchLatestScreen(navController, entry)
+                }
             }
         }
     }

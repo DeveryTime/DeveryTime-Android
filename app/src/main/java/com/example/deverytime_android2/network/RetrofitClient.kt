@@ -15,12 +15,12 @@ object RetrofitClient {
             // 중간 CA (Let's Encrypt YE1, 2028-09 까지)
             .add(
                 baseUrl.host,
-                "sha256/brzvtCELCIZUo4sD/qPX0ccRtPsd3DY6RfmxpOU9oB4=",
+                "sha256/kIdp6NNEd8wsugYyyIYFsi1ylMCED3hZbSR8ZFsa/A4=",
             )
             // 백업 (ISRG Root YE, 2032-09 까지)
             .add(
                 baseUrl.host,
-                "sha256/sCkq5UWXjg+7mKu9lMhhYF5bGLsy7VI/UNW3tccdR7w=",
+                "sha256/mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c=",
             )
             .build()
 
